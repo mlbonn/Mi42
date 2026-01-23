@@ -1,0 +1,17 @@
+{
+  "query": "SELECT c.id as corp_id, c.name as corp_name, co.id as company_id, co.name as company_name, co.corporationId FROM corporations c LEFT JOIN companies co ON c.id = co.corporationId WHERE c.name = 'SAP SE'",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user KkYePwePPqTGytv.root --database izFeXtz9VVhJxdQ4iqT2SN --execute SELECT c.id as corp_id, c.name as corp_name, co.id as company_id, co.name as company_name, co.corporationId FROM corporations c LEFT JOIN companies co ON c.id = co.corporationId WHERE c.name = 'SAP SE'",
+  "rows": [
+    {
+      "corp_id": "281baceb-8f96-4ddf-b3e8-f2ab0c83f788",
+      "corp_name": "SAP SE",
+      "company_id": "NULL",
+      "company_name": "NULL",
+      "corporationId": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "corp_id\tcorp_name\tcompany_id\tcompany_name\tcorporationId\n281baceb-8f96-4ddf-b3e8-f2ab0c83f788\tSAP SE\tNULL\tNULL\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 52
+}

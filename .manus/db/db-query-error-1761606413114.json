@@ -1,0 +1,8 @@
+{
+  "query": "INSERT INTO contacts (id, firstName, lastName, jobTitle, linkedinUrl, phone, createdAt, updatedAt)\nVALUES \n  ('contact-thomas-hasler', 'Thomas', 'Hasler', 'CEO', 'https://www.linkedin.com/in/thomas-hasler-sika', '+41 58 436 68 00', NOW(), NOW()),\n  ('contact-adrian-widmer', 'Adrian', 'Widmer', 'CFO', 'https://www.linkedin.com/in/adrian-widmer-sika', '+41 58 436 68 01', NOW(), NOW()),\n  ('contact-maria-schmidt', 'Maria', 'Schmidt', 'Head of Sales', 'https://www.linkedin.com/in/maria-schmidt-sika', '+41 58 436 68 02', NOW(), NOW());",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user KkYePwePPqTGytv.root --database izFeXtz9VVhJxdQ4iqT2SN --execute INSERT INTO contacts (id, firstName, lastName, jobTitle, linkedinUrl, phone, createdAt, updatedAt)\nVALUES \n  ('contact-thomas-hasler', 'Thomas', 'Hasler', 'CEO', 'https://www.linkedin.com/in/thomas-hasler-sika', '+41 58 436 68 00', NOW(), NOW()),\n  ('contact-adrian-widmer', 'Adrian', 'Widmer', 'CFO', 'https://www.linkedin.com/in/adrian-widmer-sika', '+41 58 436 68 01', NOW(), NOW()),\n  ('contact-maria-schmidt', 'Maria', 'Schmidt', 'Head of Sales', 'https://www.linkedin.com/in/maria-schmidt-sika', '+41 58 436 68 02', NOW(), NOW());",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1062 (23000) at line 1: Duplicate entry '?' for key 'contacts.PRIMARY'"
+  ]
+}

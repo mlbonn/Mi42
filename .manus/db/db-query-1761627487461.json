@@ -1,0 +1,40 @@
+{
+  "query": "SELECT id, name, email, role FROM users",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user KkYePwePPqTGytv.root --database izFeXtz9VVhJxdQ4iqT2SN --execute SELECT id, name, email, role FROM users",
+  "rows": [
+    {
+      "id": "MMfWBmukmX8Jyxw4eSiiFN",
+      "name": "Martin Langen",
+      "email": "ML@BL.cx",
+      "role": "admin"
+    },
+    {
+      "id": "admin-b68b3ad9-2877-4b17-8e61-7e4e740882cc",
+      "name": "Admin User",
+      "email": "admin@friday-crm.com",
+      "role": "admin"
+    },
+    {
+      "id": "user-external-sales",
+      "name": "External Sales",
+      "email": "sales@friday-crm.com",
+      "role": "external_sales"
+    },
+    {
+      "id": "user-partner",
+      "name": "Partner User",
+      "email": "partner@friday-crm.com",
+      "role": "partner"
+    },
+    {
+      "id": "user-sales-manager",
+      "name": "Sales Manager",
+      "email": "manager@friday-crm.com",
+      "role": "sales_manager"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\temail\trole\nMMfWBmukmX8Jyxw4eSiiFN\tMartin Langen\tML@BL.cx\tadmin\nadmin-b68b3ad9-2877-4b17-8e61-7e4e740882cc\tAdmin User\tadmin@friday-crm.com\tadmin\nuser-external-sales\tExternal Sales\tsales@friday-crm.com\texternal_sales\nuser-partner\tPartner User\tpartner@friday-crm.com\tpartner\nuser-sales-manager\tSales Manager\tmanager@friday-crm.com\tsales_manager\n",
+  "stderr": "",
+  "execution_time_ms": 51
+}

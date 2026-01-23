@@ -1,0 +1,36 @@
+{
+  "query": "SELECT * FROM contacts LIMIT 1",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user KkYePwePPqTGytv.root --database izFeXtz9VVhJxdQ4iqT2SN --execute SELECT * FROM contacts LIMIT 1",
+  "rows": [
+    {
+      "id": "050e19cd-1d10-409b-bcf7-03b3e5099df4",
+      "firstName": "Klaus",
+      "lastName": "Zimmermann",
+      "jobTitle": "Production Manager",
+      "linkedinUrl": "https://linkedin.com/in/klaus-zimmermann-vw",
+      "phone": "+49 5361 9-2000",
+      "mobile": "NULL",
+      "decisionMaker": "0",
+      "contactStatus": "Cold",
+      "notes": "NULL",
+      "createdAt": "2025-10-22 13:24:20",
+      "updatedAt": "2025-10-22 13:24:20",
+      "keyword1": "NULL",
+      "keyword2": "NULL",
+      "companySize": "NULL",
+      "responsiblePerson": "NULL",
+      "function": "Production",
+      "department": "Production",
+      "category": "NULL",
+      "tags": "NULL",
+      "phoneBusiness": "+49 5361 9-2000",
+      "phoneMobile": "NULL",
+      "phoneOffice": "NULL",
+      "faxOffice": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tfirstName\tlastName\tjobTitle\tlinkedinUrl\tphone\tmobile\tdecisionMaker\tcontactStatus\tnotes\tcreatedAt\tupdatedAt\tkeyword1\tkeyword2\tcompanySize\tresponsiblePerson\tfunction\tdepartment\tcategory\ttags\tphoneBusiness\tphoneMobile\tphoneOffice\tfaxOffice\n050e19cd-1d10-409b-bcf7-03b3e5099df4\tKlaus\tZimmermann\tProduction Manager\thttps://linkedin.com/in/klaus-zimmermann-vw\t+49 5361 9-2000\tNULL\t0\tCold\tNULL\t2025-10-22 13:24:20\t2025-10-22 13:24:20\tNULL\tNULL\tNULL\tNULL\tProduction\tProduction\tNULL\tNULL\t+49 5361 9-2000\tNULL\tNULL\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 48
+}

@@ -1,0 +1,54 @@
+{
+  "query": "SELECT id, name FROM corporations LIMIT 15",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user KkYePwePPqTGytv.root --database izFeXtz9VVhJxdQ4iqT2SN --execute SELECT id, name FROM corporations LIMIT 15",
+  "rows": [
+    {
+      "id": "fdda25f6-09fa-4736-af95-d16b757a966f",
+      "name": "BMW Group"
+    },
+    {
+      "id": "798fe5fd-9a87-45b0-91e8-4cad6dc314ec",
+      "name": "Deutsche Telekom AG"
+    },
+    {
+      "id": "719aa248-6eb8-423b-837b-b02ffd04afb7",
+      "name": "Etex Group"
+    },
+    {
+      "id": "72ccbbc5-22a1-41eb-8cd1-87790996f537",
+      "name": "James Hardie Industries"
+    },
+    {
+      "id": "4fb1a71a-f52e-4474-a869-58d38ec482b1",
+      "name": "Knauf Group"
+    },
+    {
+      "id": "d07153ce-2e15-4191-9f8f-34b5d580268f",
+      "name": "ROCKWOOL International"
+    },
+    {
+      "id": "19dbb504-0e8f-4244-9dfd-5b95d955f51d",
+      "name": "Robert Bosch GmbH"
+    },
+    {
+      "id": "281baceb-8f96-4ddf-b3e8-f2ab0c83f788",
+      "name": "SAP SE"
+    },
+    {
+      "id": "3982d95d-b8cb-4da9-862c-8cb487bd546a",
+      "name": "Saint-Gobain Group"
+    },
+    {
+      "id": "7b5d9357-4d83-4d9a-b351-9615bb565b1d",
+      "name": "Siemens AG"
+    },
+    {
+      "id": "6bdff45d-f2eb-4f64-a4f4-48510b2fe0b4",
+      "name": "Volkswagen AG"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\nfdda25f6-09fa-4736-af95-d16b757a966f\tBMW Group\n798fe5fd-9a87-45b0-91e8-4cad6dc314ec\tDeutsche Telekom AG\n719aa248-6eb8-423b-837b-b02ffd04afb7\tEtex Group\n72ccbbc5-22a1-41eb-8cd1-87790996f537\tJames Hardie Industries\n4fb1a71a-f52e-4474-a869-58d38ec482b1\tKnauf Group\nd07153ce-2e15-4191-9f8f-34b5d580268f\tROCKWOOL International\n19dbb504-0e8f-4244-9dfd-5b95d955f51d\tRobert Bosch GmbH\n281baceb-8f96-4ddf-b3e8-f2ab0c83f788\tSAP SE\n3982d95d-b8cb-4da9-862c-8cb487bd546a\tSaint-Gobain Group\n7b5d9357-4d83-4d9a-b351-9615bb565b1d\tSiemens AG\n6bdff45d-f2eb-4f64-a4f4-48510b2fe0b4\tVolkswagen AG\n",
+  "stderr": "",
+  "execution_time_ms": 48
+}

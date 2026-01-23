@@ -1,0 +1,8 @@
+{
+  "query": "SELECT id, first_name, last_name, contact_email FROM contacts WHERE contact_email = 'peter@JH-test.de' LIMIT 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user KkYePwePPqTGytv.root --database izFeXtz9VVhJxdQ4iqT2SN --execute SELECT id, first_name, last_name, contact_email FROM contacts WHERE contact_email = 'peter@JH-test.de' LIMIT 1;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'contact_email' in 'where clause'"
+  ]
+}

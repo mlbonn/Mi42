@@ -1,0 +1,38 @@
+{
+  "name": "friday-crm-outlook-addin",
+  "version": "1.0.0",
+  "description": "FRIDAY CRM Outlook Add-In",
+  "main": "index.js",
+  "scripts": {
+    "dev": "webpack serve --mode development",
+    "build": "webpack --mode production",
+    "start": "webpack serve --mode development --open"
+  },
+  "keywords": [
+    "outlook",
+    "addin",
+    "crm"
+  ],
+  "author": "FRIDAY CRM",
+  "license": "MIT",
+  "dependencies": {
+    "@microsoft/office-js": "^1.1.91",
+    "@microsoft/office-js-helpers": "^1.0.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/office-js": "^1.0.376",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "css-loader": "^6.8.1",
+    "html-webpack-plugin": "^5.5.3",
+    "style-loader": "^3.3.3",
+    "ts-loader": "^9.4.4",
+    "typescript": "^5.2.2",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^4.15.1"
+  }
+}
+

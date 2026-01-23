@@ -1,0 +1,8 @@
+{
+  "query": "SELECT c.id, c.name, c.corporationId, co.firstName, co.lastName, co.jobTitle \nFROM companies c \nLEFT JOIN contacts co ON co.companyId = c.id \nWHERE c.name LIKE '%Robert Bosch%' \nORDER BY c.name, co.lastName \nLIMIT 20",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user KkYePwePPqTGytv.root --database izFeXtz9VVhJxdQ4iqT2SN --execute SELECT c.id, c.name, c.corporationId, co.firstName, co.lastName, co.jobTitle \nFROM companies c \nLEFT JOIN contacts co ON co.companyId = c.id \nWHERE c.name LIKE '%Robert Bosch%' \nORDER BY c.name, co.lastName \nLIMIT 20",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'co.companyid' in 'on clause'"
+  ]
+}

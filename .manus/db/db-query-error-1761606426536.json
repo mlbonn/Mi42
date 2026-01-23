@@ -1,0 +1,8 @@
+{
+  "query": "INSERT INTO contact_company_relations (id, contactId, companyId, email, position, isPrimary, createdAt)\nVALUES \n  (UUID(), 'contact-thomas-hasler', (SELECT id FROM companies WHERE name LIKE '%Sika%' LIMIT 1), 'thomas.hasler@sika.com', 'CEO', true, NOW()),\n  (UUID(), 'contact-adrian-widmer', (SELECT id FROM companies WHERE name LIKE '%Sika%' LIMIT 1), 'adrian.widmer@sika.com', 'CFO', true, NOW()),\n  (UUID(), 'contact-maria-schmidt', (SELECT id FROM companies WHERE name LIKE '%Sika%' LIMIT 1), 'maria.schmidt@sika.com', 'Head of Sales', true, NOW());",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user KkYePwePPqTGytv.root --database izFeXtz9VVhJxdQ4iqT2SN --execute INSERT INTO contact_company_relations (id, contactId, companyId, email, position, isPrimary, createdAt)\nVALUES \n  (UUID(), 'contact-thomas-hasler', (SELECT id FROM companies WHERE name LIKE '%Sika%' LIMIT 1), 'thomas.hasler@sika.com', 'CEO', true, NOW()),\n  (UUID(), 'contact-adrian-widmer', (SELECT id FROM companies WHERE name LIKE '%Sika%' LIMIT 1), 'adrian.widmer@sika.com', 'CFO', true, NOW()),\n  (UUID(), 'contact-maria-schmidt', (SELECT id FROM companies WHERE name LIKE '%Sika%' LIMIT 1), 'maria.schmidt@sika.com', 'Head of Sales', true, NOW());",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1048 (23000) at line 1: Column 'companyId' cannot be null"
+  ]
+}

@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>FRIDAY CRM - Contact Extractor</title>
+    
+    <!-- Office JavaScript API -->
+    <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .card h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #666;
+        }
+        
+        .info-value {
+            color: #333;
+            text-align: right;
+        }
+        
+        .button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .status {
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .signature-preview {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 FRIDAY CRM</h1>
+            <p>Contact Extractor</p>
+        </div>
+        
+        <div id="status"></div>
+        
+        <div class="card">
+            <h2>📧 Email-Informationen</h2>
+            <div id="emailInfo">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Lade Email-Daten...</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>👤 Extrahierte Kontaktdaten</h2>
+            <div id="contactInfo">
+                <p style="color: #999; text-align: center;">Klicke auf "Kontakt extrahieren" um die Signatur zu analysieren</p>
+            </div>
+        </div>
+        
+        <button id="extractButton" class="button" onclick="extractContact()">
+            🔍 Kontakt extrahieren
+        </button>
+        
+        <button id="saveButton" class="button" onclick="saveContact()" style="display: none; margin-top: 10px;">
+            💾 In CRM speichern
+        </button>
+    </div>
+    
+    <script>
+        let currentItem = null;
+        let extractedContact = null;
+        
+        // Initialize Office Add-in
+        Office.onReady((info) => {
+            if (info.host === Office.HostType.Outlook) {
+                currentItem = Office.context.mailbox.item;
+                loadEmailInfo();
+            }
+        });
+        
+        // Load email information
+        function loadEmailInfo() {
+            const emailInfo = document.getElementById('emailInfo');
+            
+            currentItem.from.getAsync((result) => {
+                if (result.status === Office.AsyncResultStatus.Succeeded) {
+                    const from = result.value;
+                    
+                    emailInfo.innerHTML = `
+                        <div class="info-row">
+                            <span class="info-label">Von:</span>
+                            <span class="info-value">${from.displayName || 'Unbekannt'}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Email:</span>
+                            <span class="info-value">${from.emailAddress || 'Unbekannt'}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Betreff:</span>
+                            <span class="info-value">${currentItem.subject || 'Kein Betreff'}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Datum:</span>
+                            <span class="info-value">${new Date(currentItem.dateTimeCreated).toLocaleString('de-DE')}</span>
+                        </div>
+                    `;
+                }
+            });
+        }
+        
+        // Extract contact from email signature
+        function extractContact() {
+            const button = document.getElementById('extractButton');
+            const contactInfo = document.getElementById('contactInfo');
+            const status = document.getElementById('status');
+            
+            button.disabled = true;
+            button.textContent = '⏳ Extrahiere Kontakt...';
+            
+            contactInfo.innerHTML = '<div class="loading"><div class="spinner"></div><p>Analysiere Email-Signatur...</p></div>';
+            
+            // Get email body
+            currentItem.body.getAsync(Office.CoercionType.Text, (result) => {
+                if (result.status === Office.AsyncResultStatus.Succeeded) {
+                    const bodyText = result.value;
+                    
+                    // Get sender info
+                    currentItem.from.getAsync((fromResult) => {
+                        if (fromResult.status === Office.AsyncResultStatus.Succeeded) {
+                            const from = fromResult.value;
+                            
+                            // Extract signature (last 500 characters)
+                            const signature = bodyText.slice(-500);
+                            
+                            // Parse contact data
+                            extractedContact = parseSignature(signature, from);
+                            
+                            // Display extracted contact
+                            displayContact(extractedContact);
+                            
+                            button.disabled = false;
+                            button.textContent = '🔍 Kontakt extrahieren';
+                            
+                            document.getElementById('saveButton').style.display = 'block';
+                            
+                            status.innerHTML = '<div class="status success">✅ Kontakt erfolgreich extrahiert!</div>';
+                        }
+                    });
+                } else {
+                    button.disabled = false;
+                    button.textContent = '🔍 Kontakt extrahieren';
+                    status.innerHTML = '<div class="status error">❌ Fehler beim Laden der Email</div>';
+                }
+            });
+        }
+        
+        // Parse signature for contact information
+        function parseSignature(signature, from) {
+            const contact = {
+                name: from.displayName || '',
+                email: from.emailAddress || '',
+                company: '',
+                phone: '',
+                mobile: '',
+                website: '',
+                position: '',
+                signature: signature
+            };
+            
+            // Extract phone numbers
+            const phoneRegex = /(\+?\d{1,3}[\s\-]?)?\(?\d{2,4}\)?[\s\-]?\d{3,4}[\s\-]?\d{3,4}/g;
+            const phones = signature.match(phoneRegex);
+            if (phones && phones.length > 0) {
+                contact.phone = phones[0];
+                if (phones.length > 1) {
+                    contact.mobile = phones[1];
+                }
+            }
+            
+            // Extract website
+            const urlRegex = /(https?:\/\/[^\s]+)|(www\.[^\s]+)|([a-zA-Z0-9-]+\.(com|de|net|org|io))/gi;
+            const urls = signature.match(urlRegex);
+            if (urls && urls.length > 0) {
+                contact.website = urls[0];
+            }
+            
+            // Extract company name (heuristic: look for lines with GmbH, AG, Ltd, Inc, etc.)
+            const companyRegex = /([A-ZÄÖÜ][a-zäöüß]+(?:\s+[A-ZÄÖÜ][a-zäöüß]+)*)\s+(GmbH|AG|Ltd|Inc|Corp|LLC)/gi;
+            const companies = signature.match(companyRegex);
+            if (companies && companies.length > 0) {
+                contact.company = companies[0];
+            }
+            
+            return contact;
+        }
+        
+        // Display extracted contact
+        function displayContact(contact) {
+            const contactInfo = document.getElementById('contactInfo');
+            
+            contactInfo.innerHTML = `
+                <div class="info-row">
+                    <span class="info-label">Name:</span>
+                    <span class="info-value">${contact.name || '-'}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Email:</span>
+                    <span class="info-value">${contact.email || '-'}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Firma:</span>
+                    <span class="info-value">${contact.company || '-'}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Telefon:</span>
+                    <span class="info-value">${contact.phone || '-'}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Mobil:</span>
+                    <span class="info-value">${contact.mobile || '-'}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Website:</span>
+                    <span class="info-value">${contact.website || '-'}</span>
+                </div>
+                <div class="signature-preview">
+                    <strong>Signatur:</strong><br>
+                    ${contact.signature}
+                </div>
+            `;
+        }
+        
+        // Save contact to CRM
+        function saveContact() {
+            if (!extractedContact) {
+                alert('Bitte extrahiere zuerst einen Kontakt!');
+                return;
+            }
+            
+            const button = document.getElementById('saveButton');
+            const status = document.getElementById('status');
+            
+            button.disabled = true;
+            button.textContent = '⏳ Speichere...';
+            
+            status.innerHTML = '<div class="status info">⏳ Speichere Kontakt in CRM...</div>';
+            
+            // Send to FRIDAY CRM API
+            fetch('https://46.224.13.250/api/contacts/import', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(extractedContact)
+            })
+            .then(response => response.json())
+            .then(data => {
+                button.disabled = false;
+                button.textContent = '💾 In CRM speichern';
+                status.innerHTML = '<div class="status success">✅ Kontakt erfolgreich in CRM gespeichert!</div>';
+            })
+            .catch(error => {
+                button.disabled = false;
+                button.textContent = '💾 In CRM speichern';
+                status.innerHTML = '<div class="status error">❌ Fehler beim Speichern: ' + error.message + '</div>';
+            });
+        }
+    </script>
+</body>
+</html>

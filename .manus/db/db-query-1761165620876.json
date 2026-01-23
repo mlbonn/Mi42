@@ -1,0 +1,70 @@
+{
+  "query": "SHOW TABLES",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user KkYePwePPqTGytv.root --database izFeXtz9VVhJxdQ4iqT2SN --execute SHOW TABLES",
+  "rows": [
+    {
+      "Tables_in_izFeXtz9VVhJxdQ4iqT2SN": "__drizzle_migrations"
+    },
+    {
+      "Tables_in_izFeXtz9VVhJxdQ4iqT2SN": "activities"
+    },
+    {
+      "Tables_in_izFeXtz9VVhJxdQ4iqT2SN": "commissions"
+    },
+    {
+      "Tables_in_izFeXtz9VVhJxdQ4iqT2SN": "companies"
+    },
+    {
+      "Tables_in_izFeXtz9VVhJxdQ4iqT2SN": "contact_company_relations"
+    },
+    {
+      "Tables_in_izFeXtz9VVhJxdQ4iqT2SN": "contact_emails"
+    },
+    {
+      "Tables_in_izFeXtz9VVhJxdQ4iqT2SN": "contacts"
+    },
+    {
+      "Tables_in_izFeXtz9VVhJxdQ4iqT2SN": "corporations"
+    },
+    {
+      "Tables_in_izFeXtz9VVhJxdQ4iqT2SN": "deals"
+    },
+    {
+      "Tables_in_izFeXtz9VVhJxdQ4iqT2SN": "email_drafts"
+    },
+    {
+      "Tables_in_izFeXtz9VVhJxdQ4iqT2SN": "hunter_jobs"
+    },
+    {
+      "Tables_in_izFeXtz9VVhJxdQ4iqT2SN": "hunter_results"
+    },
+    {
+      "Tables_in_izFeXtz9VVhJxdQ4iqT2SN": "outreach_campaigns"
+    },
+    {
+      "Tables_in_izFeXtz9VVhJxdQ4iqT2SN": "partner_deals"
+    },
+    {
+      "Tables_in_izFeXtz9VVhJxdQ4iqT2SN": "partners"
+    },
+    {
+      "Tables_in_izFeXtz9VVhJxdQ4iqT2SN": "product_usage"
+    },
+    {
+      "Tables_in_izFeXtz9VVhJxdQ4iqT2SN": "scout_discovery_methods"
+    },
+    {
+      "Tables_in_izFeXtz9VVhJxdQ4iqT2SN": "scout_queue"
+    },
+    {
+      "Tables_in_izFeXtz9VVhJxdQ4iqT2SN": "user_account_assignments"
+    },
+    {
+      "Tables_in_izFeXtz9VVhJxdQ4iqT2SN": "users"
+    }
+  ],
+  "messages": [],
+  "stdout": "Tables_in_izFeXtz9VVhJxdQ4iqT2SN\n__drizzle_migrations\nactivities\ncommissions\ncompanies\ncontact_company_relations\ncontact_emails\ncontacts\ncorporations\ndeals\nemail_drafts\nhunter_jobs\nhunter_results\noutreach_campaigns\npartner_deals\npartners\nproduct_usage\nscout_discovery_methods\nscout_queue\nuser_account_assignments\nusers\n",
+  "stderr": "",
+  "execution_time_ms": 121
+}

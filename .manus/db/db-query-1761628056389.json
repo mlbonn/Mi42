@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS user_assignments (\n  id VARCHAR(64) PRIMARY KEY,\n  userId VARCHAR(64) NOT NULL,\n  entityType ENUM('company', 'contact') NOT NULL,\n  entityId VARCHAR(64) NOT NULL,\n  assignedBy VARCHAR(64) NOT NULL,\n  assignedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n  INDEX user_assignments_user_idx (userId),\n  INDEX user_assignments_entity_idx (entityType, entityId)\n)",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user KkYePwePPqTGytv.root --database izFeXtz9VVhJxdQ4iqT2SN --execute CREATE TABLE IF NOT EXISTS user_assignments (\n  id VARCHAR(64) PRIMARY KEY,\n  userId VARCHAR(64) NOT NULL,\n  entityType ENUM('company', 'contact') NOT NULL,\n  entityId VARCHAR(64) NOT NULL,\n  assignedBy VARCHAR(64) NOT NULL,\n  assignedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n  INDEX user_assignments_user_idx (userId),\n  INDEX user_assignments_entity_idx (entityType, entityId)\n)",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 176
+}

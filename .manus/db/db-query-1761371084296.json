@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO contact_company_relations (id, contactId, companyId, email, position, isPrimary) SELECT UUID(), (SELECT id FROM contacts WHERE firstName='Peter' AND lastName='Test' LIMIT 1), '772c3d6f-c46c-4019-aaab-5f24b4e67b23', 'peter.test@test-firma.de', 'Sales Manager', 1",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user KkYePwePPqTGytv.root --database izFeXtz9VVhJxdQ4iqT2SN --execute INSERT INTO contact_company_relations (id, contactId, companyId, email, position, isPrimary) SELECT UUID(), (SELECT id FROM contacts WHERE firstName='Peter' AND lastName='Test' LIMIT 1), '772c3d6f-c46c-4019-aaab-5f24b4e67b23', 'peter.test@test-firma.de', 'Sales Manager', 1",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 130
+}

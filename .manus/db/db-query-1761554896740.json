@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS scout_settings (\n  id VARCHAR(64) PRIMARY KEY,\n  userId VARCHAR(64) NOT NULL,\n  minRevenueMio INT DEFAULT 100,\n  minEmployees INT DEFAULT 500,\n  companyTypes JSON,\n  targetMarkets JSON,\n  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP\n)",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user KkYePwePPqTGytv.root --database izFeXtz9VVhJxdQ4iqT2SN --execute CREATE TABLE IF NOT EXISTS scout_settings (\n  id VARCHAR(64) PRIMARY KEY,\n  userId VARCHAR(64) NOT NULL,\n  minRevenueMio INT DEFAULT 100,\n  minEmployees INT DEFAULT 500,\n  companyTypes JSON,\n  targetMarkets JSON,\n  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP\n)",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 889
+}

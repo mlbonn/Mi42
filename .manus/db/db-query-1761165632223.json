@@ -1,0 +1,19 @@
+{
+  "query": "SHOW TABLES LIKE '%contact%'",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user KkYePwePPqTGytv.root --database izFeXtz9VVhJxdQ4iqT2SN --execute SHOW TABLES LIKE '%contact%'",
+  "rows": [
+    {
+      "Tables_in_izFeXtz9VVhJxdQ4iqT2SN (%contact%)": "contact_company_relations"
+    },
+    {
+      "Tables_in_izFeXtz9VVhJxdQ4iqT2SN (%contact%)": "contact_emails"
+    },
+    {
+      "Tables_in_izFeXtz9VVhJxdQ4iqT2SN (%contact%)": "contacts"
+    }
+  ],
+  "messages": [],
+  "stdout": "Tables_in_izFeXtz9VVhJxdQ4iqT2SN (%contact%)\ncontact_company_relations\ncontact_emails\ncontacts\n",
+  "stderr": "",
+  "execution_time_ms": 121
+}

@@ -1,0 +1,73 @@
+{
+  "query": "SELECT c.id, c.name, co.id as contact_id, co.firstName, co.lastName, ccr.companyId, ccr.contactId \nFROM companies c \nLEFT JOIN contact_company_relations ccr ON ccr.companyId = c.id \nLEFT JOIN contacts co ON co.id = ccr.contactId \nWHERE c.name LIKE '%Robert Bosch%Deutschland%' \nLIMIT 20",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user KkYePwePPqTGytv.root --database izFeXtz9VVhJxdQ4iqT2SN --execute SELECT c.id, c.name, co.id as contact_id, co.firstName, co.lastName, ccr.companyId, ccr.contactId \nFROM companies c \nLEFT JOIN contact_company_relations ccr ON ccr.companyId = c.id \nLEFT JOIN contacts co ON co.id = ccr.contactId \nWHERE c.name LIKE '%Robert Bosch%Deutschland%' \nLIMIT 20",
+  "rows": [
+    {
+      "id": "8ae7f083-a627-4a10-a774-c38cc3114f15",
+      "name": "Robert Bosch GmbH Deutschland",
+      "contact_id": "NULL",
+      "firstName": "NULL",
+      "lastName": "NULL",
+      "companyId": "8ae7f083-a627-4a10-a774-c38cc3114f15",
+      "contactId": "0"
+    },
+    {
+      "id": "ca205926-f593-4788-8e6c-01b91e834797",
+      "name": "Robert Bosch GmbH Deutschland",
+      "contact_id": "NULL",
+      "firstName": "NULL",
+      "lastName": "NULL",
+      "companyId": "NULL",
+      "contactId": "NULL"
+    },
+    {
+      "id": "8ae7f083-a627-4a10-a774-c38cc3114f15",
+      "name": "Robert Bosch GmbH Deutschland",
+      "contact_id": "NULL",
+      "firstName": "NULL",
+      "lastName": "NULL",
+      "companyId": "8ae7f083-a627-4a10-a774-c38cc3114f15",
+      "contactId": "0"
+    },
+    {
+      "id": "8ae7f083-a627-4a10-a774-c38cc3114f15",
+      "name": "Robert Bosch GmbH Deutschland",
+      "contact_id": "NULL",
+      "firstName": "NULL",
+      "lastName": "NULL",
+      "companyId": "8ae7f083-a627-4a10-a774-c38cc3114f15",
+      "contactId": "0"
+    },
+    {
+      "id": "8ae7f083-a627-4a10-a774-c38cc3114f15",
+      "name": "Robert Bosch GmbH Deutschland",
+      "contact_id": "NULL",
+      "firstName": "NULL",
+      "lastName": "NULL",
+      "companyId": "8ae7f083-a627-4a10-a774-c38cc3114f15",
+      "contactId": "0"
+    },
+    {
+      "id": "8ae7f083-a627-4a10-a774-c38cc3114f15",
+      "name": "Robert Bosch GmbH Deutschland",
+      "contact_id": "NULL",
+      "firstName": "NULL",
+      "lastName": "NULL",
+      "companyId": "8ae7f083-a627-4a10-a774-c38cc3114f15",
+      "contactId": "0"
+    },
+    {
+      "id": "8ae7f083-a627-4a10-a774-c38cc3114f15",
+      "name": "Robert Bosch GmbH Deutschland",
+      "contact_id": "NULL",
+      "firstName": "NULL",
+      "lastName": "NULL",
+      "companyId": "8ae7f083-a627-4a10-a774-c38cc3114f15",
+      "contactId": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tcontact_id\tfirstName\tlastName\tcompanyId\tcontactId\n8ae7f083-a627-4a10-a774-c38cc3114f15\tRobert Bosch GmbH Deutschland\tNULL\tNULL\tNULL\t8ae7f083-a627-4a10-a774-c38cc3114f15\t0\nca205926-f593-4788-8e6c-01b91e834797\tRobert Bosch GmbH Deutschland\tNULL\tNULL\tNULL\tNULL\tNULL\n8ae7f083-a627-4a10-a774-c38cc3114f15\tRobert Bosch GmbH Deutschland\tNULL\tNULL\tNULL\t8ae7f083-a627-4a10-a774-c38cc3114f15\t0\n8ae7f083-a627-4a10-a774-c38cc3114f15\tRobert Bosch GmbH Deutschland\tNULL\tNULL\tNULL\t8ae7f083-a627-4a10-a774-c38cc3114f15\t0\n8ae7f083-a627-4a10-a774-c38cc3114f15\tRobert Bosch GmbH Deutschland\tNULL\tNULL\tNULL\t8ae7f083-a627-4a10-a774-c38cc3114f15\t0\n8ae7f083-a627-4a10-a774-c38cc3114f15\tRobert Bosch GmbH Deutschland\tNULL\tNULL\tNULL\t8ae7f083-a627-4a10-a774-c38cc3114f15\t0\n8ae7f083-a627-4a10-a774-c38cc3114f15\tRobert Bosch GmbH Deutschland\tNULL\tNULL\tNULL\t8ae7f083-a627-4a10-a774-c38cc3114f15\t0\n",
+  "stderr": "",
+  "execution_time_ms": 132
+}

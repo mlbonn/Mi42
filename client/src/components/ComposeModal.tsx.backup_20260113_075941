@@ -1,0 +1,253 @@
+import React, { useState, useEffect } from 'react';
+import { trpc } from '../lib/trpc';
+import type { EmailMessage } from '../../../server/emailService';
+
+interface ComposeModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  mode: 'new' | 'reply' | 'replyAll' | 'forward';
+  email?: EmailMessage | null;
+  onSent?: () => void;
+}
+
+// Helper function to render email addresses
+const renderEmailAddress = (addr: any): string => {
+  if (!addr) return '';
+  if (typeof addr === 'string') return addr;
+  if (Array.isArray(addr)) {
+    return addr.map(a => (typeof a === 'string' ? a : (a.email || a.name))).join(', ');
+  }
+  return addr.email || addr.name || '';
+};
+
+export default function ComposeModal({ isOpen, onClose, mode, email, onSent }: ComposeModalProps) {
+  const [to, setTo] = useState('');
+  const [cc, setCc] = useState('');
+  const [subject, setSubject] = useState('');
+  const [body, setBody] = useState('');
+  const [showCc, setShowCc] = useState(false);
+  
+  const sendEmailMutation = trpc.emailClient.sendEmail.useMutation({
+    onSuccess: () => {
+      onSent?.();
+      onClose();
+      // Reset form
+      setTo('');
+      setCc('');
+      setSubject('');
+      setBody('');
+      setShowCc(false);
+    },
+    onError: (error) => {
+      alert(`Fehler beim Senden: ${error.message}`);
+    }
+  });
+  
+  // Pre-fill fields based on mode
+  useEffect(() => {
+    if (!isOpen) return;
+    
+    // Reset fields
+    setTo('');
+    setCc('');
+    setSubject('');
+    setBody('');
+    setShowCc(false);
+    
+    if (!email) return;
+    
+    switch (mode) {
+      case 'reply':
+        setTo(renderEmailAddress(email.from));
+        setSubject(email.subject?.startsWith('Re:') ? email.subject : `Re: ${email.subject}`);
+        setBody(`\n\n---\nAm ${new Date(email.date).toLocaleString('de-DE')} schrieb ${renderEmailAddress(email.from)}:\n${email.body || ''}`);
+        break;
+        
+      case 'replyAll':
+        setTo(renderEmailAddress(email.from));
+        const ccAddresses = renderEmailAddress(email.cc);
+        if (ccAddresses) {
+          setCc(ccAddresses);
+          setShowCc(true);
+        }
+        setSubject(email.subject?.startsWith('Re:') ? email.subject : `Re: ${email.subject}`);
+        setBody(`\n\n---\nAm ${new Date(email.date).toLocaleString('de-DE')} schrieb ${renderEmailAddress(email.from)}:\n${email.body || ''}`);
+        break;
+        
+      case 'forward':
+        setSubject(email.subject?.startsWith('Fwd:') ? email.subject : `Fwd: ${email.subject}`);
+        setBody(`\n\n---\nWeitergeleitete Nachricht:\nVon: ${renderEmailAddress(email.from)}\nDatum: ${new Date(email.date).toLocaleString('de-DE')}\nBetreff: ${email.subject}\n\n${email.body || ''}`);
+        break;
+        
+      case 'new':
+      default:
+        // Empty form
+        break;
+    }
+  }, [isOpen, mode, email]);
+  
+  const handleSend = async () => {
+    if (!to.trim()) {
+      alert('Bitte Empfänger eingeben');
+      return;
+    }
+    
+    if (!subject.trim()) {
+      alert('Bitte Betreff eingeben');
+      return;
+    }
+    
+    await sendEmailMutation.mutateAsync({
+      to: to.trim(),
+      cc: cc.trim() || undefined,
+      subject: subject.trim(),
+      body: body.trim(),
+    });
+  };
+  
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Ctrl+Enter to send
+    if (e.ctrlKey && e.key === 'Enter') {
+      handleSend();
+    }
+    // Escape to close
+    if (e.key === 'Escape') {
+      onClose();
+    }
+  };
+  
+  if (!isOpen) return null;
+  
+  const getTitle = () => {
+    switch (mode) {
+      case 'reply': return 'Antworten';
+      case 'replyAll': return 'Allen antworten';
+      case 'forward': return 'Weiterleiten';
+      case 'new':
+      default: return 'Neue E-Mail';
+    }
+  };
+  
+  return (
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      onClick={(e) => {
+        // Close when clicking backdrop
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+    >
+      <div 
+        className="bg-white rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
+        onKeyDown={handleKeyDown}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
+          <h2 className="text-lg font-semibold text-gray-800">{getTitle()}</h2>
+          <button 
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700 text-2xl leading-none"
+            aria-label="Schließen"
+          >
+            ×
+          </button>
+        </div>
+        
+        {/* Body */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+          {/* To */}
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium text-gray-700 w-16">An:</label>
+            <input
+              type="email"
+              value={to}
+              onChange={(e) => setTo(e.target.value)}
+              className="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              placeholder="empfaenger@example.com"
+              autoFocus={mode === 'new'}
+            />
+            {!showCc && (
+              <button
+                onClick={() => setShowCc(true)}
+                className="text-sm text-blue-600 hover:text-blue-700 px-2"
+              >
+                CC
+              </button>
+            )}
+          </div>
+          
+          {/* CC (optional) */}
+          {showCc && (
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-gray-700 w-16">CC:</label>
+              <input
+                type="email"
+                value={cc}
+                onChange={(e) => setCc(e.target.value)}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                placeholder="cc@example.com"
+              />
+              <button
+                onClick={() => {
+                  setShowCc(false);
+                  setCc('');
+                }}
+                className="text-sm text-gray-500 hover:text-gray-700 px-2"
+              >
+                ×
+              </button>
+            </div>
+          )}
+          
+          {/* Subject */}
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium text-gray-700 w-16">Betreff:</label>
+            <input
+              type="text"
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              className="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              placeholder="Betreff eingeben..."
+            />
+          </div>
+          
+          {/* Body */}
+          <div>
+            <label className="text-sm font-medium text-gray-700 block mb-2">Nachricht:</label>
+            <textarea
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-mono"
+              rows={16}
+              placeholder="Ihre Nachricht..."
+            />
+          </div>
+          
+          {/* Help Text */}
+          <div className="text-xs text-gray-500">
+            Tipp: Drücken Sie <kbd className="px-1 py-0.5 bg-gray-100 border border-gray-300 rounded">Strg</kbd> + <kbd className="px-1 py-0.5 bg-gray-100 border border-gray-300 rounded">Enter</kbd> zum Senden
+          </div>
+        </div>
+        
+        {/* Footer */}
+        <div className="flex items-center justify-end gap-2 p-4 border-t border-gray-200 bg-gray-50">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded font-medium text-sm"
+            disabled={sendEmailMutation.isLoading}
+          >
+            Abbrechen
+          </button>
+          <button
+            onClick={handleSend}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={sendEmailMutation.isLoading}
+          >
+            {sendEmailMutation.isLoading ? 'Sende...' : 'Senden'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

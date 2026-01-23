@@ -1,0 +1,404 @@
+import React, { useState, useRef, useEffect } from 'react';
+
+interface ComposeModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  mode: 'new' | 'reply' | 'replyAll' | 'forward';
+  originalEmail?: {
+    from?: string;
+    to?: string;
+    cc?: string;
+    subject?: string;
+    body?: string;
+    date?: string;
+  };
+  onSend: (data: {
+    from: string;
+    to: string;
+    cc?: string;
+    bcc?: string;
+    subject: string;
+    body: string;
+    attachments: File[];
+  }) => void;
+}
+
+function ComposeModal({
+  isOpen,
+  onClose,
+  mode,
+  originalEmail,
+  onSend,
+}: ComposeModalProps) {
+  const [from, setFrom] = useState('ml@bl2020.com'); // TODO: Get from user settings
+  const [to, setTo] = useState('');
+  const [cc, setCc] = useState('');
+  const [bcc, setBcc] = useState('');
+  const [showCc, setShowCc] = useState(false);
+  const [showBcc, setShowBcc] = useState(false);
+  const [subject, setSubject] = useState('');
+  const [body, setBody] = useState('');
+  const [attachments, setAttachments] = useState<File[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
+
+  // Initialize fields based on mode
+  useEffect(() => {
+    if (!isOpen) return;
+
+    if (mode === 'reply' && originalEmail) {
+      setTo(originalEmail.from || '');
+      setSubject(`Re: ${originalEmail.subject || ''}`);
+      setBody(
+        `\n\n---\nAm ${originalEmail.date || ''} schrieb ${originalEmail.from || ''}:\n${originalEmail.body || ''}`
+      );
+    } else if (mode === 'replyAll' && originalEmail) {
+      setTo(originalEmail.from || '');
+      setCc(originalEmail.cc || '');
+      setShowCc(!!originalEmail.cc);
+      setSubject(`Re: ${originalEmail.subject || ''}`);
+      setBody(
+        `\n\n---\nAm ${originalEmail.date || ''} schrieb ${originalEmail.from || ''}:\n${originalEmail.body || ''}`
+      );
+    } else if (mode === 'forward' && originalEmail) {
+      setTo('');
+      setSubject(`Fwd: ${originalEmail.subject || ''}`);
+      setBody(
+        `\n\n---\nWeitergeleitete Nachricht:\nVon: ${originalEmail.from || ''}\nBetreff: ${originalEmail.subject || ''}\nDatum: ${originalEmail.date || ''}\n\n${originalEmail.body || ''}`
+      );
+    } else {
+      // new mode
+      setTo('');
+      setCc('');
+      setBcc('');
+      setSubject('');
+      setBody('');
+    }
+
+    setAttachments([]);
+  }, [isOpen, mode, originalEmail]);
+
+  // Handle file upload
+  const handleFileSelect = (files: FileList | null) => {
+    if (!files) return;
+    const newFiles = Array.from(files);
+    setAttachments((prev) => [...prev, ...newFiles]);
+  };
+
+  // Handle drag and drop
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    handleFileSelect(e.dataTransfer.files);
+  };
+
+  // Remove attachment
+  const removeAttachment = (index: number) => {
+    setAttachments((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // Handle send
+  const handleSend = () => {
+    if (!to.trim() || !subject.trim()) {
+      alert('Bitte füllen Sie mindestens die Felder "An" und "Betreff" aus.');
+      return;
+    }
+
+    onSend({
+      from,
+      to,
+      cc: showCc ? cc : undefined,
+      bcc: showBcc ? bcc : undefined,
+      subject,
+      body,
+      attachments,
+    });
+
+    onClose();
+  };
+
+  // Keyboard shortcut: Ctrl+Enter to send
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.key === 'Enter') {
+        handleSend();
+      }
+    };
+
+    if (isOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, from, to, cc, bcc, subject, body, attachments]);
+
+  if (!isOpen) return null;
+
+  const modalTitle =
+    mode === 'new'
+      ? 'Neue E-Mail'
+      : mode === 'reply'
+      ? 'Antworten'
+      : mode === 'replyAll'
+      ? 'Allen antworten'
+      : 'Weiterleiten';
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b">
+          <h2 className="text-xl font-semibold text-gray-800">{modalTitle}</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700 text-2xl"
+          >
+            ×
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3">
+          {/* From */}
+          <div className="flex items-center gap-3">
+            <label className="text-sm font-medium text-gray-700 w-20">Von:</label>
+            <select
+              value={from}
+              onChange={(e) => setFrom(e.target.value)}
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="ml@bl2020.com">ml@bl2020.com</option>
+              {/* TODO: Add more email accounts from user settings */}
+            </select>
+            <div className="flex gap-2">
+              {!showCc && (
+                <button
+                  onClick={() => setShowCc(true)}
+                  className="text-sm text-blue-600 hover:underline"
+                >
+                  Cc
+                </button>
+              )}
+              {!showBcc && (
+                <button
+                  onClick={() => setShowBcc(true)}
+                  className="text-sm text-blue-600 hover:underline"
+                >
+                  Bcc
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* To */}
+          <div className="flex items-center gap-3">
+            <label className="text-sm font-medium text-gray-700 w-20">An:</label>
+            <input
+              type="text"
+              value={to}
+              onChange={(e) => setTo(e.target.value)}
+              placeholder="E-Mail-Adresse"
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          {/* Cc */}
+          {showCc && (
+            <div className="flex items-center gap-3">
+              <label className="text-sm font-medium text-gray-700 w-20">Cc:</label>
+              <input
+                type="text"
+                value={cc}
+                onChange={(e) => setCc(e.target.value)}
+                placeholder="E-Mail-Adresse"
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                onClick={() => {
+                  setShowCc(false);
+                  setCc('');
+                }}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ×
+              </button>
+            </div>
+          )}
+
+          {/* Bcc */}
+          {showBcc && (
+            <div className="flex items-center gap-3">
+              <label className="text-sm font-medium text-gray-700 w-20">Bcc:</label>
+              <input
+                type="text"
+                value={bcc}
+                onChange={(e) => setBcc(e.target.value)}
+                placeholder="E-Mail-Adresse"
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                onClick={() => {
+                  setShowBcc(false);
+                  setBcc('');
+                }}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ×
+              </button>
+            </div>
+          )}
+
+          {/* Subject */}
+          <div className="flex items-center gap-3">
+            <label className="text-sm font-medium text-gray-700 w-20">Betreff:</label>
+            <input
+              type="text"
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              placeholder="Betreff"
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          {/* Toolbar */}
+          <div className="flex items-center gap-2 py-2 border-b border-gray-200">
+            <button
+              onClick={() => document.execCommand('bold')}
+              className="p-2 hover:bg-gray-100 rounded"
+              title="Fett (Strg+B)"
+            >
+              <strong>B</strong>
+            </button>
+            <button
+              onClick={() => document.execCommand('italic')}
+              className="p-2 hover:bg-gray-100 rounded"
+              title="Kursiv (Strg+I)"
+            >
+              <em>I</em>
+            </button>
+            <button
+              onClick={() => document.execCommand('underline')}
+              className="p-2 hover:bg-gray-100 rounded"
+              title="Unterstrichen (Strg+U)"
+            >
+              <u>U</u>
+            </button>
+            <div className="w-px h-6 bg-gray-300 mx-2"></div>
+            <button
+              onClick={() => document.execCommand('insertUnorderedList')}
+              className="p-2 hover:bg-gray-100 rounded"
+              title="Aufzählung"
+            >
+              • List
+            </button>
+            <button
+              onClick={() => document.execCommand('insertOrderedList')}
+              className="p-2 hover:bg-gray-100 rounded"
+              title="Nummerierung"
+            >
+              1. List
+            </button>
+            <div className="w-px h-6 bg-gray-300 mx-2"></div>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="p-2 hover:bg-gray-100 rounded flex items-center gap-1"
+              title="Anhang hinzufügen"
+            >
+              📎 Anhang
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              onChange={(e) => handleFileSelect(e.target.files)}
+              className="hidden"
+            />
+          </div>
+
+          {/* Body (contentEditable) */}
+          <div
+            ref={bodyRef}
+            contentEditable
+            onInput={(e) => setBody(e.currentTarget.textContent || '')}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            className={`min-h-[300px] p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
+            }`}
+            style={{ whiteSpace: 'pre-wrap' }}
+            dangerouslySetInnerHTML={{ __html: body }}
+          />
+
+          {/* Attachments */}
+          {attachments.length > 0 && (
+            <div className="space-y-2">
+              <div className="text-sm font-medium text-gray-700">Anhänge:</div>
+              <div className="flex flex-wrap gap-2">
+                {attachments.map((file, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-md"
+                  >
+                    <span className="text-sm text-gray-700">{file.name}</span>
+                    <span className="text-xs text-gray-500">
+                      ({(file.size / 1024).toFixed(1)} KB)
+                    </span>
+                    <button
+                      onClick={() => removeAttachment(index)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Drag & Drop Hint */}
+          {isDragging && (
+            <div className="text-center text-blue-600 font-medium">
+              📎 Dateien hier ablegen...
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-between px-6 py-4 border-t bg-gray-50">
+          <div className="text-sm text-gray-500">
+            Tipp: Drücken Sie <kbd className="px-2 py-1 bg-gray-200 rounded">Strg + Enter</kbd> zum Senden
+          </div>
+          <div className="flex gap-3">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+            >
+              Abbrechen
+            </button>
+            <button
+              onClick={handleSend}
+              className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700"
+            >
+              Senden
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default ComposeModal;

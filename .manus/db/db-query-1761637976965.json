@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS email_responses (\n  id VARCHAR(64) PRIMARY KEY,\n  draftId VARCHAR(64),\n  contactId VARCHAR(64),\n  subject VARCHAR(500),\n  body TEXT,\n  receivedAt TIMESTAMP,\n  sentiment ENUM('positive', 'neutral', 'negative', 'interested', 'not_interested'),\n  requiresAction BOOLEAN DEFAULT FALSE,\n  actionType VARCHAR(100),\n  processedBy VARCHAR(64),\n  processedAt TIMESTAMP,\n  notes TEXT,\n  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n)",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user KkYePwePPqTGytv.root --database izFeXtz9VVhJxdQ4iqT2SN --execute CREATE TABLE IF NOT EXISTS email_responses (\n  id VARCHAR(64) PRIMARY KEY,\n  draftId VARCHAR(64),\n  contactId VARCHAR(64),\n  subject VARCHAR(500),\n  body TEXT,\n  receivedAt TIMESTAMP,\n  sentiment ENUM('positive', 'neutral', 'negative', 'interested', 'not_interested'),\n  requiresAction BOOLEAN DEFAULT FALSE,\n  actionType VARCHAR(100),\n  processedBy VARCHAR(64),\n  processedAt TIMESTAMP,\n  notes TEXT,\n  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n)",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 178
+}

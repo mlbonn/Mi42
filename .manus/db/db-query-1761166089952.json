@@ -1,0 +1,16 @@
+{
+  "query": "SELECT c.id, c.name, c.corporationId, COUNT(ccr.contactId) as contact_count \nFROM companies c \nINNER JOIN contact_company_relations ccr ON ccr.companyId = c.id \nWHERE c.name LIKE '%Robert Bosch%Deutschland%' \nGROUP BY c.id, c.name, c.corporationId",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user KkYePwePPqTGytv.root --database izFeXtz9VVhJxdQ4iqT2SN --execute SELECT c.id, c.name, c.corporationId, COUNT(ccr.contactId) as contact_count \nFROM companies c \nINNER JOIN contact_company_relations ccr ON ccr.companyId = c.id \nWHERE c.name LIKE '%Robert Bosch%Deutschland%' \nGROUP BY c.id, c.name, c.corporationId",
+  "rows": [
+    {
+      "id": "8ae7f083-a627-4a10-a774-c38cc3114f15",
+      "name": "Robert Bosch GmbH Deutschland",
+      "corporationId": "19dbb504-0e8f-4244-9dfd-5b95d955f51d",
+      "contact_count": "6"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tcorporationId\tcontact_count\n8ae7f083-a627-4a10-a774-c38cc3114f15\tRobert Bosch GmbH Deutschland\t19dbb504-0e8f-4244-9dfd-5b95d955f51d\t6\n",
+  "stderr": "",
+  "execution_time_ms": 53
+}

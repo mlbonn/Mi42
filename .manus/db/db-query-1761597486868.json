@@ -1,0 +1,26 @@
+{
+  "query": "SELECT * FROM scout_queue LIMIT 1",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user KkYePwePPqTGytv.root --database izFeXtz9VVhJxdQ4iqT2SN --execute SELECT * FROM scout_queue LIMIT 1",
+  "rows": [
+    {
+      "id": "test-001",
+      "corporationId": "NULL",
+      "seedType": "manual",
+      "seedData": "{\"companyName\": \"Microsoft\", \"website\": \"https://www.microsoft.com\"}",
+      "priority": "5",
+      "status": "Pending",
+      "generation": "0",
+      "parentId": "NULL",
+      "discoveryMethod": "NULL",
+      "scheduledAt": "2025-10-25 04:39:12",
+      "startedAt": "NULL",
+      "completedAt": "NULL",
+      "errorMessage": "NULL",
+      "metadata": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tcorporationId\tseedType\tseedData\tpriority\tstatus\tgeneration\tparentId\tdiscoveryMethod\tscheduledAt\tstartedAt\tcompletedAt\terrorMessage\tmetadata\ntest-001\tNULL\tmanual\t{\"companyName\": \"Microsoft\", \"website\": \"https://www.microsoft.com\"}\t5\tPending\t0\tNULL\tNULL\t2025-10-25 04:39:12\tNULL\tNULL\tNULL\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 48
+}

@@ -1,0 +1,60 @@
+{
+  "query": "SELECT id, name, corporationId FROM companies WHERE corporationId IS NOT NULL LIMIT 10",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user KkYePwePPqTGytv.root --database izFeXtz9VVhJxdQ4iqT2SN --execute SELECT id, name, corporationId FROM companies WHERE corporationId IS NOT NULL LIMIT 10",
+  "rows": [
+    {
+      "id": "0bae5947-02fb-4616-b6b7-f5afd7be965e",
+      "name": "Siemens Deutschland",
+      "corporationId": "corp-siemens"
+    },
+    {
+      "id": "176224bb-7eff-4270-8e12-b1f844676b09",
+      "name": "SAP Austria GmbH",
+      "corporationId": "0"
+    },
+    {
+      "id": "1792e645-d8ea-4734-859c-9e08eb9e2984",
+      "name": "Saint-Gobain Weber GmbH",
+      "corporationId": "3982d95d-b8cb-4da9-862c-8cb487bd546a"
+    },
+    {
+      "id": "357282cf-4e94-4b0b-b5fc-4df36036e968",
+      "name": "SAP Deutschland SE & Co. KG",
+      "corporationId": "0"
+    },
+    {
+      "id": "38589b78-59d6-4201-827c-1b1e14fcc2d3",
+      "name": "Delivery Hero SE",
+      "corporationId": "0"
+    },
+    {
+      "id": "538b78cd-9ba1-4f6f-876a-07c97c38dc8d",
+      "name": "Zalando SE",
+      "corporationId": "0"
+    },
+    {
+      "id": "550c671d-217b-48e9-a876-fe88a160b5ca",
+      "name": "Porsche AG",
+      "corporationId": "0"
+    },
+    {
+      "id": "706302f6-64ae-4ed7-8131-4c8490f6c6dd",
+      "name": "T-Systems International GmbH",
+      "corporationId": "0"
+    },
+    {
+      "id": "7232c436-29bd-4f43-99d0-0aab83294484",
+      "name": "BMW AG München",
+      "corporationId": "corp-bmw"
+    },
+    {
+      "id": "9c52211b-0c66-4274-9a8e-c2e14e090221",
+      "name": "Saint-Gobain Isover SA",
+      "corporationId": "3982d95d-b8cb-4da9-862c-8cb487bd546a"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tcorporationId\n0bae5947-02fb-4616-b6b7-f5afd7be965e\tSiemens Deutschland\tcorp-siemens\n176224bb-7eff-4270-8e12-b1f844676b09\tSAP Austria GmbH\t0\n1792e645-d8ea-4734-859c-9e08eb9e2984\tSaint-Gobain Weber GmbH\t3982d95d-b8cb-4da9-862c-8cb487bd546a\n357282cf-4e94-4b0b-b5fc-4df36036e968\tSAP Deutschland SE & Co. KG\t0\n38589b78-59d6-4201-827c-1b1e14fcc2d3\tDelivery Hero SE\t0\n538b78cd-9ba1-4f6f-876a-07c97c38dc8d\tZalando SE\t0\n550c671d-217b-48e9-a876-fe88a160b5ca\tPorsche AG\t0\n706302f6-64ae-4ed7-8131-4c8490f6c6dd\tT-Systems International GmbH\t0\n7232c436-29bd-4f43-99d0-0aab83294484\tBMW AG München\tcorp-bmw\n9c52211b-0c66-4274-9a8e-c2e14e090221\tSaint-Gobain Isover SA\t3982d95d-b8cb-4da9-862c-8cb487bd546a\n",
+  "stderr": "",
+  "execution_time_ms": 87
+}

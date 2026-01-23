@@ -1,0 +1,9 @@
+{
+  "query": "SELECT ccr.*, c.firstName, c.lastName FROM contact_company_relations ccr JOIN contacts c ON ccr.contactId = c.id WHERE c.firstName = 'Peter' AND c.lastName = 'Test'",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user KkYePwePPqTGytv.root --database izFeXtz9VVhJxdQ4iqT2SN --execute SELECT ccr.*, c.firstName, c.lastName FROM contact_company_relations ccr JOIN contacts c ON ccr.contactId = c.id WHERE c.firstName = 'Peter' AND c.lastName = 'Test'",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 134
+}

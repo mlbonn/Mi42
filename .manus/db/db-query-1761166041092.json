@@ -1,0 +1,9 @@
+{
+  "query": "DELETE c FROM companies c \nLEFT JOIN contact_company_relations ccr ON ccr.companyId = c.id \nWHERE ccr.contactId IS NULL \nAND c.createdAt < DATE_SUB(NOW(), INTERVAL 1 HOUR)",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user KkYePwePPqTGytv.root --database izFeXtz9VVhJxdQ4iqT2SN --execute DELETE c FROM companies c \nLEFT JOIN contact_company_relations ccr ON ccr.companyId = c.id \nWHERE ccr.contactId IS NULL \nAND c.createdAt < DATE_SUB(NOW(), INTERVAL 1 HOUR)",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 823
+}

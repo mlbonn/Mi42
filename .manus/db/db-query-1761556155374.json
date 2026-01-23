@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS hunter_queue (\n  id VARCHAR(64) PRIMARY KEY,\n  corporationId VARCHAR(64) NOT NULL,\n  searchType VARCHAR(50) DEFAULT 'apollo',\n  searchData JSON,\n  priority INT DEFAULT 5,\n  status VARCHAR(50) DEFAULT 'Pending',\n  scheduledAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n  startedAt TIMESTAMP NULL,\n  completedAt TIMESTAMP NULL,\n  contactsFound INT DEFAULT 0,\n  errorMessage TEXT,\n  metadata JSON,\n  INDEX hunter_corporation_idx (corporationId),\n  INDEX hunter_status_idx (status),\n  INDEX hunter_priority_idx (priority)\n)",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user KkYePwePPqTGytv.root --database izFeXtz9VVhJxdQ4iqT2SN --execute CREATE TABLE IF NOT EXISTS hunter_queue (\n  id VARCHAR(64) PRIMARY KEY,\n  corporationId VARCHAR(64) NOT NULL,\n  searchType VARCHAR(50) DEFAULT 'apollo',\n  searchData JSON,\n  priority INT DEFAULT 5,\n  status VARCHAR(50) DEFAULT 'Pending',\n  scheduledAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n  startedAt TIMESTAMP NULL,\n  completedAt TIMESTAMP NULL,\n  contactsFound INT DEFAULT 0,\n  errorMessage TEXT,\n  metadata JSON,\n  INDEX hunter_corporation_idx (corporationId),\n  INDEX hunter_status_idx (status),\n  INDEX hunter_priority_idx (priority)\n)",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 187
+}

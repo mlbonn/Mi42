@@ -1,0 +1,26 @@
+name: Remote Update via SSH
+
+on:
+  push:
+    branches:
+      - main # Der Workflow startet, sobald du in 'main' pushst
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Code auschecken
+        uses: actions/checkout@v4
+
+      - name: Befehle auf dem Server ausführen
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /pfad/zu/deinem/projekt
+            git pull origin main
+            npm install --production
+            pm2 restart my-app # Beispiel für eine Node.js App

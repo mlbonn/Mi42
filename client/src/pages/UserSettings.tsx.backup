@@ -1,0 +1,215 @@
+import { useState, useEffect } from 'react';
+import { trpc } from '@/lib/trpc';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
+import { toast } from 'sonner';
+import { Loader2, Calendar, Mail, Lock, CheckCircle, AlertCircle } from 'lucide-react';
+
+export default function UserSettings() {
+  const [caldavEmail, setCaldavEmail] = useState('');
+  const [caldavPassword, setCaldavPassword] = useState('');
+  const [caldavEnabled, setCaldavEnabled] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isTesting, setIsTesting] = useState(false);
+
+  // Load current settings
+  const { data: settings, isLoading } = trpc.userSettings.getCalDAVCredentials.useQuery();
+  const saveCredentialsMutation = trpc.userSettings.saveCalDAVCredentials.useMutation();
+  const testConnectionMutation = trpc.userSettings.testCalDAVConnection.useMutation();
+
+  // Initialize form when data loads
+  useEffect(() => {
+    if (settings) {
+      setCaldavEmail(settings.caldavEmail || '');
+      setCaldavPassword(settings.caldavPassword || '');
+      setCaldavEnabled(settings.caldavEnabled || false);
+    }
+  }, [settings]);
+
+  const handleSave = async () => {
+    if (!caldavEmail || !caldavPassword) {
+      toast.error('Bitte E-Mail und Passwort eingeben');
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      await saveCredentialsMutation.mutateAsync({
+        caldavEmail,
+        caldavPassword,
+        caldavEnabled,
+      });
+      toast.success('CalDAV-Einstellungen wurden erfolgreich gespeichert');
+    } catch (error: any) {
+      toast.error(error.message || 'Speichern fehlgeschlagen');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleTestConnection = async () => {
+    if (!caldavEmail || !caldavPassword) {
+      toast.error('Bitte E-Mail und Passwort eingeben');
+      return;
+    }
+
+    setIsTesting(true);
+    try {
+      await testConnectionMutation.mutateAsync({
+        caldavEmail,
+        caldavPassword,
+      });
+      toast.success('Verbindung erfolgreich getestet!');
+    } catch (error: any) {
+      toast.error(`Verbindungstest fehlgeschlagen: ${error.message}`);
+    } finally {
+      setIsTesting(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 animate-spin" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-4xl mx-auto p-6">
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold mb-2">Benutzereinstellungen</h1>
+        <p className="text-gray-600">
+          Verwalte deine Kalender- und E-Mail-Synchronisation
+        </p>
+      </div>
+
+      <div className="grid gap-6">
+        {/* CalDAV/EAS Settings Card */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Mail className="w-5 h-5" />
+              <div>
+                <CardTitle>📧 Kalender & E-Mail Synchronisation</CardTitle>
+                <CardDescription>
+                  Verbinde dein SmarterMail-Konto für Kalender und E-Mail-Synchronisation
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Email Input */}
+            <div className="space-y-2">
+              <Label htmlFor="caldavEmail" className="flex items-center gap-2">
+                <Mail className="w-4 h-4" />
+                E-Mail-Adresse
+              </Label>
+              <Input
+                id="caldavEmail"
+                type="email"
+                placeholder="z.B. testFRIDAY1@bl2020.com"
+                value={caldavEmail}
+                onChange={(e) => setCaldavEmail(e.target.value)}
+                className="font-mono"
+              />
+              <p className="text-xs text-gray-500">
+                Deine SmarterMail E-Mail-Adresse (z.B. testFRIDAY1@bl2020.com)
+              </p>
+            </div>
+
+            {/* Password Input */}
+            <div className="space-y-2">
+              <Label htmlFor="caldavPassword" className="flex items-center gap-2">
+                <Lock className="w-4 h-4" />
+                Passwort
+              </Label>
+              <Input
+                id="caldavPassword"
+                type="password"
+                placeholder="Gib dein SmarterMail-Passwort ein"
+                value={caldavPassword}
+                onChange={(e) => setCaldavPassword(e.target.value)}
+              />
+              <p className="text-xs text-gray-500">
+                Dein SmarterMail-Passwort (verschlüsselt gespeichert)
+              </p>
+            </div>
+
+            {/* Enable Switch */}
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                <div>
+                  <p className="font-medium">Synchronisation aktivieren</p>
+                  <p className="text-sm text-gray-600">
+                    Kalender und E-Mails automatisch synchronisieren
+                  </p>
+                </div>
+              </div>
+              <Switch
+                checked={caldavEnabled}
+                onCheckedChange={setCaldavEnabled}
+              />
+            </div>
+
+            {/* Status Indicator */}
+            {caldavEnabled && (
+              <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                <CheckCircle className="w-5 h-5 text-green-600" />
+                <p className="text-sm text-green-800">
+                  Synchronisation ist aktiviert
+                </p>
+              </div>
+            )}
+
+            {!caldavEnabled && caldavEmail && (
+              <div className="flex items-center gap-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <AlertCircle className="w-5 h-5 text-yellow-600" />
+                <p className="text-sm text-yellow-800">
+                  Synchronisation ist deaktiviert
+                </p>
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex gap-3 pt-4">
+              <Button
+                variant="outline"
+                onClick={handleTestConnection}
+                disabled={isTesting || !caldavEmail || !caldavPassword}
+              >
+                {isTesting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                Verbindung testen
+              </Button>
+              <Button
+                onClick={handleSave}
+                disabled={isSaving || !caldavEmail || !caldavPassword}
+                className="flex-1"
+              >
+                {isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                Einstellungen speichern
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Info Card */}
+        <Card className="bg-blue-50 border-blue-200">
+          <CardHeader>
+            <CardTitle className="text-blue-900">ℹ️ Wie es funktioniert</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm text-blue-800 space-y-2">
+            <p>✓ Deine Anmeldedaten werden verschlüsselt gespeichert</p>
+            <p>✓ Kalender-Events werden automatisch synchronisiert</p>
+            <p>✓ E-Mails sind im E-Mail-Client verfügbar</p>
+            <p>✓ Du musst dich nur bei FRIDAY anmelden</p>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}

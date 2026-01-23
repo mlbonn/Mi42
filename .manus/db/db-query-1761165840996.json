@@ -1,0 +1,35 @@
+{
+  "query": "SELECT c.id, c.name, COUNT(ccr.contactId) as contact_count \nFROM companies c \nLEFT JOIN contact_company_relations ccr ON ccr.companyId = c.id \nWHERE c.name LIKE '%Bosch%' \nGROUP BY c.id, c.name \nHAVING contact_count > 0",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user KkYePwePPqTGytv.root --database izFeXtz9VVhJxdQ4iqT2SN --execute SELECT c.id, c.name, COUNT(ccr.contactId) as contact_count \nFROM companies c \nLEFT JOIN contact_company_relations ccr ON ccr.companyId = c.id \nWHERE c.name LIKE '%Bosch%' \nGROUP BY c.id, c.name \nHAVING contact_count > 0",
+  "rows": [
+    {
+      "id": "8ae7f083-a627-4a10-a774-c38cc3114f15",
+      "name": "Robert Bosch GmbH Deutschland",
+      "contact_count": "6"
+    },
+    {
+      "id": "48e07af1-e728-4735-8cb3-056d7a7a0cb8",
+      "name": "Robert Bosch GmbH Schweiz",
+      "contact_count": "3"
+    },
+    {
+      "id": "30c0eeef-5785-4db2-9536-2eb488d61582",
+      "name": "Robert Bosch GmbH Schweiz",
+      "contact_count": "3"
+    },
+    {
+      "id": "4e618226-ae46-4b6d-92dd-cd5ba5765b81",
+      "name": "Robert Bosch GmbH Österreich",
+      "contact_count": "3"
+    },
+    {
+      "id": "c356c0e1-93aa-4198-876f-162ab9d66d27",
+      "name": "Robert Bosch GmbH Österreich",
+      "contact_count": "3"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tcontact_count\n8ae7f083-a627-4a10-a774-c38cc3114f15\tRobert Bosch GmbH Deutschland\t6\n48e07af1-e728-4735-8cb3-056d7a7a0cb8\tRobert Bosch GmbH Schweiz\t3\n30c0eeef-5785-4db2-9536-2eb488d61582\tRobert Bosch GmbH Schweiz\t3\n4e618226-ae46-4b6d-92dd-cd5ba5765b81\tRobert Bosch GmbH Österreich\t3\nc356c0e1-93aa-4198-876f-162ab9d66d27\tRobert Bosch GmbH Österreich\t3\n",
+  "stderr": "",
+  "execution_time_ms": 54
+}

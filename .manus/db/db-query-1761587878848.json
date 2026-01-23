@@ -1,0 +1,70 @@
+{
+  "query": "SELECT id, name, website, scoutStatus FROM corporations LIMIT 10",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user KkYePwePPqTGytv.root --database izFeXtz9VVhJxdQ4iqT2SN --execute SELECT id, name, website, scoutStatus FROM corporations LIMIT 10",
+  "rows": [
+    {
+      "id": "19dbb504-0e8f-4244-9dfd-5b95d955f51d",
+      "name": "Robert Bosch GmbH",
+      "website": "https://www.bosch.com",
+      "scoutStatus": "Analyzed"
+    },
+    {
+      "id": "281baceb-8f96-4ddf-b3e8-f2ab0c83f788",
+      "name": "SAP SE",
+      "website": "https://www.sap.com",
+      "scoutStatus": "Analyzed"
+    },
+    {
+      "id": "3982d95d-b8cb-4da9-862c-8cb487bd546a",
+      "name": "Saint-Gobain Group",
+      "website": "https://www.saint-gobain.com",
+      "scoutStatus": "Not Analyzed"
+    },
+    {
+      "id": "4fb1a71a-f52e-4474-a869-58d38ec482b1",
+      "name": "Knauf Group",
+      "website": "https://www.knauf.com",
+      "scoutStatus": "Not Analyzed"
+    },
+    {
+      "id": "6bdff45d-f2eb-4f64-a4f4-48510b2fe0b4",
+      "name": "Volkswagen AG",
+      "website": "https://www.volkswagen.de",
+      "scoutStatus": "Analyzed"
+    },
+    {
+      "id": "719aa248-6eb8-423b-837b-b02ffd04afb7",
+      "name": "Etex Group",
+      "website": "https://www.etexgroup.com",
+      "scoutStatus": "Not Analyzed"
+    },
+    {
+      "id": "72ccbbc5-22a1-41eb-8cd1-87790996f537",
+      "name": "James Hardie Industries",
+      "website": "https://www.jameshardie.com",
+      "scoutStatus": "Not Analyzed"
+    },
+    {
+      "id": "798fe5fd-9a87-45b0-91e8-4cad6dc314ec",
+      "name": "Deutsche Telekom AG",
+      "website": "https://www.telekom.com",
+      "scoutStatus": "Analyzed"
+    },
+    {
+      "id": "7b5d9357-4d83-4d9a-b351-9615bb565b1d",
+      "name": "Siemens AG",
+      "website": "https://www.siemens.com",
+      "scoutStatus": "Analyzed"
+    },
+    {
+      "id": "d07153ce-2e15-4191-9f8f-34b5d580268f",
+      "name": "ROCKWOOL International",
+      "website": "https://www.rockwool.com",
+      "scoutStatus": "Not Analyzed"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\twebsite\tscoutStatus\n19dbb504-0e8f-4244-9dfd-5b95d955f51d\tRobert Bosch GmbH\thttps://www.bosch.com\tAnalyzed\n281baceb-8f96-4ddf-b3e8-f2ab0c83f788\tSAP SE\thttps://www.sap.com\tAnalyzed\n3982d95d-b8cb-4da9-862c-8cb487bd546a\tSaint-Gobain Group\thttps://www.saint-gobain.com\tNot Analyzed\n4fb1a71a-f52e-4474-a869-58d38ec482b1\tKnauf Group\thttps://www.knauf.com\tNot Analyzed\n6bdff45d-f2eb-4f64-a4f4-48510b2fe0b4\tVolkswagen AG\thttps://www.volkswagen.de\tAnalyzed\n719aa248-6eb8-423b-837b-b02ffd04afb7\tEtex Group\thttps://www.etexgroup.com\tNot Analyzed\n72ccbbc5-22a1-41eb-8cd1-87790996f537\tJames Hardie Industries\thttps://www.jameshardie.com\tNot Analyzed\n798fe5fd-9a87-45b0-91e8-4cad6dc314ec\tDeutsche Telekom AG\thttps://www.telekom.com\tAnalyzed\n7b5d9357-4d83-4d9a-b351-9615bb565b1d\tSiemens AG\thttps://www.siemens.com\tAnalyzed\nd07153ce-2e15-4191-9f8f-34b5d580268f\tROCKWOOL International\thttps://www.rockwool.com\tNot Analyzed\n",
+  "stderr": "",
+  "execution_time_ms": 50
+}

@@ -1,0 +1,35 @@
+{
+  "query": "SELECT firstName, lastName, COUNT(*) as count FROM contacts GROUP BY firstName, lastName HAVING count > 1 ORDER BY count DESC LIMIT 10",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user KkYePwePPqTGytv.root --database izFeXtz9VVhJxdQ4iqT2SN --execute SELECT firstName, lastName, COUNT(*) as count FROM contacts GROUP BY firstName, lastName HAVING count > 1 ORDER BY count DESC LIMIT 10",
+  "rows": [
+    {
+      "firstName": "Max",
+      "lastName": "Müller",
+      "count": "18"
+    },
+    {
+      "firstName": "Thomas",
+      "lastName": "Weber",
+      "count": "18"
+    },
+    {
+      "firstName": "Lisa",
+      "lastName": "Becker",
+      "count": "4"
+    },
+    {
+      "firstName": "Michael",
+      "lastName": "Fischer",
+      "count": "4"
+    },
+    {
+      "firstName": "Oliver",
+      "lastName": "Blume",
+      "count": "2"
+    }
+  ],
+  "messages": [],
+  "stdout": "firstName\tlastName\tcount\nMax\tMüller\t18\nThomas\tWeber\t18\nLisa\tBecker\t4\nMichael\tFischer\t4\nOliver\tBlume\t2\n",
+  "stderr": "",
+  "execution_time_ms": 868
+}
