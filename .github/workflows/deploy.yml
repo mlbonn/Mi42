@@ -1,26 +1,42 @@
-name: Remote Update via SSH
+name: Deploy FRIDAY CRM to Production Server
 
 on:
   push:
     branches:
-      - main # Der Workflow startet, sobald du in 'main' pushst
+      - main  # Workflow startet bei Push in main Branch
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
+    
     steps:
       - name: Code auschecken
         uses: actions/checkout@v4
-
-      - name: Befehle auf dem Server ausführen
+      
+      - name: Deploy auf Production Server
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /pfad/zu/deinem/projekt
+            # Wechsel ins Projektverzeichnis
+            cd /home/manus02/friday-crm
+            
+            # Git Pull (neueste Änderungen holen)
             git pull origin main
+            
+            # Dependencies installieren (nur Production)
             npm install --production
-            pm2 restart my-app # Beispiel für eine Node.js App
+            
+            # Client Build (Vite/React Frontend)
+            npm run build:client
+            
+            # Server Build (Express/tRPC Backend)
+            npm run build:server
+            
+            # PM2 Restart (Neustart der Anwendung)
+            pm2 restart friday-crm
+            
+            # Status ausgeben
+            pm2 status
