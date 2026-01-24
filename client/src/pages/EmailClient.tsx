@@ -140,10 +140,12 @@ export default function Emails() {
   const emails = data?.emails || [];
   
   // Fetch full email data when an email is selected
+  console.log('[EmailClient] getEmail query config:', { selectedEmailId, currentFolder, enabled: !!selectedEmailId });
   const { data: fullEmailData } = trpc.emailClient.getEmail.useQuery(
     { uid: selectedEmailId || '', folder: currentFolder },
     { enabled: !!selectedEmailId }
   );
+  console.log('[EmailClient] fullEmailData:', fullEmailData);
   
   // Update selectedEmailData when fullEmailData changes
   useEffect(() => {
