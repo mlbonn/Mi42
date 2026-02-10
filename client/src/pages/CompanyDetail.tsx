@@ -21,51 +21,51 @@ export default function CompanyDetail() {
   const [editData, setEditData] = useState({
     name: "",
     legalForm: "",
-    city: "",
     country: "",
+    city: "",
     address: "",
     revenueEur: 0,
-    website: "",
     products: "",
+    website: "",
     notes: "",
     companyName2: "",
-    company_type: "",
+    responsibleUserId: "",
     street: "",
     zip: "",
     state: "",
-    district: "",
-    city2: "",
-    state2: "",
-    street2: "",
-    zip2: "",
-    addressFormat: "",
     poBox: "",
     poBoxZip: "",
-    poBoxCity: "",
-    phone: "",
-    phone2: "",
-    email: "",
-    website2: "",
-    domain: "",
     rebate: 0,
     priceList: "",
     rebateList: "",
     debitorNumber: "",
     creditorNumber: "",
     taxNumber: "",
-    taxId: "",
     paymentTerm: "",
     currency: "",
-    responsibleUserId: "",
-    ownerName: "",
+    company_type: "",
     parent_company_id: "",
+    domain: "",
+    addressFormat: "",
     branch: "",
+    city2: "",
     companySize: "",
-    stage: "",
+    deactivated: false,
+    district: "",
+    email: "",
     externalAddressId: "",
     gwAddressNumber: "",
     name2: "",
-    deactivated: false,
+    ownerName: "",
+    phone: "",
+    phone2: "",
+    poBoxCity: "",
+    stage: "",
+    state2: "",
+    street2: "",
+    taxId: "",
+    website2: "",
+    zip2: "",
   });
   const [newContact, setNewContact] = useState({
     firstName: "",
@@ -171,13 +171,51 @@ export default function CompanyDetail() {
                 setEditData({
                   name: company.name || "",
                   legalForm: company.legalForm || "",
-                  city: company.city || "",
                   country: company.country || "",
+                  city: company.city || "",
                   address: company.address || "",
                   revenueEur: company.revenueEur || 0,
-                  website: company.website || "",
                   products: company.products || "",
+                  website: company.website || "",
                   notes: company.notes || "",
+                  companyName2: company.companyName2 || "",
+                  responsibleUserId: company.responsibleUserId || "",
+                  street: company.street || "",
+                  zip: company.zip || "",
+                  state: company.state || "",
+                  poBox: company.poBox || "",
+                  poBoxZip: company.poBoxZip || "",
+                  rebate: company.rebate || 0,
+                  priceList: company.priceList || "",
+                  rebateList: company.rebateList || "",
+                  debitorNumber: company.debitorNumber || "",
+                  creditorNumber: company.creditorNumber || "",
+                  taxNumber: company.taxNumber || "",
+                  paymentTerm: company.paymentTerm || "",
+                  currency: company.currency || "",
+                  company_type: company.company_type || "",
+                  parent_company_id: company.parent_company_id || "",
+                  domain: company.domain || "",
+                  addressFormat: company.addressFormat || "",
+                  branch: company.branch || "",
+                  city2: company.city2 || "",
+                  companySize: company.companySize || "",
+                  deactivated: company.deactivated || false,
+                  district: company.district || "",
+                  email: company.email || "",
+                  externalAddressId: company.externalAddressId || "",
+                  gwAddressNumber: company.gwAddressNumber || "",
+                  name2: company.name2 || "",
+                  ownerName: company.ownerName || "",
+                  phone: company.phone || "",
+                  phone2: company.phone2 || "",
+                  poBoxCity: company.poBoxCity || "",
+                  stage: company.stage || "",
+                  state2: company.state2 || "",
+                  street2: company.street2 || "",
+                  taxId: company.taxId || "",
+                  website2: company.website2 || "",
+                  zip2: company.zip2 || "",
                 });
                 setIsEditOpen(true);
               }}>Bearbeiten</Button>
@@ -554,56 +592,248 @@ export default function CompanyDetail() {
             <DialogTitle className="text-xl font-bold">Firma bearbeiten</DialogTitle>
           </DialogHeader>
           <div className="grid gap-6 py-4">
-            {/* Grunddaten */}
+{/* Grunddaten */}
             <div className="space-y-4">
               <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide border-b pb-2">Grunddaten</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2">
                   <Label htmlFor="edit-name">Name *</Label>
-                  <Input id="edit-name" value={editData.name} onChange={(e) => setEditData({ ...editData, name: e.target.value })} placeholder="Firmenname" />
+                  <Input id="edit-name" value={editData.name || ''} onChange={(e) => setEditData({ ...editData, name: e.target.value })} placeholder="Firmenname" />
                 </div>
-                <div>
+                <div className="">
                   <Label htmlFor="edit-legalForm">Rechtsform</Label>
                   <Input id="edit-legalForm" value={editData.legalForm || ''} onChange={(e) => setEditData({ ...editData, legalForm: e.target.value })} placeholder="z.B. GmbH, AG" />
                 </div>
-                <div>
+                <div className="">
                   <Label htmlFor="edit-country">Land</Label>
-                  <Input id="edit-country" value={editData.country} onChange={(e) => setEditData({ ...editData, country: e.target.value })} placeholder="z.B. DE" />
+                  <Input id="edit-country" value={editData.country || ''} onChange={(e) => setEditData({ ...editData, country: e.target.value })} placeholder="z.B. DE" />
                 </div>
-                <div>
+                <div className="">
                   <Label htmlFor="edit-city">Stadt</Label>
-                  <Input id="edit-city" value={editData.city} onChange={(e) => setEditData({ ...editData, city: e.target.value })} placeholder="z.B. Berlin" />
+                  <Input id="edit-city" value={editData.city || ''} onChange={(e) => setEditData({ ...editData, city: e.target.value })} placeholder="z.B. Berlin" />
                 </div>
                 <div>
-                  <Label htmlFor="edit-revenue">Umsatz (EUR)</Label>
-                  <Input id="edit-revenue" type="number" value={editData.revenueEur || ''} onChange={(e) => setEditData({ ...editData, revenueEur: parseInt(e.target.value) || 0 })} placeholder="z.B. 100000000" />
+                  <Label htmlFor="edit-revenueEur">Umsatz (EUR)</Label>
+                  <Input id="edit-revenueEur" type="number" value={editData.revenueEur || ''} onChange={(e) => setEditData({ ...editData, revenueEur: revenueEur === 'rebate' ? parseFloat(e.target.value) || 0 : parseInt(e.target.value) || 0 })} placeholder="z.B. 100000000" />
+                </div>
+                <div className="">
+                  <Label htmlFor="edit-companySize">Unternehmensgröße</Label>
+                  <Input id="edit-companySize" value={editData.companySize || ''} onChange={(e) => setEditData({ ...editData, companySize: e.target.value })} placeholder="z.B. 50-250" />
+                </div>
+                <div className="">
+                  <Label htmlFor="edit-branch">Branche</Label>
+                  <Input id="edit-branch" value={editData.branch || ''} onChange={(e) => setEditData({ ...editData, branch: e.target.value })} placeholder="z.B. IT, Consulting" />
+                </div>
+                <div className="">
+                  <Label htmlFor="edit-stage">Phase</Label>
+                  <Input id="edit-stage" value={editData.stage || ''} onChange={(e) => setEditData({ ...editData, stage: e.target.value })} placeholder="z.B. Lead, Customer" />
+                </div>
+                <div className="">
+                  <Label htmlFor="edit-company_type">Typ</Label>
+                  <Input id="edit-company_type" value={editData.company_type || ''} onChange={(e) => setEditData({ ...editData, company_type: e.target.value })} placeholder="z.B. customer, prospect" />
+                </div>
+              </div>
+            </div>
+
+            {/* Adresse */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide border-b pb-2">Adresse</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="">
+                  <Label htmlFor="edit-street">Straße</Label>
+                  <Input id="edit-street" value={editData.street || ''} onChange={(e) => setEditData({ ...editData, street: e.target.value })} placeholder="Straße und Hausnummer" />
+                </div>
+                <div className="">
+                  <Label htmlFor="edit-zip">PLZ</Label>
+                  <Input id="edit-zip" value={editData.zip || ''} onChange={(e) => setEditData({ ...editData, zip: e.target.value })} placeholder="Postleitzahl" />
+                </div>
+                <div className="">
+                  <Label htmlFor="edit-state">Bundesland</Label>
+                  <Input id="edit-state" value={editData.state || ''} onChange={(e) => setEditData({ ...editData, state: e.target.value })} placeholder="z.B. Bayern" />
+                </div>
+                <div className="">
+                  <Label htmlFor="edit-district">Bezirk</Label>
+                  <Input id="edit-district" value={editData.district || ''} onChange={(e) => setEditData({ ...editData, district: e.target.value })} placeholder="Bezirk/Region" />
                 </div>
                 <div className="col-span-2">
-                  <Label htmlFor="edit-address">Adresse</Label>
-                  <Input id="edit-address" value={editData.address || ''} onChange={(e) => setEditData({ ...editData, address: e.target.value })} placeholder="Straße, PLZ, Stadt" />
+                  <Label htmlFor="edit-address">Vollständige Adresse</Label>
+                  <Textarea id="edit-address" value={editData.address || ''} onChange={(e) => setEditData({ ...editData, address: e.target.value })} placeholder="Straße, PLZ, Stadt" rows={3} className="resize-none" />
                 </div>
               </div>
             </div>
-            
-            {/* Online & Produkte */}
+
+            {/* Zweite Adresse */}
             <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide border-b pb-2">Online & Produkte</h3>
-              <div className="grid grid-cols-1 gap-4">
-                <div>
-                  <Label htmlFor="edit-website">Website</Label>
-                  <Input id="edit-website" value={editData.website} onChange={(e) => setEditData({ ...editData, website: e.target.value })} placeholder="https://www.beispiel.de" />
+              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide border-b pb-2">Zweite Adresse</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="">
+                  <Label htmlFor="edit-street2">Straße 2</Label>
+                  <Input id="edit-street2" value={editData.street2 || ''} onChange={(e) => setEditData({ ...editData, street2: e.target.value })} placeholder="Zweite Adresse" />
                 </div>
-                <div>
-                  <Label htmlFor="edit-products">Produkte</Label>
-                  <Input id="edit-products" value={editData.products} onChange={(e) => setEditData({ ...editData, products: e.target.value })} placeholder="z.B. Software, Consulting" />
+                <div className="">
+                  <Label htmlFor="edit-zip2">PLZ 2</Label>
+                  <Input id="edit-zip2" value={editData.zip2 || ''} onChange={(e) => setEditData({ ...editData, zip2: e.target.value })} placeholder="PLZ zweite Adresse" />
+                </div>
+                <div className="">
+                  <Label htmlFor="edit-city2">Stadt 2</Label>
+                  <Input id="edit-city2" value={editData.city2 || ''} onChange={(e) => setEditData({ ...editData, city2: e.target.value })} placeholder="Stadt zweite Adresse" />
+                </div>
+                <div className="">
+                  <Label htmlFor="edit-state2">Bundesland 2</Label>
+                  <Input id="edit-state2" value={editData.state2 || ''} onChange={(e) => setEditData({ ...editData, state2: e.target.value })} placeholder="Bundesland zweite Adresse" />
                 </div>
               </div>
             </div>
-            
+
+            {/* Postfach */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide border-b pb-2">Postfach</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="">
+                  <Label htmlFor="edit-poBox">Postfach</Label>
+                  <Input id="edit-poBox" value={editData.poBox || ''} onChange={(e) => setEditData({ ...editData, poBox: e.target.value })} placeholder="Postfachnummer" />
+                </div>
+                <div className="">
+                  <Label htmlFor="edit-poBoxZip">Postfach PLZ</Label>
+                  <Input id="edit-poBoxZip" value={editData.poBoxZip || ''} onChange={(e) => setEditData({ ...editData, poBoxZip: e.target.value })} placeholder="PLZ des Postfachs" />
+                </div>
+                <div className="">
+                  <Label htmlFor="edit-poBoxCity">Postfach Stadt</Label>
+                  <Input id="edit-poBoxCity" value={editData.poBoxCity || ''} onChange={(e) => setEditData({ ...editData, poBoxCity: e.target.value })} placeholder="Stadt des Postfachs" />
+                </div>
+              </div>
+            </div>
+
+            {/* Kontakt */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide border-b pb-2">Kontakt</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="">
+                  <Label htmlFor="edit-phone">Telefon</Label>
+                  <Input id="edit-phone" value={editData.phone || ''} onChange={(e) => setEditData({ ...editData, phone: e.target.value })} placeholder="Haupttelefonnummer" />
+                </div>
+                <div className="">
+                  <Label htmlFor="edit-phone2">Telefon 2</Label>
+                  <Input id="edit-phone2" value={editData.phone2 || ''} onChange={(e) => setEditData({ ...editData, phone2: e.target.value })} placeholder="Zweite Telefonnummer" />
+                </div>
+                <div className="">
+                  <Label htmlFor="edit-email">E-Mail</Label>
+                  <Input id="edit-email" value={editData.email || ''} onChange={(e) => setEditData({ ...editData, email: e.target.value })} placeholder="Haupt-E-Mail-Adresse" />
+                </div>
+                <div className="">
+                  <Label htmlFor="edit-website">Website</Label>
+                  <Input id="edit-website" value={editData.website || ''} onChange={(e) => setEditData({ ...editData, website: e.target.value })} placeholder="https://www.beispiel.de" />
+                </div>
+                <div className="">
+                  <Label htmlFor="edit-website2">Website 2</Label>
+                  <Input id="edit-website2" value={editData.website2 || ''} onChange={(e) => setEditData({ ...editData, website2: e.target.value })} placeholder="Zweite Website" />
+                </div>
+                <div className="">
+                  <Label htmlFor="edit-domain">Domain</Label>
+                  <Input id="edit-domain" value={editData.domain || ''} onChange={(e) => setEditData({ ...editData, domain: e.target.value })} placeholder="beispiel.de" />
+                </div>
+              </div>
+            </div>
+
+            {/* Finanzen */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide border-b pb-2">Finanzen</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="">
+                  <Label htmlFor="edit-debitorNumber">Debitorennummer</Label>
+                  <Input id="edit-debitorNumber" value={editData.debitorNumber || ''} onChange={(e) => setEditData({ ...editData, debitorNumber: e.target.value })} placeholder="Debitorennummer" />
+                </div>
+                <div className="">
+                  <Label htmlFor="edit-creditorNumber">Kreditorennummer</Label>
+                  <Input id="edit-creditorNumber" value={editData.creditorNumber || ''} onChange={(e) => setEditData({ ...editData, creditorNumber: e.target.value })} placeholder="Kreditorennummer" />
+                </div>
+                <div className="">
+                  <Label htmlFor="edit-taxNumber">Steuernummer</Label>
+                  <Input id="edit-taxNumber" value={editData.taxNumber || ''} onChange={(e) => setEditData({ ...editData, taxNumber: e.target.value })} placeholder="Steuernummer" />
+                </div>
+                <div className="">
+                  <Label htmlFor="edit-taxId">USt-IdNr.</Label>
+                  <Input id="edit-taxId" value={editData.taxId || ''} onChange={(e) => setEditData({ ...editData, taxId: e.target.value })} placeholder="Umsatzsteuer-ID" />
+                </div>
+                <div className="">
+                  <Label htmlFor="edit-currency">Währung</Label>
+                  <Input id="edit-currency" value={editData.currency || ''} onChange={(e) => setEditData({ ...editData, currency: e.target.value })} placeholder="z.B. EUR, USD" />
+                </div>
+                <div className="">
+                  <Label htmlFor="edit-paymentTerm">Zahlungsbedingungen</Label>
+                  <Input id="edit-paymentTerm" value={editData.paymentTerm || ''} onChange={(e) => setEditData({ ...editData, paymentTerm: e.target.value })} placeholder="z.B. 30 Tage netto" />
+                </div>
+                <div>
+                  <Label htmlFor="edit-rebate">Rabatt (%)</Label>
+                  <Input id="edit-rebate" type="number" value={editData.rebate || ''} onChange={(e) => setEditData({ ...editData, rebate: rebate === 'rebate' ? parseFloat(e.target.value) || 0 : parseInt(e.target.value) || 0 })} placeholder="Rabatt in Prozent" />
+                </div>
+                <div className="">
+                  <Label htmlFor="edit-priceList">Preisliste</Label>
+                  <Input id="edit-priceList" value={editData.priceList || ''} onChange={(e) => setEditData({ ...editData, priceList: e.target.value })} placeholder="Zugewiesene Preisliste" />
+                </div>
+                <div className="">
+                  <Label htmlFor="edit-rebateList">Rabattliste</Label>
+                  <Input id="edit-rebateList" value={editData.rebateList || ''} onChange={(e) => setEditData({ ...editData, rebateList: e.target.value })} placeholder="Zugewiesene Rabattliste" />
+                </div>
+              </div>
+            </div>
+
+            {/* Weitere Informationen */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide border-b pb-2">Weitere Informationen</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="col-span-2">
+                  <Label htmlFor="edit-products">Produkte</Label>
+                  <Textarea id="edit-products" value={editData.products || ''} onChange={(e) => setEditData({ ...editData, products: e.target.value })} placeholder="z.B. Software, Consulting" rows={3} className="resize-none" />
+                </div>
+                <div className="">
+                  <Label htmlFor="edit-ownerName">Eigentümer</Label>
+                  <Input id="edit-ownerName" value={editData.ownerName || ''} onChange={(e) => setEditData({ ...editData, ownerName: e.target.value })} placeholder="Name des Eigentümers" />
+                </div>
+                <div className="">
+                  <Label htmlFor="edit-responsibleUserId">Verantwortlicher</Label>
+                  <Input id="edit-responsibleUserId" value={editData.responsibleUserId || ''} onChange={(e) => setEditData({ ...editData, responsibleUserId: e.target.value })} placeholder="Verantwortlicher Benutzer" />
+                </div>
+                <div className="">
+                  <Label htmlFor="edit-parent_company_id">Muttergesellschaft</Label>
+                  <Input id="edit-parent_company_id" value={editData.parent_company_id || ''} onChange={(e) => setEditData({ ...editData, parent_company_id: e.target.value })} placeholder="ID der Muttergesellschaft" />
+                </div>
+                <div className="">
+                  <Label htmlFor="edit-companyName2">Firmenname 2</Label>
+                  <Input id="edit-companyName2" value={editData.companyName2 || ''} onChange={(e) => setEditData({ ...editData, companyName2: e.target.value })} placeholder="Alternativer Firmenname" />
+                </div>
+                <div className="">
+                  <Label htmlFor="edit-name2">Name 2</Label>
+                  <Input id="edit-name2" value={editData.name2 || ''} onChange={(e) => setEditData({ ...editData, name2: e.target.value })} placeholder="Weiterer Name" />
+                </div>
+                <div className="">
+                  <Label htmlFor="edit-addressFormat">Adressformat</Label>
+                  <Input id="edit-addressFormat" value={editData.addressFormat || ''} onChange={(e) => setEditData({ ...editData, addressFormat: e.target.value })} placeholder="Format der Adresse" />
+                </div>
+                <div className="">
+                  <Label htmlFor="edit-externalAddressId">Externe Adress-ID</Label>
+                  <Input id="edit-externalAddressId" value={editData.externalAddressId || ''} onChange={(e) => setEditData({ ...editData, externalAddressId: e.target.value })} placeholder="ID in externem System" />
+                </div>
+                <div className="">
+                  <Label htmlFor="edit-gwAddressNumber">GW-Adressnummer</Label>
+                  <Input id="edit-gwAddressNumber" value={editData.gwAddressNumber || ''} onChange={(e) => setEditData({ ...editData, gwAddressNumber: e.target.value })} placeholder="GenesisWorld Adressnummer" />
+                </div>
+                <div className="col-span-2 flex items-center space-x-2">
+                  <input type="checkbox" id="edit-deactivated" checked={editData.deactivated || false} onChange={(e) => setEditData({ ...editData, deactivated: e.target.checked })} className="h-4 w-4" />
+                  <Label htmlFor="edit-deactivated">Deaktiviert</Label>
+                </div>
+              </div>
+            </div>
+
             {/* Notizen */}
             <div className="space-y-4">
               <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide border-b pb-2">Notizen</h3>
-              <Textarea id="edit-notes" value={editData.notes || ''} onChange={(e) => setEditData({ ...editData, notes: e.target.value })} placeholder="Notizen zur Firma..." rows={3} className="resize-none" />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="col-span-2">
+                  <Label htmlFor="edit-notes">Notizen</Label>
+                  <Textarea id="edit-notes" value={editData.notes || ''} onChange={(e) => setEditData({ ...editData, notes: e.target.value })} placeholder="Notizen zur Firma..." rows={3} className="resize-none" />
+                </div>
+              </div>
             </div>
           </div>
           <DialogFooter className="gap-2 sm:gap-2">
