@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main  # Workflow startet bei Push in main Branch
+  workflow_dispatch:  # Ermöglicht manuelles Triggern über GitHub UI
 
 jobs:
   deploy:
@@ -18,25 +19,33 @@ jobs:
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: 22
           script: |
             # Wechsel ins Projektverzeichnis
             cd /home/manus02/friday-crm
             
             # Git Pull (neueste Änderungen holen)
+            git stash
             git pull origin main
             
-            # Dependencies installieren (nur Production)
-            npm install --production
+            # Dependencies installieren
+            pnpm install
+            
+            # Build-Cache löschen
+            rm -rf client/dist
+            rm -rf dist
             
             # Client Build (Vite/React Frontend)
-            npm run build:client
+            pnpm run build:client
             
             # Server Build (Express/tRPC Backend)
-            npm run build:server
+            pnpm run build:server
             
             # PM2 Restart (Neustart der Anwendung)
             pm2 restart friday-crm
             
             # Status ausgeben
             pm2 status
+            
+            echo "✅ Deployment erfolgreich abgeschlossen!"
