@@ -8,6 +8,60 @@ import {
   updateCompany,
 } from "./db";
 
+// Zod Schema für alle Company-Felder
+const companySchema = z.object({
+  name: z.string().optional(),
+  legalForm: z.string().optional(),
+  country: z.string().optional(),
+  city: z.string().optional(),
+  address: z.string().optional(),
+  revenueEur: z.number().optional(),
+  products: z.string().optional(),
+  website: z.string().optional(),
+  notes: z.string().optional(),
+  corporationId: z.string().optional(),
+  createdBy: z.string().optional(),
+  updatedBy: z.string().optional(),
+  companyName2: z.string().optional(),
+  responsibleUserId: z.string().optional(),
+  street: z.string().optional(),
+  zip: z.string().optional(),
+  state: z.string().optional(),
+  poBox: z.string().optional(),
+  poBoxZip: z.string().optional(),
+  rebate: z.number().optional(),
+  priceList: z.string().optional(),
+  rebateList: z.string().optional(),
+  debitorNumber: z.string().optional(),
+  creditorNumber: z.string().optional(),
+  taxNumber: z.string().optional(),
+  paymentTerm: z.string().optional(),
+  currency: z.string().optional(),
+  company_type: z.enum(["partner", "supplier", "customer", "staff", "staff_plus", "prospect"]).optional(),
+  parent_company_id: z.string().optional(),
+  domain: z.string().optional(),
+  addressFormat: z.string().optional(),
+  branch: z.string().optional(),
+  city2: z.string().optional(),
+  companySize: z.string().optional(),
+  deactivated: z.boolean().optional(),
+  district: z.string().optional(),
+  email: z.string().optional(),
+  externalAddressId: z.string().optional(),
+  gwAddressNumber: z.string().optional(),
+  name2: z.string().optional(),
+  ownerName: z.string().optional(),
+  phone: z.string().optional(),
+  phone2: z.string().optional(),
+  poBoxCity: z.string().optional(),
+  stage: z.string().optional(),
+  state2: z.string().optional(),
+  street2: z.string().optional(),
+  taxId: z.string().optional(),
+  website2: z.string().optional(),
+  zip2: z.string().optional(),
+});
+
 export const companiesRouter = router({
   // List all companies with pagination
   list: publicProcedure
@@ -85,12 +139,7 @@ export const companiesRouter = router({
     .input(
       z.object({
         name: z.string(),
-        city: z.string().optional(),
-        country: z.string().optional(),
-        website: z.string().optional(),
-        products: z.string().optional(),
-        corporationId: z.string().optional(),
-      })
+      }).merge(companySchema.partial())
     )
     .mutation(async ({ input }) => {
       return await createCompany(input);
@@ -101,13 +150,7 @@ export const companiesRouter = router({
     .input(
       z.object({
         id: z.string(),
-        name: z.string().optional(),
-        city: z.string().optional(),
-        country: z.string().optional(),
-        website: z.string().optional(),
-        products: z.string().optional(),
-        corporationId: z.string().optional(),
-      })
+      }).merge(companySchema)
     )
     .mutation(async ({ input }) => {
       const { id, ...data } = input;
