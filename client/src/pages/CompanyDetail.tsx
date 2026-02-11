@@ -542,7 +542,7 @@ export default function CompanyDetail() {
                 <div className="grid grid-cols-2 gap-6">
                   <div>
                     <div className="text-sm text-gray-600 mb-1">Name</div>
-                    <div className="text-gray-900">{company.name}</div>
+                    <div className="text-gray-900">{company.name || '-'}</div>
                   </div>
                   <div>
                     <div className="text-sm text-gray-600 mb-1">Rechtsform</div>
@@ -561,6 +561,14 @@ export default function CompanyDetail() {
                     <div className="text-gray-900">{company.address || '-'}</div>
                   </div>
                   <div>
+                    <div className="text-sm text-gray-600 mb-1">Umsatz (EUR)</div>
+                    <div className="text-gray-900">{company.revenueEur ? company.revenueEur.toLocaleString() : '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">Produkte</div>
+                    <div className="text-gray-900">{company.products || '-'}</div>
+                  </div>
+                  <div>
                     <div className="text-sm text-gray-600 mb-1">Website</div>
                     <div className="text-gray-900">
                       {company.website ? (
@@ -571,12 +579,166 @@ export default function CompanyDetail() {
                     </div>
                   </div>
                   <div className="col-span-2">
-                    <div className="text-sm text-gray-600 mb-1">Produkte</div>
-                    <div className="text-gray-900">{company.products || '-'}</div>
-                  </div>
-                  <div className="col-span-2">
                     <div className="text-sm text-gray-600 mb-1">Notizen</div>
                     <div className="text-gray-900">{company.notes || '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">Firmenname 2</div>
+                    <div className="text-gray-900">{company.companyName2 || '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">Verantwortlicher User</div>
+                    <div className="text-gray-900">{company.responsibleUserId || '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">Straße</div>
+                    <div className="text-gray-900">{company.street || '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">PLZ</div>
+                    <div className="text-gray-900">{company.zip || '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">Bundesland</div>
+                    <div className="text-gray-900">{company.state || '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">Postfach</div>
+                    <div className="text-gray-900">{company.poBox || '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">Postfach PLZ</div>
+                    <div className="text-gray-900">{company.poBoxZip || '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">Rabatt (%)</div>
+                    <div className="text-gray-900">{company.rebate ? company.rebate.toLocaleString() : '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">Preisliste</div>
+                    <div className="text-gray-900">{company.priceList || '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">Rabattliste</div>
+                    <div className="text-gray-900">{company.rebateList || '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">Debitorennummer</div>
+                    <div className="text-gray-900">{company.debitorNumber || '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">Kreditorennummer</div>
+                    <div className="text-gray-900">{company.creditorNumber || '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">Steuernummer</div>
+                    <div className="text-gray-900">{company.taxNumber || '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">Zahlungsbedingungen</div>
+                    <div className="text-gray-900">{company.paymentTerm || '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">Währung</div>
+                    <div className="text-gray-900">{company.currency || '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">Typ</div>
+                    <div className="text-gray-900">{company.company_type || '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">Muttergesellschaft ID</div>
+                    <div className="text-gray-900">{company.parent_company_id || '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">Domain</div>
+                    <div className="text-gray-900">{company.domain || '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">Adressformat</div>
+                    <div className="text-gray-900">{company.addressFormat || '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">Branche</div>
+                    <div className="text-gray-900">{company.branch || '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">Stadt 2</div>
+                    <div className="text-gray-900">{company.city2 || '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">Unternehmensgröße</div>
+                    <div className="text-gray-900">{company.companySize || '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">Deaktiviert</div>
+                    <div className="text-gray-900">{company.deactivated ? 'Ja' : 'Nein'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">Bezirk</div>
+                    <div className="text-gray-900">{company.district || '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">E-Mail</div>
+                    <div className="text-gray-900">{company.email || '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">Externe Adress-ID</div>
+                    <div className="text-gray-900">{company.externalAddressId || '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">GW Adressnummer</div>
+                    <div className="text-gray-900">{company.gwAddressNumber || '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">Name 2</div>
+                    <div className="text-gray-900">{company.name2 || '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">Eigentümer</div>
+                    <div className="text-gray-900">{company.ownerName || '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">Telefon</div>
+                    <div className="text-gray-900">{company.phone || '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">Telefon 2</div>
+                    <div className="text-gray-900">{company.phone2 || '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">Postfach Stadt</div>
+                    <div className="text-gray-900">{company.poBoxCity || '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">Phase</div>
+                    <div className="text-gray-900">{company.stage || '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">Bundesland 2</div>
+                    <div className="text-gray-900">{company.state2 || '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">Straße 2</div>
+                    <div className="text-gray-900">{company.street2 || '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">USt-IdNr.</div>
+                    <div className="text-gray-900">{company.taxId || '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">Website 2</div>
+                    <div className="text-gray-900">
+                      {company.website2 ? (
+                        <a href={company.website2} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                          {company.website2}
+                        </a>
+                      ) : '-'}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">PLZ 2</div>
+                    <div className="text-gray-900">{company.zip2 || '-'}</div>
                   </div>
                 </div>
               </CardContent>
