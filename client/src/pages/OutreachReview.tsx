@@ -146,7 +146,7 @@ export default function OutreachReview() {
           </div>
         ) : (
           filteredDrafts.map((draft) => (
-            <div key={draft.id} className="bg-white p-6 border-l-4 border-blue-600">
+            <div key={draft.id} className="bg-white p-6 border-l-4 border-orange-600">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-start gap-3 flex-1">
                   <input
@@ -180,7 +180,7 @@ export default function OutreachReview() {
                           <button
                             onClick={() => handleSaveEdit(draft.id)}
                             disabled={updateMutation.isPending}
-                            className="px-4 py-1 bg-blue-600 text-white text-sm hover:bg-blue-700"
+                            className="px-4 py-1 bg-bl2020-orange text-white text-sm hover:bg-bl2020-orange-dark"
                           >
                             Speichern
                           </button>
@@ -210,7 +210,7 @@ export default function OutreachReview() {
 
                         {/* Personalization Context */}
                         {draft.personalizationData && (
-                          <div className="mt-3 p-3 bg-blue-50 rounded text-xs">
+                          <div className="mt-3 p-3 bg-gray-50 rounded text-xs">
                             <div className="font-semibold mb-1">Personalisierungskontext:</div>
                             {(draft.personalizationData as any).news &&
                               (draft.personalizationData as any).news.length > 0 && (

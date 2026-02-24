@@ -5,10 +5,7 @@ import fs from "node:fs";
 import path from "path";
 import { defineConfig } from "vite";
 import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
-
-
 const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime()];
-
 export default defineConfig({
   plugins,
   resolve: {
@@ -22,7 +19,7 @@ export default defineConfig({
   root: path.resolve(import.meta.dirname, "client"),
   publicDir: path.resolve(import.meta.dirname, "client", "public"),
   build: {
-    outDir: path.resolve(import.meta.dirname, "dist/public"),
+    outDir: path.resolve(import.meta.dirname, "client", "dist", "public"),
     emptyOutDir: true,
   },
   server: {

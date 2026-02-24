@@ -165,7 +165,7 @@ export default function HunterReview() {
                     </td>
                     <td className="px-4 py-3">
                       {result.email ? (
-                        <a href={`mailto:${result.email}`} className="text-blue-600 hover:underline">
+                        <a href={`mailto:${result.email}`} className="text-orange-600 hover:underline">
                           {result.email}
                         </a>
                       ) : (
@@ -179,7 +179,7 @@ export default function HunterReview() {
                           href={result.linkedinUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline text-xs"
+                          className="text-orange-600 hover:underline text-xs"
                         >
                           Profil
                         </a>
@@ -193,8 +193,8 @@ export default function HunterReview() {
                               (result.confidence || 0) >= 80
                                 ? "bg-green-600"
                                 : (result.confidence || 0) >= 60
-                                ? "bg-blue-600"
-                                : "bg-orange-600"
+                                ? "bg-bl2020-orange"
+                                : "bg-bl2020-orange"
                             }`}
                             style={{ width: `${result.confidence || 0}%` }}
                           />

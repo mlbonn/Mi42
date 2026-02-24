@@ -17,6 +17,7 @@ import { getDb } from './db';
 import { users } from '../drizzle/schema';
 import { eq } from 'drizzle-orm';
 import { encryptPassword, decryptPassword } from './encryption';
+import bcrypt from 'bcryptjs';
 
 export const userRouter = router({
   /**
@@ -77,7 +78,14 @@ export const userRouter = router({
     .input(
       z.object({
         name: z.string(),
-        email: z.string().email(),
+        email: z.string().email().refine(
+          (email) => {
+            const allowedDomains = ['bl2020.com', 'BL.cx', 'marktdaten.de'];
+            return allowedDomains.some(domain => email.endsWith(`@${domain}`));
+          },
+          { message: 'Email muss eine @bl2020.com, @BL.cx oder @marktdaten.de Adresse sein' }
+        ),
+        password: z.string().min(8),
         role: z.enum(['super_admin', 'admin', 'staff', 'staff_plus']),
         assignedTo: z.string().optional(),
       })
@@ -97,7 +105,7 @@ export const userRouter = router({
       // Check if email already exists
       const existing = await db.getUserByEmail(input.email);
 
-      if (existing) {
+      if (existing.length > 0) {
         throw new TRPCError({
           code: 'CONFLICT',
           message: 'User with this email already exists',
@@ -107,14 +115,24 @@ export const userRouter = router({
       // Create user
       const userId = crypto.randomUUID();
       
+      // Hash password with bcrypt
+      const bcryptHash = await bcrypt.hash(input.password, 10);
+      
+      // Encrypt password for CalDAV
+      const encryptedPassword = encryptPassword(input.password);
+      
+      // Combine: bcrypt_hash|encrypted_password
+      const passwordHash = `${bcryptHash}|${encryptedPassword}`;
+      
       await db.createUser({
         id: userId,
         name: input.name,
         email: input.email,
+        passwordHash: passwordHash,
         role: input.role,
         status: 'active',
         assignedTo: input.assignedTo,
-        loginMethod: 'oauth',
+        loginMethod: 'password',
       });
 
       return { id: userId, message: 'User created successfully' };
@@ -244,25 +262,7 @@ export const userRouter = router({
       return { message: 'Entity unassigned successfully' };
     }),
 
-  /**
-   * Get assigned entities for a staff_plus user
-   */
-  getAssignedEntities: protectedProcedure
-    .input(z.object({ userId: z.string() }))
-    .query(async ({ ctx, input }) => {
-      // Check permission
-      await requireAdminOrHigher(ctx.user.id);
-
-      const assignments = await db.getUserAssignments(input.userId);
-
-      return assignments.map((a: any) => ({
-        id: a.id,
-        entityType: a.entityType,
-        entityId: a.entityId,
-        assignedBy: a.assignedBy,
-        assignedAt: a.assignedAt,
-      }));
-    }),
+  // getAssignedEntities removed - user assignments not needed
 
   /**
    * Get current user's CalDAV settings

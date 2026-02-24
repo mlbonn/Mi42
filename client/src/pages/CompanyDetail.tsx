@@ -159,7 +159,7 @@ export default function CompanyDetail() {
         <div className="mb-8">
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">{company.name}</h1>
+              <h1 className="text-2xl font-bold text-gray-900">{company.name}</h1>
               <div className="flex items-center gap-4 text-gray-600">
                 {company.legalForm && <span>{company.legalForm}</span>}
                 {company.country && <span>• {company.country}</span>}
@@ -246,7 +246,7 @@ export default function CompanyDetail() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-sm font-normal text-gray-600">Kontakte</CardTitle>
+              <CardTitle className="text-sm font-normal text-gray-600">Contacts</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-xl font-bold text-gray-900">{contacts?.length || 0}</div>
@@ -572,7 +572,7 @@ export default function CompanyDetail() {
                     <div className="text-sm text-gray-600 mb-1">Website</div>
                     <div className="text-gray-900">
                       {company.website ? (
-                        <a href={company.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                        <a href={company.website} target="_blank" rel="noopener noreferrer" className="text-orange-600 hover:underline">
                           {company.website}
                         </a>
                       ) : '-'}
@@ -730,7 +730,7 @@ export default function CompanyDetail() {
                     <div className="text-sm text-gray-600 mb-1">Website 2</div>
                     <div className="text-gray-900">
                       {company.website2 ? (
-                        <a href={company.website2} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                        <a href={company.website2} target="_blank" rel="noopener noreferrer" className="text-orange-600 hover:underline">
                           {company.website2}
                         </a>
                       ) : '-'}

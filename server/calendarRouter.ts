@@ -7,6 +7,7 @@ import {
   deleteCalendarEvent,
   CalDAVConfig,
   CalendarEvent,
+  getCalDAVClient,
 } from './caldav';
 import { getDb } from './db';
 import { users } from '../drizzle/schema';
@@ -54,9 +55,24 @@ function getCalDAVConfig(calendarType: 'team' | string): CalDAVConfig | null {
 
 /**
  * Get all calendar configs from database (uses FRIDAY user email + password directly)
+ * NOW INCLUDES ALL CALENDARS (own + shared) for each user
  */
-async function getAllCalendarConfigs(): Promise<Array<{ type: string; config: CalDAVConfig; color: string }>> {
-  const configs: Array<{ type: string; config: CalDAVConfig; color: string }> = [];
+async function getAllCalendarConfigs(): Promise<Array<{ 
+  type: string; 
+  config: CalDAVConfig; 
+  color: string;
+  displayName: string;
+  calendarUrl: string;
+  owner: string;
+}>> {
+  const configs: Array<{ 
+    type: string; 
+    config: CalDAVConfig; 
+    color: string;
+    displayName: string;
+    calendarUrl: string;
+    owner: string;
+  }> = [];
 
   const db = await getDb();
   if (!db) return configs;
@@ -67,6 +83,8 @@ async function getAllCalendarConfigs(): Promise<Array<{ type: string; config: Ca
     email: users.email,
     passwordHash: users.passwordHash,
   }).from(users);
+  
+  console.log("[CALENDAR] Found", allUsers.length, "users in database");
 
   // Build configs for each user (use FRIDAY email + decrypted password)
   for (const user of allUsers) {
@@ -75,7 +93,11 @@ async function getAllCalendarConfigs(): Promise<Array<{ type: string; config: Ca
     // Skip if passwordHash doesn't contain encrypted password (old users)
     // Format: "bcrypt_hash|encrypted_password" or just "bcrypt_hash"
     const parts = user.passwordHash.split('|');
-    if (parts.length < 2) continue; // No encrypted password stored
+    console.log("[CALENDAR] User", user.email, "has", parts.length, "parts in passwordHash");
+    if (parts.length < 2) {
+      console.log("[CALENDAR] Skipping user", user.email, "- no encrypted password");
+      continue; // No encrypted password stored
+    }
 
     try {
       // Decrypt CalDAV password from second part
@@ -90,17 +112,35 @@ async function getAllCalendarConfigs(): Promise<Array<{ type: string; config: Ca
       const baseUrl = process.env.CALDAV_BASE_URL || 'https://mail.bl2020.com';
       const serverUrl = `${baseUrl}/webdav/principals/${domain}/${username}/`;
 
-      configs.push({
-        type: user.email,
-        config: {
-          serverUrl,
-          username: user.email,
-          password,
-        },
-        color: USER_COLOR,
+      // NEW: Fetch ALL calendars for this user (own + shared)
+      const client = await getCalDAVClient({
+        serverUrl,
+        username: user.email,
+        password,
       });
+      
+      const calendars = await client.fetchCalendars();
+      console.log("[CALENDAR] User", user.email, "has", calendars.length, "calendars");
+
+      // Add each calendar as separate config
+      for (const calendar of calendars) {
+        const calendarId = `${user.email}:${calendar.url}`;
+        configs.push({
+          type: calendarId,
+          config: {
+            serverUrl,
+            username: user.email,
+            password,
+          },
+          color: USER_COLOR,
+          displayName: calendar.displayName || 'Calendar',
+          calendarUrl: calendar.url,
+          owner: user.email,
+        });
+        console.log("[CALENDAR] Added calendar:", calendar.displayName, "for", user.email);
+      }
     } catch (error) {
-      console.error(`Failed to decrypt password for user ${user.id}:`, error);
+      console.error(`[CALENDAR] Failed to load calendars for user ${user.email}:`, error);
     }
   }
 
@@ -142,10 +182,10 @@ export const calendarRouter = router({
       }
 
       // Fetch events from all calendars in parallel
-      const eventsPromises = filteredConfigs.map(async ({ type, config, color }) => {
-        const events = await fetchCalendarEvents(config, start, end);
+      const eventsPromises = filteredConfigs.map(async ({ type, config, color, displayName, calendarUrl, owner }) => {
+        const events = await fetchCalendarEvents(config, start, end, calendarUrl);
         // Extract user prefix (e.g., "rh@bl2020.com" → "RH")
-        const userPrefix = type.split('@')[0].toUpperCase();
+        const userPrefix = owner.split('@')[0].toUpperCase();
         return events.map(event => ({
           ...event,
           title: `${userPrefix}: ${event.title}`, // Add user prefix to title
@@ -177,14 +217,35 @@ export const calendarRouter = router({
       
       try {
         const configs = await getAllCalendarConfigs();
-        console.log("[CALENDAR] Loaded", configs.length, "user configs");
+        console.log("[CALENDAR] Loaded", configs.length, "calendar configs");
         
-        for (const { type, color } of configs) {
+        for (const { type, color, displayName, owner } of configs) {
+          // Format calendar name based on displayName
+          const ownerPrefix = owner.split('@')[0];
+          
+          // Detect shared calendars by checking if displayName contains another user's name
+          const isOwnCalendar = displayName.toLowerCase() === 'my calendar' || 
+                               displayName.toLowerCase() === 'calendar';
+          const isTaskCalendar = displayName.toLowerCase().includes('task');
+          
+          let name: string;
+          if (isOwnCalendar) {
+            name = ownerPrefix; // "agent33"
+          } else if (isTaskCalendar) {
+            name = `${ownerPrefix} (Tasks)`; // "agent33 (Tasks)"
+          } else {
+            // Shared calendar: show only the owner's name
+            // "agent601 - My Calendar" → "agent601"
+            // "pn - Calendar" → "pn"
+            const sharedUser = displayName.split(' - ')[0];
+            name = sharedUser;
+          }
+          
           calendars.push({
             id: type,
-            name: type === 'team' ? 'Team-Kalender' : type.split('@')[0],
+            name,
             color,
-            type: type === 'team' ? 'team' : 'individual',
+            type: 'individual',
           });
         }
       } catch (error) {
@@ -201,30 +262,29 @@ export const calendarRouter = router({
   createEvent: protectedProcedure
     .input(z.object({
       calendar: z.string(),
-      summary: z.string(),
-      description: z.string().optional(),
+      title: z.string(),
       start: z.string(),
       end: z.string(),
+      description: z.string().optional(),
       location: z.string().optional(),
       attendees: z.array(z.string()).optional(),
     }))
     .mutation(async ({ input }) => {
       const config = getCalDAVConfig(input.calendar);
-      
       if (!config) {
-        throw new Error('Calendar not found');
+        throw new Error(`Calendar ${input.calendar} not found`);
       }
 
       const eventId = await createCalendarEvent(config, {
-        summary: input.summary,
-        description: input.description,
+        summary: input.title,
         start: new Date(input.start),
         end: new Date(input.end),
+        description: input.description,
         location: input.location,
         attendees: input.attendees,
       });
 
-      return { success: true, eventId };
+      return { id: eventId };
     }),
 
   /**
@@ -234,25 +294,24 @@ export const calendarRouter = router({
     .input(z.object({
       calendar: z.string(),
       eventId: z.string(),
-      summary: z.string().optional(),
+      title: z.string(),
+      start: z.string(),
+      end: z.string(),
       description: z.string().optional(),
-      start: z.string().optional(),
-      end: z.string().optional(),
       location: z.string().optional(),
       attendees: z.array(z.string()).optional(),
     }))
     .mutation(async ({ input }) => {
       const config = getCalDAVConfig(input.calendar);
-      
       if (!config) {
-        throw new Error('Calendar not found');
+        throw new Error(`Calendar ${input.calendar} not found`);
       }
 
       await updateCalendarEvent(config, input.eventId, {
-        summary: input.summary,
+        summary: input.title,
+        start: new Date(input.start),
+        end: new Date(input.end),
         description: input.description,
-        start: input.start ? new Date(input.start) : undefined,
-        end: input.end ? new Date(input.end) : undefined,
         location: input.location,
         attendees: input.attendees,
       });
@@ -270,9 +329,8 @@ export const calendarRouter = router({
     }))
     .mutation(async ({ input }) => {
       const config = getCalDAVConfig(input.calendar);
-      
       if (!config) {
-        throw new Error('Calendar not found');
+        throw new Error(`Calendar ${input.calendar} not found`);
       }
 
       await deleteCalendarEvent(config, input.eventId);
@@ -280,4 +338,3 @@ export const calendarRouter = router({
       return { success: true };
     }),
 });
-

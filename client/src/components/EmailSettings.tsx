@@ -194,7 +194,7 @@ export default function EmailSettings() {
                   </div>
                   <div className="flex gap-2">
                     <span className={`px-2 py-1 text-xs rounded-full ${
-                      account.purpose === 'archive' ? 'bg-blue-100 text-blue-700' :
+                      account.purpose === 'archive' ? 'bg-gray-100 text-orange-700' :
                       account.purpose === 'bounces' ? 'bg-orange-100 text-orange-700' :
                       account.purpose === 'replies' ? 'bg-purple-100 text-purple-700' :
                       'bg-gray-100 text-gray-700'

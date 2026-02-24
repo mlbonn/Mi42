@@ -85,7 +85,7 @@ export function EmailList({
                 transform: `translateY(${virtualItem.start}px)`,
               }}
               className={`border-b p-4 cursor-pointer hover:bg-gray-50 ${
-                isSelected ? 'bg-blue-50' : ''
+                isSelected ? 'bg-gray-50' : ''
               } ${!message.isRead ? 'font-semibold' : ''}`}
               onClick={() => onSelectMessage(message.uid)}
             >

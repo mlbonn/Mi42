@@ -29,7 +29,7 @@ export default function HunterDashboard() {
         </div>
         <div className="bg-white p-4">
           <div className="text-sm text-gray-500">Zur Review</div>
-          <div className="text-3xl font-bold text-blue-600">{stats?.pendingReview || 0}</div>
+          <div className="text-3xl font-bold text-orange-600">{stats?.pendingReview || 0}</div>
         </div>
       </div>
 
@@ -103,7 +103,7 @@ export default function HunterDashboard() {
                         </span>
                       )}
                       {job.status === "processing" && (
-                        <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">
+                        <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded text-xs">
                           In Bearbeitung
                         </span>
                       )}

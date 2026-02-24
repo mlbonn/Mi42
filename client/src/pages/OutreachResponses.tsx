@@ -63,7 +63,7 @@ export default function OutreachResponses() {
       positive: 'bg-green-100 text-green-800',
       neutral: 'bg-gray-100 text-gray-800',
       negative: 'bg-red-100 text-red-800',
-      interested: 'bg-blue-100 text-blue-800',
+      interested: 'bg-gray-100 text-gray-800',
       not_interested: 'bg-orange-100 text-orange-800',
     };
     const icons = {
@@ -100,7 +100,7 @@ export default function OutreachResponses() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-2xl font-semibold text-gray-900">E-Mail-Antworten</h1>
+          <h1 className="text-2xl font-bold text-gray-900">E-Mail-Antworten</h1>
           <p className="text-sm text-gray-600 mt-1">
             Verwalte eingehende Antworten auf Outreach-Kampagnen
           </p>
@@ -226,9 +226,9 @@ export default function OutreachResponses() {
 
               {/* Notes */}
               {response.notes && (
-                <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-blue-200">
                   <div className="text-xs font-medium text-blue-900 uppercase mb-1">Notizen</div>
-                  <div className="text-sm text-blue-800">{response.notes}</div>
+                  <div className="text-sm text-gray-800">{response.notes}</div>
                 </div>
               )}
 
@@ -262,7 +262,7 @@ export default function OutreachResponses() {
                 <select
                   name="sentiment"
                   defaultValue={editingResponse.sentiment || 'neutral'}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 >
                   <option value="positive">Positiv</option>
                   <option value="neutral">Neutral</option>
@@ -276,7 +276,7 @@ export default function OutreachResponses() {
                 <select
                   name="requiresAction"
                   defaultValue={editingResponse.requiresAction ? 'true' : 'false'}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 >
                   <option value="false">Nein</option>
                   <option value="true">Ja</option>
@@ -289,7 +289,7 @@ export default function OutreachResponses() {
                   name="actionType"
                   defaultValue={editingResponse.actionType || ''}
                   placeholder="z.B. Follow-up anrufen, Meeting vereinbaren"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 />
               </div>
               <div>
@@ -299,7 +299,7 @@ export default function OutreachResponses() {
                   rows={5}
                   defaultValue={editingResponse.notes || ''}
                   placeholder="Interne Notizen zu dieser Antwort..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 />
               </div>
               <div className="flex gap-3 pt-4">

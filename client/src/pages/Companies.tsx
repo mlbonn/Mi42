@@ -137,8 +137,7 @@ export default function Companies() {
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-3">
-            <Building2 className="h-5 w-5 text-gray-600" />
-            <h1 className="text-xl font-semibold text-gray-800">Firmen</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Companies</h1>
           </div>
           <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
             <DialogTrigger asChild>

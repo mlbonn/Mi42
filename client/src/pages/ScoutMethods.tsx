@@ -194,7 +194,7 @@ export default function ScoutMethods() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Discovery Methods</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Discovery Methods</h1>
           <p className="text-muted-foreground">
             Konfiguration der Discovery-Methoden (Wettbewerber, Verbände, Sortiment, Kunden, Presse)
           </p>
@@ -511,7 +511,7 @@ export default function ScoutMethods() {
                       <Label className="text-sm text-muted-foreground">News-Keywords</Label>
                       <div className="flex flex-wrap gap-1">
                         {generatedKeywords.newsKeywords?.map((kw: string, i: number) => (
-                          <Badge key={i} className="bg-blue-100 text-blue-800">{kw}</Badge>
+                          <Badge key={i} className="bg-gray-100 text-gray-800">{kw}</Badge>
                         ))}
                       </div>
                     </div>
@@ -598,7 +598,7 @@ export default function ScoutMethods() {
                                 href={assoc.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-sm text-blue-600 hover:underline"
+                                className="text-sm text-orange-600 hover:underline"
                               >
                                 {assoc.url}
                               </a>

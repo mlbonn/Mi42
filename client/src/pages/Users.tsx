@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { trpc } from '../lib/trpc';
 import { Plus, Edit, Trash2, UserPlus, Link as LinkIcon } from 'lucide-react';
+import { toast } from 'sonner';
 
 type UserRole = 'super_admin' | 'admin' | 'staff' | 'staff_plus';
 
@@ -13,7 +14,7 @@ const roleLabels: Record<UserRole, string> = {
 
 const roleColors: Record<UserRole, string> = {
   super_admin: 'bg-purple-100 text-purple-800',
-  admin: 'bg-blue-100 text-blue-800',
+  admin: 'bg-gray-100 text-gray-800',
   staff: 'bg-green-100 text-green-800',
   staff_plus: 'bg-yellow-100 text-yellow-800',
 };
@@ -38,7 +39,11 @@ export default function Users() {
   });
   const deleteUserMutation = trpc.users.delete.useMutation({
     onSuccess: () => {
+      toast.success('User successfully deleted');
       refetch();
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to delete user');
     },
   });
   const assignEntityMutation = trpc.users.assignEntity.useMutation({
@@ -51,9 +56,14 @@ export default function Users() {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     
+    const firstName = formData.get('firstName') as string;
+    const lastName = formData.get('lastName') as string;
+    const name = `${firstName} ${lastName}`;
+    
     createUserMutation.mutate({
-      name: formData.get('name') as string,
+      name,
       email: formData.get('email') as string,
+      password: formData.get('password') as string,
       role: formData.get('role') as UserRole,
       assignedTo: formData.get('assignedTo') as string || undefined,
     });
@@ -96,7 +106,7 @@ export default function Users() {
         <h1 className="text-2xl font-bold text-gray-900">Benutzerverwaltung</h1>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="flex items-center gap-2 px-4 py-2 bg-bl2020-orange text-white rounded-lg hover:bg-bl2020-orange-dark"
         >
           <Plus className="w-4 h-4" />
           Neuer Benutzer
@@ -164,7 +174,7 @@ export default function Users() {
                   )}
                   <button
                     onClick={() => setEditingUser(user)}
-                    className="text-blue-600 hover:text-blue-900 mr-4"
+                    className="text-orange-600 hover:text-blue-900 mr-4"
                   >
                     <Edit className="w-4 h-4" />
                   </button>
@@ -197,12 +207,21 @@ export default function Users() {
             <form onSubmit={handleCreateUser}>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Vorname</label>
                   <input
                     type="text"
-                    name="name"
+                    name="firstName"
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Nachname</label>
+                  <input
+                    type="text"
+                    name="lastName"
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   />
                 </div>
                 <div>
@@ -211,7 +230,24 @@ export default function Users() {
                     type="email"
                     name="email"
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    pattern=".*@(bl2020\.com|BL\.cx|marktdaten\.de)$"
+                    title="Muss eine @bl2020.com, @BL.cx oder @marktdaten.de Adresse sein"
+                    placeholder="name@bl2020.com"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  />
+                  <p className="mt-1 text-xs text-gray-500">
+                    Muss eine @bl2020.com, @BL.cx oder @marktdaten.de Adresse sein (für Mail & Kalender)
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Passwort</label>
+                  <input
+                    type="password"
+                    name="password"
+                    required
+                    minLength={8}
+                    placeholder="Mindestens 8 Zeichen"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   />
                 </div>
                 <div>
@@ -219,7 +255,7 @@ export default function Users() {
                   <select
                     name="role"
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   >
                     <option value="staff">Staff</option>
                     <option value="staff_plus">Staff+</option>
@@ -235,7 +271,7 @@ export default function Users() {
                     type="text"
                     name="assignedTo"
                     placeholder="User ID des Managers"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   />
                 </div>
               </div>
@@ -250,7 +286,7 @@ export default function Users() {
                 <button
                   type="submit"
                   disabled={createUserMutation.isPending}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                  className="px-4 py-2 bg-bl2020-orange text-white rounded-lg hover:bg-bl2020-orange-dark disabled:opacity-50"
                 >
                   {createUserMutation.isPending ? 'Erstellen...' : 'Erstellen'}
                 </button>
@@ -283,11 +319,11 @@ export default function Users() {
                       name="companyId"
                       placeholder="Firmen-ID"
                       required
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     />
                     <button
                       type="submit"
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                      className="px-4 py-2 bg-bl2020-orange text-white rounded-lg hover:bg-bl2020-orange-dark"
                     >
                       Zuweisen
                     </button>
@@ -311,11 +347,11 @@ export default function Users() {
                       name="contactId"
                       placeholder="Kontakt-ID"
                       required
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     />
                     <button
                       type="submit"
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                      className="px-4 py-2 bg-bl2020-orange text-white rounded-lg hover:bg-bl2020-orange-dark"
                     >
                       Zuweisen
                     </button>
@@ -349,7 +385,7 @@ export default function Users() {
                     name="name"
                     defaultValue={editingUser.name}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   />
                 </div>
                 <div>
@@ -359,7 +395,7 @@ export default function Users() {
                     name="email"
                     defaultValue={editingUser.email}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   />
                 </div>
                 <div>
@@ -368,7 +404,7 @@ export default function Users() {
                     name="role"
                     defaultValue={editingUser.role}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   >
                     <option value="staff">Staff</option>
                     <option value="staff_plus">Staff+</option>
@@ -382,7 +418,7 @@ export default function Users() {
                     name="status"
                     defaultValue={editingUser.status}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   >
                     <option value="active">Aktiv</option>
                     <option value="inactive">Inaktiv</option>
@@ -400,7 +436,7 @@ export default function Users() {
                 <button
                   type="submit"
                   disabled={updateUserMutation.isPending}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                  className="px-4 py-2 bg-bl2020-orange text-white rounded-lg hover:bg-bl2020-orange-dark disabled:opacity-50"
                 >
                   {updateUserMutation.isPending ? 'Speichern...' : 'Speichern'}
                 </button>

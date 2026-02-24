@@ -15,6 +15,7 @@ import {
   ChevronDown, ChevronUp, ExternalLink, MoreHorizontal, Users, Download
 } from 'lucide-react';
 import FileUploadActivity from '@/components/FileUploadActivity';
+import { EmailHistoryTimeline } from '@/components/EmailHistoryTimeline';
 
 export default function ContactDetail() {
   const { id } = useParams();
@@ -282,7 +283,7 @@ export default function ContactDetail() {
     <div className="p-6">
       {/* Back Link */}
       <Link href="/contacts">
-        <a className="text-blue-600 hover:text-blue-800 text-sm mb-4 inline-flex items-center">
+        <a className="text-orange-600 hover:text-gray-800 text-sm mb-4 inline-flex items-center">
           <ArrowLeft className="h-4 w-4 mr-1" />
           Zurück zur Kontaktliste
         </a>
@@ -294,12 +295,12 @@ export default function ContactDetail() {
           <div className="flex-1">
             {/* Top Row: Name, Position, Phone, Companies, Status */}
             <div className="flex items-center gap-4 flex-wrap mb-3">
-              <h1 className="text-2xl font-bold">{fullName || 'Unbenannt'}</h1>
+              <h1 className="text-2xl font-bold text-gray-900">{fullName || 'Unbenannt'}</h1>
               {contact.jobTitle && (
                 <span className="text-gray-500">{contact.jobTitle}</span>
               )}
               {contact.phone && (
-                <a href={`tel:${contact.phone}`} className="flex items-center gap-1 text-blue-600 hover:text-blue-800">
+                <a href={`tel:${contact.phone}`} className="flex items-center gap-1 text-orange-600 hover:text-gray-800">
                   <Phone className="h-4 w-4" />
                   {contact.phone}
                 </a>
@@ -312,7 +313,7 @@ export default function ContactDetail() {
                 contact.contactStatus === 'active' ? 'bg-green-100 text-green-800' :
                 contact.contactStatus === 'hot' ? 'bg-red-100 text-red-800' :
                 contact.contactStatus === 'warm' ? 'bg-orange-100 text-orange-800' :
-                contact.contactStatus === 'cold' ? 'bg-blue-100 text-blue-800' :
+                contact.contactStatus === 'cold' ? 'bg-gray-100 text-gray-800' :
                 'bg-gray-100 text-gray-800'
               }`}>
                 {contact.contactStatus ? contact.contactStatus.charAt(0).toUpperCase() + contact.contactStatus.slice(1) : 'Cold'}
@@ -322,31 +323,31 @@ export default function ContactDetail() {
             {/* Email Addresses Row */}
             <div className="flex items-center gap-4 flex-wrap text-sm">
               {contact.email && (
-                <a href={`mailto:${contact.email}`} className="flex items-center gap-1 text-blue-600 hover:text-blue-800">
+                <a href={`mailto:${contact.email}`} className="flex items-center gap-1 text-orange-600 hover:text-gray-800">
                   <Mail className="h-4 w-4" />
                   {contact.email}
                 </a>
               )}
               {(contact as any).email2 && (
-                <a href={`mailto:${(contact as any).email2}`} className="flex items-center gap-1 text-blue-600 hover:text-blue-800">
+                <a href={`mailto:${(contact as any).email2}`} className="flex items-center gap-1 text-orange-600 hover:text-gray-800">
                   <Mail className="h-4 w-4" />
                   {(contact as any).email2}
                 </a>
               )}
               {(contact as any).email3 && (
-                <a href={`mailto:${(contact as any).email3}`} className="flex items-center gap-1 text-blue-600 hover:text-blue-800">
+                <a href={`mailto:${(contact as any).email3}`} className="flex items-center gap-1 text-orange-600 hover:text-gray-800">
                   <Mail className="h-4 w-4" />
                   {(contact as any).email3}
                 </a>
               )}
               {(contact as any).email4 && (
-                <a href={`mailto:${(contact as any).email4}`} className="flex items-center gap-1 text-blue-600 hover:text-blue-800">
+                <a href={`mailto:${(contact as any).email4}`} className="flex items-center gap-1 text-orange-600 hover:text-gray-800">
                   <Mail className="h-4 w-4" />
                   {(contact as any).email4}
                 </a>
               )}
               {(contact as any).email5 && (
-                <a href={`mailto:${(contact as any).email5}`} className="flex items-center gap-1 text-blue-600 hover:text-blue-800">
+                <a href={`mailto:${(contact as any).email5}`} className="flex items-center gap-1 text-orange-600 hover:text-gray-800">
                   <Mail className="h-4 w-4" />
                   {(contact as any).email5}
                 </a>
@@ -370,165 +371,57 @@ export default function ContactDetail() {
         </div>
       </div>
 
-      {/* Email History - Full Width */}
-      <div className="bg-white rounded-lg border mb-6">
-        {/* Header with title and action buttons */}
-        <div className="p-4 border-b flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Mail className="h-5 w-5 text-gray-500" />
-            <h3 className="font-semibold">E-Mail Historie</h3>
-            <span className="text-sm text-gray-500">({allEmailsForDisplay.length})</span>
-          </div>
-          <div className="flex items-center gap-1">
-            {selectedEmails.size > 0 && (
-              <>
-                <Button variant="ghost" size="sm" className="text-gray-600">
-                  <Reply className="h-4 w-4 mr-1" />
-                  Antworten
-                </Button>
-                <Button variant="ghost" size="sm" className="text-gray-600">
-                  <Reply className="h-4 w-4 mr-1" />
-                  Allen antworten
-                </Button>
-                <Button variant="ghost" size="sm" className="text-gray-600">
-                  <Forward className="h-4 w-4 mr-1" />
-                  Weiterleiten
-                </Button>
-                <Button variant="ghost" size="sm" className="text-red-600">
-                  <Trash2 className="h-4 w-4 mr-1" />
-                  Löschen
-                </Button>
-                <div className="w-px h-4 bg-gray-300 mx-1" />
-              </>
-            )}
-            <Button variant="ghost" size="sm" onClick={() => refetchEmails()}>
-              <RefreshCw className="h-4 w-4 mr-1" />
-              Aktualisieren
-            </Button>
-            <Button variant="ghost" size="sm">
-              <Archive className="h-4 w-4 mr-1" />
-              Archivierte E-Mail
-            </Button>
-          </div>
-        </div>
+      {/* Email History Timeline */}
 
-        {allEmailsForDisplay.length > 0 ? (
-          <div>
-            {/* Table Header - Optimized column widths */}
-            <div className="grid grid-cols-24 gap-2 px-4 py-2 bg-gray-50 border-b text-xs font-medium text-gray-500 uppercase tracking-wider">
-              <div className="col-span-1 flex items-center">
-                <Checkbox
-                  checked={selectedEmails.size === allEmailsForDisplay.length && allEmailsForDisplay.length > 0}
-                  onCheckedChange={toggleAllEmails}
-                />
-              </div>
-              <div className="col-span-3 flex items-center gap-1">
-                DATUM
-                <ChevronDown className="h-3 w-3" />
-              </div>
-              <div className="col-span-5">ABSENDER</div>
-              <div className="col-span-5">EMPFÄNGER</div>
-              <div className="col-span-9">BETREFF</div>
-              <div className="col-span-1 text-right">STATUS</div>
-            </div>
 
-            {/* Email rows */}
-            <div className="divide-y">
-              {paginatedEmails.map((email: any) => (
-                <div key={email.id}>
-                  <div
-                    className={`grid grid-cols-24 gap-2 px-4 py-2 hover:bg-gray-50 cursor-pointer items-center text-sm ${
-                      expandedEmails.has(email.id) ? 'bg-blue-50' : ''
-                    }`}
-                    onClick={() => toggleEmailExpand(email.id)}
-                  >
-                    <div className="col-span-1" onClick={(e) => e.stopPropagation()}>
-                      <Checkbox
-                        checked={selectedEmails.has(email.id)}
-                        onCheckedChange={() => toggleEmailSelection(email.id)}
-                      />
-                    </div>
-                    <div className="col-span-3 text-gray-600 text-xs">
-                      {formatShortDate(email.timestamp)}
-                    </div>
-                    <div className="col-span-5 flex items-center gap-1 truncate">
-                      {email.direction === 'outbound' ? (
-                        <ArrowUpRight className="h-4 w-4 text-blue-500 flex-shrink-0" />
-                      ) : (
-                        <ArrowDownLeft className="h-4 w-4 text-orange-500 flex-shrink-0" />
-                      )}
-                      <span className="truncate" title={email.fromAddress}>{email.fromAddress || '-'}</span>
-                    </div>
-                    <div className="col-span-5 truncate text-gray-600" title={email.toAddress}>
-                      {email.toAddress || '-'}
-                    </div>
-                    <div className="col-span-9 truncate font-medium" title={email.subject}>
-                      {email.subject || '(Kein Betreff)'}
-                    </div>
-                    <div className="col-span-1 flex justify-end">
-                      <Circle className="h-4 w-4 text-gray-300" />
-                    </div>
-                  </div>
+      <EmailHistoryTimeline
 
-                  {/* Expanded email content */}
-                  {expandedEmails.has(email.id) && (
-                    <div className="px-4 py-3 bg-gray-50 border-t text-sm">
-                      <div className="grid grid-cols-2 gap-2 mb-3 text-xs text-gray-600">
-                        <div>
-                          <span className="font-medium">Von:</span> {email.fromAddress}
-                        </div>
-                        <div>
-                          <span className="font-medium">An:</span> {email.toAddress}
-                        </div>
-                        <div>
-                          <span className="font-medium">Datum:</span> {formatDate(email.timestamp)}
-                        </div>
-                        {email.cc && (
-                          <div>
-                            <span className="font-medium">CC:</span> {email.cc}
-                          </div>
-                        )}
-                      </div>
-                      <div className="bg-white p-3 rounded border max-h-48 overflow-y-auto">
-                        {email.body || email.htmlBody ? (
-                          <div className="whitespace-pre-wrap text-sm">
-                            {email.body || 'HTML-Inhalt verfügbar'}
-                          </div>
-                        ) : (
-                          <p className="text-gray-500 italic">Kein Inhalt</p>
-                        )}
-                      </div>
-                      {email.summary && (
-                        <div className="mt-2 p-2 bg-blue-50 rounded text-xs">
-                          <span className="font-medium">Zusammenfassung:</span> {email.summary}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
 
-            {/* Load more button */}
-            {hasMoreEmails && (
-              <div className="p-3 text-center border-t">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setEmailPage(emailPage + 1)}
-                >
-                  Weitere E-Mails laden ({emails.length - paginatedEmails.length} verbleibend)
-                </Button>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="p-8 text-center text-gray-500">
-            <Mail className="h-8 w-8 mx-auto mb-2 text-gray-300" />
-            <p>Keine E-Mails vorhanden</p>
-          </div>
-        )}
-      </div>
+        emails={allEmailsForDisplay.map((email: any) => ({
+
+
+          id: email.id,
+
+
+          subject: email.subject,
+
+
+          from_address: email.fromAddress,
+
+
+          from_name: email.fromName,
+
+
+          to_address: email.toAddress,
+
+
+          email_date: email.email_date || email.timestamp,
+
+
+          body: email.body,
+
+
+          html_body: email.htmlBody,
+
+
+          direction: email.direction,
+
+
+          attachments: email.attachments || []
+
+
+        }))}
+
+
+        onRefresh={() => refetchEmails()}
+
+
+        onArchive={() => {/* TODO: Implement archive */}}
+
+
+      />
+
+
 
       {/* Bottom Section - 3 Columns */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -615,7 +508,7 @@ export default function ContactDetail() {
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <span className="font-medium text-sm group-hover:text-blue-600">{activity.subject}</span>
+                      <span className="font-medium text-sm group-hover:text-orange-600">{activity.subject}</span>
                       {activity.description && (
                         <p className="text-xs text-gray-600 mt-1 truncate">{activity.description}</p>
                       )}
@@ -652,7 +545,7 @@ export default function ContactDetail() {
           {contact.notes ? (
             <p className="text-sm text-gray-700 whitespace-pre-wrap">{contact.notes}</p>
           ) : (
-            <p className="text-sm text-gray-500 cursor-pointer hover:text-blue-600" onClick={() => setIsEditing(true)}>
+            <p className="text-sm text-gray-500 cursor-pointer hover:text-orange-600" onClick={() => setIsEditing(true)}>
               Klicken zum Hinzufügen...
             </p>
           )}

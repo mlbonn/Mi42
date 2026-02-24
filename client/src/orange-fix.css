@@ -1,0 +1,21 @@
+/* BL2020 Orange Fix */
+.bg-orange-600 {
+  background-color: #E48F00 !important;
+}
+
+.hover\:bg-orange-700:hover {
+  background-color: #CC7F00 !important;
+}
+
+.text-orange-600 {
+  color: #E48F00 !important;
+}
+
+.border-orange-600 {
+  border-color: #E48F00 !important;
+}
+
+button[style*="background-color: rgb(234, 88, 12)"],
+button[style*="background-color: rgb(249, 115, 22)"] {
+  background-color: #E48F00 !important;
+}

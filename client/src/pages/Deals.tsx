@@ -23,7 +23,7 @@ import {
 
 const STAGES = [
   { id: 'Lead', label: 'Lead', color: 'bg-gray-100', headerColor: 'bg-gray-200' },
-  { id: 'Qualified', label: 'Qualifiziert', color: 'bg-blue-50', headerColor: 'bg-blue-100' },
+  { id: 'Qualified', label: 'Qualifiziert', color: 'bg-gray-50', headerColor: 'bg-gray-100' },
   { id: 'Proposal', label: 'Angebot', color: 'bg-yellow-50', headerColor: 'bg-yellow-100' },
   { id: 'Negotiation', label: 'Verhandlung', color: 'bg-orange-50', headerColor: 'bg-orange-100' },
   { id: 'Won', label: 'Gewonnen', color: 'bg-green-50', headerColor: 'bg-green-100' },
@@ -179,7 +179,7 @@ export default function Deals() {
       <div className="px-6 py-4 border-b border-gray-100">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-semibold text-gray-900">Pipeline</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Pipeline</h1>
             <p className="text-sm text-gray-500 mt-1">
               {deals?.length || 0} Deals • {formatCurrency(deals?.reduce((sum, d) => sum + (Number(d.dealValueEur) || 0), 0) || 0)} Gesamtwert
             </p>
@@ -240,7 +240,7 @@ export default function Deals() {
                     >
                       {/* Deal Name */}
                       <Link href={`/deals/${deal.id}`}>
-                        <div className="font-medium text-sm text-gray-900 hover:text-blue-600 mb-2 line-clamp-2">
+                        <div className="font-medium text-sm text-gray-900 hover:text-orange-600 mb-2 line-clamp-2">
                           {deal.dealName}
                         </div>
                       </Link>

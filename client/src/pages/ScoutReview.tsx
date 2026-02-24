@@ -77,7 +77,7 @@ export default function ScoutReview() {
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-3xl font-bold mb-2">Review Queue</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Review Queue</h1>
             <p className="text-gray-600">
               {suggestions?.length || 0} Vorschläge warten auf Freigabe
             </p>
@@ -109,7 +109,7 @@ export default function ScoutReview() {
 
       {/* Bulk Actions */}
       {selectedIds.length > 0 && (
-        <div className="bg-blue-50 p-4 mb-4 border-l-4 border-blue-600">
+        <div className="bg-gray-50 p-4 mb-4 border-l-4 border-orange-600">
           <div className="flex items-center justify-between">
             <span className="font-bold">{selectedIds.length} ausgewählt</span>
             <div className="flex gap-2">
@@ -173,7 +173,7 @@ export default function ScoutReview() {
                         href={corp.website}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-xs text-blue-600 hover:underline"
+                        className="text-xs text-orange-600 hover:underline"
                       >
                         {corp.website}
                       </a>

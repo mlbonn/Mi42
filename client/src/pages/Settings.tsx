@@ -163,7 +163,7 @@ export default function Settings() {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">Settings</h1>
+      <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
 
       {/* Message Alert */}
       {message && (
@@ -184,7 +184,7 @@ export default function Settings() {
           <h2 className="text-2xl font-bold">📧 Email-Konten (SmarterMail)</h2>
           <button
             onClick={openAddModal}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+            className="flex items-center gap-2 px-4 py-2 bg-bl2020-orange text-white rounded-lg hover:bg-bl2020-orange-dark transition"
           >
             <Plus className="h-4 w-4" />
             Neues Konto hinzufügen
@@ -243,7 +243,7 @@ export default function Settings() {
                     )}
                     <button
                       onClick={() => openEditModal(account)}
-                      className="p-2 text-blue-600 hover:bg-blue-50 rounded transition"
+                      className="p-2 text-orange-600 hover:bg-gray-50 rounded transition"
                       title="Bearbeiten"
                     >
                       <Edit className="h-4 w-4" />
@@ -270,9 +270,9 @@ export default function Settings() {
       </div>
 
       {/* Info Section */}
-      <div className="bg-blue-50 rounded-lg p-6">
+      <div className="bg-gray-50 rounded-lg p-6">
         <h3 className="text-lg font-bold text-blue-900 mb-3">ℹ️ Hinweise</h3>
-        <ul className="text-sm text-blue-800 space-y-2">
+        <ul className="text-sm text-gray-800 space-y-2">
           <li>✓ Sie können mehrere SmarterMail-Konten hinzufügen</li>
           <li>✓ Das Primary-Konto wird standardmäßig im Email-Client verwendet</li>
           <li>✓ Passwörter werden verschlüsselt gespeichert</li>
@@ -307,7 +307,7 @@ export default function Settings() {
                   value={formEmail}
                   onChange={(e) => setFormEmail(e.target.value)}
                   placeholder="z.B. ml@bl2020.com"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 />
               </div>
 
@@ -322,7 +322,7 @@ export default function Settings() {
                   value={formPassword}
                   onChange={(e) => setFormPassword(e.target.value)}
                   placeholder="Passwort eingeben"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 />
               </div>
 
@@ -336,7 +336,7 @@ export default function Settings() {
                   value={formServerUrl}
                   onChange={(e) => setFormServerUrl(e.target.value)}
                   placeholder="https://mail.bl2020.com"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 />
               </div>
 
@@ -347,7 +347,7 @@ export default function Settings() {
                   id="isPrimary"
                   checked={formIsPrimary}
                   onChange={(e) => setFormIsPrimary(e.target.checked)}
-                  className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+                  className="w-4 h-4 text-orange-600 rounded focus:ring-2 focus:ring-orange-500"
                 />
                 <label htmlFor="isPrimary" className="ml-2 text-sm font-medium text-gray-700">
                   Als Primary-Konto setzen
@@ -372,7 +372,7 @@ export default function Settings() {
                 <button
                   onClick={handleSave}
                   disabled={createMutation.isLoading || updateMutation.isLoading}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-300 transition"
+                  className="px-4 py-2 bg-bl2020-orange text-white rounded-lg hover:bg-bl2020-orange-dark disabled:bg-blue-300 transition"
                 >
                   {createMutation.isLoading || updateMutation.isLoading
                     ? 'Speichere...'

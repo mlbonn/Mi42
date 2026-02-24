@@ -86,7 +86,7 @@ export default function OutreachSent() {
                       </td>
                       <td className="px-4 py-3">{email.sentBy?.substring(0, 8)}...</td>
                       <td className="px-4 py-3">
-                        <button className="text-blue-600 hover:underline text-xs">
+                        <button className="text-orange-600 hover:underline text-xs">
                           {expandedEmail === email.id ? "Einklappen" : "Anzeigen"}
                         </button>
                       </td>

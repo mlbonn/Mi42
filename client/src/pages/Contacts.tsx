@@ -113,8 +113,8 @@ export default function Contacts() {
       <main className="container py-6">
         {/* Header with New Contact Button */}
         <div className="flex justify-between items-center mb-4">
-          <h1 className="text-2xl font-bold">Kontakte</h1>
-          <Button onClick={() => setShowNewContactDialog(true)} className="bg-blue-600 hover:bg-blue-700">
+          <h1 className="text-2xl font-bold text-gray-900">Contacts</h1>
+          <Button onClick={() => setShowNewContactDialog(true)} className="bg-bl2020-orange hover:bg-bl2020-orange-dark">
             <Plus className="h-4 w-4 mr-2" />
             Neuer Kontakt
           </Button>
@@ -168,7 +168,7 @@ export default function Contacts() {
                   <th className="px-3 py-2 text-left text-xs font-medium text-gray-600">E-Mail</th>
                   <th className="px-3 py-2 text-left text-xs font-medium text-gray-600">Telefon</th>
                   <th className="px-3 py-2 text-left text-xs font-medium text-gray-600">Position</th>
-                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-600">Firmen</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-600">Companies</th>
                   <th className="px-3 py-2"></th>
                 </tr>
               </thead>
@@ -186,7 +186,7 @@ export default function Contacts() {
                     </td>
                     <td className="px-3 py-2">
                       <Link href={`/contacts/${contact.id}`}>
-                        <div className="flex items-center gap-2 hover:text-blue-600 cursor-pointer">
+                        <div className="flex items-center gap-2 hover:text-orange-600 cursor-pointer">
                           <User className="h-4 w-4 text-gray-400 flex-shrink-0" />
                           <span className="text-sm font-medium text-gray-900">
                             {contact.firstName} {contact.lastName}
@@ -254,7 +254,7 @@ export default function Contacts() {
       <Dialog open={showNewContactDialog} onOpenChange={setShowNewContactDialog}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Neuer Kontakt</DialogTitle>
+            <DialogTitle>New Contact</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">

@@ -42,7 +42,7 @@ export default function FileUploadActivity({
       return <Image className="h-8 w-8 text-green-500" />;
     }
     if (['doc', 'docx', 'pdf', 'txt'].includes(ext || '')) {
-      return <FileText className="h-8 w-8 text-blue-500" />;
+      return <FileText className="h-8 w-8 text-orange-500" />;
     }
     return <File className="h-8 w-8 text-gray-500" />;
   };
@@ -174,7 +174,7 @@ export default function FileUploadActivity({
         <div
           className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
             isDragging 
-              ? 'border-blue-500 bg-blue-50' 
+              ? 'border-orange-500 bg-gray-50' 
               : 'border-gray-300 hover:border-gray-400'
           }`}
           onDragOver={handleDragOver}
@@ -188,7 +188,7 @@ export default function FileUploadActivity({
                 Datei hierher ziehen oder{' '}
                 <button
                   type="button"
-                  className="text-blue-600 hover:underline font-medium"
+                  className="text-orange-600 hover:underline font-medium"
                   onClick={() => fileInputRef.current?.click()}
                 >
                   auswählen
@@ -265,7 +265,7 @@ export default function FileUploadActivity({
         <div className="mt-4 p-3 bg-gray-50 rounded-lg">
           <p className="text-xs text-gray-500">
             <strong>Tipp:</strong> Sie können auch E-Mails archivieren, indem Sie diese an{' '}
-            <span className="font-mono text-blue-600">FRIDAYarchiv@BL2020.com</span>{' '}
+            <span className="font-mono text-orange-600">FRIDAYarchiv@BL2020.com</span>{' '}
             weiterleiten. Die E-Mail wird automatisch diesem Kontakt zugeordnet.
           </p>
         </div>

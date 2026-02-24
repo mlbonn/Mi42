@@ -110,7 +110,7 @@ export default function Emails() {
         <div className="border-b border-gray-200 p-3 bg-gray-50">
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-sm font-semibold text-gray-800">{currentFolder}</h2>
-            <button className="px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 font-semibold">
+            <button className="px-2 py-1 bg-bl2020-orange text-white rounded text-xs hover:bg-bl2020-orange-dark font-semibold">
               + Neu
             </button>
           </div>
@@ -121,7 +121,7 @@ export default function Emails() {
           <input
             type="text"
             placeholder="Suchen..."
-            className="w-full px-2 py-1.5 border border-gray-300 rounded text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-2 py-1.5 border border-gray-300 rounded text-xs focus:outline-none focus:ring-2 focus:ring-orange-500"
           />
         </div>
 
@@ -143,7 +143,7 @@ export default function Emails() {
                 onClick={() => setSelectedEmailId(email.id)}
                 className={`border-b border-gray-100 p-3 cursor-pointer transition-colors hover:bg-gray-50 ${
                   selectedEmailId === email.id
-                    ? 'bg-blue-50 border-l-4 border-l-blue-600'
+                    ? 'bg-gray-50 border-l-4 border-l-orange-600'
                     : ''
                 }`}
               >
@@ -174,10 +174,10 @@ export default function Emails() {
             <>
               {/* Action Buttons - Above Header */}
               <div className="border-b border-gray-200 p-3 bg-white flex gap-2 items-center">
-                <button onClick={handleReply} className="px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-semibold">
+                <button onClick={handleReply} className="px-3 py-1.5 bg-bl2020-orange text-white rounded hover:bg-bl2020-orange-dark text-sm font-semibold">
                   Reply
                 </button>
-                <button onClick={handleReplyAll} className="px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-semibold">
+                <button onClick={handleReplyAll} className="px-3 py-1.5 bg-bl2020-orange text-white rounded hover:bg-bl2020-orange-dark text-sm font-semibold">
                   Reply All
                 </button>
                 <button onClick={handleForward} className="px-3 py-1.5 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 text-sm font-semibold">

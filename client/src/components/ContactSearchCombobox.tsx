@@ -70,7 +70,7 @@ export const ContactSearchCombobox: React.FC<ContactSearchComboboxProps> = ({
         onFocus={() => setIsOpen(true)}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
-        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
       />
 
       {isOpen && results.length > 0 && (
@@ -80,7 +80,7 @@ export const ContactSearchCombobox: React.FC<ContactSearchComboboxProps> = ({
               key={contact.id}
               onClick={() => handleSelect(contact)}
               className={`w-full text-left px-3 py-2 hover:bg-gray-100 ${
-                index === selectedIndex ? 'bg-blue-100' : ''
+                index === selectedIndex ? 'bg-gray-100' : ''
               }`}
             >
               <div className="font-medium">{contact.name}</div>

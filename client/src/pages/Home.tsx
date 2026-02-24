@@ -29,7 +29,7 @@ export default function Home() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white">
         <div className="text-center max-w-2xl mx-auto px-4">
-          <h1 className="text-4xl font-bold mb-4 text-black">FRIDAY CRM</h1>
+          <h1 className="text-2xl font-bold text-gray-900">FRIDAY CRM</h1>
           <p className="text-lg mb-8 text-gray-600">
             Fully Responsive Intelligence Driving Autonomous Yield
           </p>
@@ -59,7 +59,7 @@ export default function Home() {
               {stats?.totalCorporations || 0}
             </div>
             <Link href="/corporations">
-              <span className="text-xs text-blue-600 hover:text-blue-700 cursor-pointer">
+              <span className="text-xs text-orange-600 hover:text-orange-700 cursor-pointer">
                 Alle anzeigen →
               </span>
             </Link>
@@ -68,14 +68,14 @@ export default function Home() {
           {/* Contacts Card */}
           <div className="bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-medium text-gray-600">Kontakte</span>
+              <span className="text-xs font-medium text-gray-600">Contacts</span>
               <Users className="h-4 w-4 text-gray-400" />
             </div>
             <div className="text-2xl font-semibold text-gray-900 mb-1">
               {stats?.totalContacts || 0}
             </div>
             <Link href="/contacts">
-              <span className="text-xs text-blue-600 hover:text-blue-700 cursor-pointer">
+              <span className="text-xs text-orange-600 hover:text-orange-700 cursor-pointer">
                 Alle anzeigen →
               </span>
             </Link>
@@ -91,7 +91,7 @@ export default function Home() {
               {stats?.totalDeals || 0}
             </div>
             <Link href="/deals">
-              <span className="text-xs text-blue-600 hover:text-blue-700 cursor-pointer">
+              <span className="text-xs text-orange-600 hover:text-orange-700 cursor-pointer">
                 Pipeline anzeigen →
               </span>
             </Link>
@@ -177,7 +177,7 @@ export default function Home() {
             <div className="bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow cursor-pointer">
               <div className="flex items-center gap-3 mb-2">
                 <Users className="h-5 w-5 text-gray-700" />
-                <h3 className="text-sm font-medium text-gray-900">Kontakte</h3>
+                <h3 className="text-sm font-medium text-gray-900">Contacts</h3>
               </div>
               <p className="text-xs text-gray-600">Ansprechpartner verwalten</p>
             </div>

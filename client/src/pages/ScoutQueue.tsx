@@ -157,7 +157,7 @@ export default function ScoutQueue() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Scout Job Queue</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Scout Job Queue</h1>
           <p className="text-muted-foreground">
             Übersicht über alle Scout Agent Jobs (Pending, Processing, Completed, Failed)
           </p>
@@ -195,13 +195,13 @@ export default function ScoutQueue() {
             <CardTitle className="text-2xl text-yellow-600">{stats?.pending || 0}</CardTitle>
           </CardHeader>
         </Card>
-        <Card className="border-blue-500/50">
+        <Card className="border-orange-500/50">
           <CardHeader className="pb-2">
             <CardDescription className="flex items-center gap-2">
-              <Loader2 className="h-4 w-4 text-blue-500 animate-spin" />
+              <Loader2 className="h-4 w-4 text-orange-500 animate-spin" />
               In Bearbeitung
             </CardDescription>
-            <CardTitle className="text-2xl text-blue-600">{stats?.processing || 0}</CardTitle>
+            <CardTitle className="text-2xl text-orange-600">{stats?.processing || 0}</CardTitle>
           </CardHeader>
         </Card>
         <Card className="border-green-500/50">

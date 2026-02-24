@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Plus, Calendar as CalendarIcon, Filter } from 'lucide-react';
+import { Plus, Calendar as CalendarIcon, Filter, X } from 'lucide-react';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 // Setup date-fns localizer
@@ -41,6 +41,17 @@ export default function Calendar() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<{ start: Date; end: Date } | null>(null);
+  
+  // Manual date/time state
+  const [startDate, setStartDate] = useState('');
+  const [startTime, setStartTime] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [endTime, setEndTime] = useState('');
+  
+  // Meeting invitation state
+  const [sendAsMeeting, setSendAsMeeting] = useState(false);
+  const [attendees, setAttendees] = useState<string[]>([]);
+  const [attendeeInput, setAttendeeInput] = useState('');
 
   // Fetch available calendars
   const { data: calendars = [] } = trpc.calendar.getCalendars.useQuery();
@@ -93,8 +104,14 @@ export default function Calendar() {
   const createMutation = trpc.calendar.createEvent.useMutation({
     onSuccess: () => {
       refetch();
-      setIsCreateDialogOpen(false);
-      setSelectedSlot(null);
+      resetCreateForm();
+    },
+  });
+
+  const createMeetingMutation = trpc.calendar.createMeetingInvitation.useMutation({
+    onSuccess: () => {
+      refetch();
+      resetCreateForm();
     },
   });
 
@@ -114,9 +131,26 @@ export default function Calendar() {
     },
   });
 
+  const resetCreateForm = () => {
+    setIsCreateDialogOpen(false);
+    setSelectedSlot(null);
+    setSendAsMeeting(false);
+    setAttendees([]);
+    setAttendeeInput('');
+    setStartDate('');
+    setStartTime('');
+    setEndDate('');
+    setEndTime('');
+  };
+
   // Event handlers
   const handleSelectSlot = useCallback((slotInfo: { start: Date; end: Date }) => {
     setSelectedSlot(slotInfo);
+    // Pre-fill manual fields from slot
+    setStartDate(format(slotInfo.start, 'yyyy-MM-dd'));
+    setStartTime(format(slotInfo.start, 'HH:mm'));
+    setEndDate(format(slotInfo.end, 'yyyy-MM-dd'));
+    setEndTime(format(slotInfo.end, 'HH:mm'));
     setIsCreateDialogOpen(true);
   }, []);
 
@@ -125,20 +159,66 @@ export default function Calendar() {
     setIsEditDialogOpen(true);
   }, []);
 
+  const handleAddAttendee = () => {
+    if (attendeeInput && attendeeInput.includes('@')) {
+      setAttendees([...attendees, attendeeInput]);
+      setAttendeeInput('');
+    }
+  };
+
+  const handleRemoveAttendee = (email: string) => {
+    setAttendees(attendees.filter(a => a !== email));
+  };
+
   const handleCreateEvent = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     
-    if (!selectedSlot) return;
+    // Build start/end dates from manual fields
+    const startDateValue = formData.get('startDate') as string;
+    const startTimeValue = formData.get('startTime') as string;
+    const endDateValue = formData.get('endDate') as string;
+    const endTimeValue = formData.get('endTime') as string;
 
-    createMutation.mutate({
+    if (!startDateValue || !startTimeValue || !endDateValue || !endTimeValue) {
+      alert('Bitte Start- und End-Datum/Uhrzeit eingeben');
+      return;
+    }
+
+    const startDateTime = new Date(`${startDateValue}T${startTimeValue}`);
+    const endDateTime = new Date(`${endDateValue}T${endTimeValue}`);
+
+    if (isNaN(startDateTime.getTime()) || isNaN(endDateTime.getTime())) {
+      alert('Ungültiges Datum/Uhrzeit-Format');
+      return;
+    }
+
+    if (endDateTime <= startDateTime) {
+      alert('End-Zeit muss nach Start-Zeit liegen');
+      return;
+    }
+
+    const eventData = {
       calendar: formData.get('calendar') as string,
       summary: formData.get('summary') as string,
       description: formData.get('description') as string || undefined,
-      start: selectedSlot.start.toISOString(),
-      end: selectedSlot.end.toISOString(),
+      start: startDateTime.toISOString(),
+      end: endDateTime.toISOString(),
       location: formData.get('location') as string || undefined,
-    });
+    };
+
+    // If sending as meeting invitation with attendees
+    if (sendAsMeeting && attendees.length > 0) {
+      createMeetingMutation.mutate({
+        ...eventData,
+        meetingUrl: formData.get('meetingUrl') as string || undefined,
+        attendees,
+        reminder: parseInt(formData.get('reminder') as string) || 30,
+      });
+    } else {
+      // Regular calendar event
+      createMutation.mutate(eventData);
+    }
   };
 
   const handleUpdateEvent = (e: React.FormEvent<HTMLFormElement>) => {
@@ -193,12 +273,7 @@ export default function Calendar() {
   return (
     <div className="h-screen flex flex-col bg-white">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b">
-        <div className="flex items-center gap-3">
-          <CalendarIcon className="w-5 h-5 text-gray-600" />
-          <h1 className="text-xl font-semibold text-gray-900">Kalender</h1>
-        </div>
-        
+      <div className="flex items-center justify-end px-6 py-4 border-b">
         <div className="flex items-center gap-3">
           {/* Calendar Filter */}
           <Dialog>
@@ -242,14 +317,17 @@ export default function Calendar() {
           </Dialog>
 
           {/* Create Event Button */}
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <Dialog open={isCreateDialogOpen} onOpenChange={(open) => {
+            setIsCreateDialogOpen(open);
+            if (!open) resetCreateForm();
+          }}>
             <DialogTrigger asChild>
               <Button size="sm">
                 <Plus className="w-4 h-4 mr-2" />
                 Neuer Termin
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Neuer Termin</DialogTitle>
               </DialogHeader>
@@ -299,23 +377,157 @@ export default function Calendar() {
                   />
                 </div>
 
-                {selectedSlot && (
-                  <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded">
-                    <div><strong>Start:</strong> {format(selectedSlot.start, 'dd.MM.yyyy HH:mm', { locale: de })}</div>
-                    <div><strong>Ende:</strong> {format(selectedSlot.end, 'dd.MM.yyyy HH:mm', { locale: de })}</div>
+                {/* Manual Date/Time Fields */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="startDate">Start-Datum</Label>
+                    <Input
+                      id="startDate"
+                      name="startDate"
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      required
+                    />
                   </div>
-                )}
+                  <div>
+                    <Label htmlFor="startTime">Start-Zeit</Label>
+                    <Input
+                      id="startTime"
+                      name="startTime"
+                      type="time"
+                      value={startTime}
+                      onChange={(e) => setStartTime(e.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="endDate">End-Datum</Label>
+                    <Input
+                      id="endDate"
+                      name="endDate"
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="endTime">End-Zeit</Label>
+                    <Input
+                      id="endTime"
+                      name="endTime"
+                      type="time"
+                      value={endTime}
+                      onChange={(e) => setEndTime(e.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Meeting Invitation Section */}
+                <div className="border-t pt-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Checkbox
+                      id="sendAsMeeting"
+                      checked={sendAsMeeting}
+                      onCheckedChange={(checked) => setSendAsMeeting(checked as boolean)}
+                    />
+                    <Label htmlFor="sendAsMeeting" className="cursor-pointer font-medium">
+                      Als Meeting-Einladung versenden
+                    </Label>
+                  </div>
+
+                  {sendAsMeeting && (
+                    <div className="space-y-4 pl-6 border-l-2 border-blue-200">
+                      <div>
+                        <Label htmlFor="meetingUrl">Meeting URL (optional)</Label>
+                        <Input
+                          id="meetingUrl"
+                          name="meetingUrl"
+                          placeholder="https://zoom.us/j/123456789"
+                          type="url"
+                        />
+                      </div>
+
+                      <div>
+                        <Label>Teilnehmer *</Label>
+                        <div className="flex gap-2 mt-1">
+                          <Input
+                            placeholder="email@example.com"
+                            type="email"
+                            value={attendeeInput}
+                            onChange={(e) => setAttendeeInput(e.target.value)}
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                handleAddAttendee();
+                              }
+                            }}
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={handleAddAttendee}
+                          >
+                            Hinzufügen
+                          </Button>
+                        </div>
+                        {attendees.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {attendees.map((email) => (
+                              <div
+                                key={email}
+                                className="flex items-center gap-1 bg-gray-100 text-gray-800 px-2 py-1 rounded text-sm"
+                              >
+                                {email}
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveAttendee(email)}
+                                  className="hover:text-orange-600"
+                                >
+                                  <X className="w-3 h-3" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      <div>
+                        <Label htmlFor="reminder">Erinnerung</Label>
+                        <select
+                          id="reminder"
+                          name="reminder"
+                          className="w-full mt-1 px-3 py-2 border rounded-md"
+                        >
+                          <option value="0">Keine Erinnerung</option>
+                          <option value="15">15 Minuten vorher</option>
+                          <option value="30">30 Minuten vorher</option>
+                          <option value="60">1 Stunde vorher</option>
+                          <option value="120">2 Stunden vorher</option>
+                        </select>
+                      </div>
+                    </div>
+                  )}
+                </div>
 
                 <div className="flex justify-end gap-2">
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => setIsCreateDialogOpen(false)}
+                    onClick={() => resetCreateForm()}
                   >
                     Abbrechen
                   </Button>
-                  <Button type="submit" disabled={createMutation.isPending}>
-                    {createMutation.isPending ? 'Erstelle...' : 'Erstellen'}
+                  <Button 
+                    type="submit" 
+                    disabled={createMutation.isPending || createMeetingMutation.isPending || (sendAsMeeting && attendees.length === 0)}
+                  >
+                    {(createMutation.isPending || createMeetingMutation.isPending) ? 'Erstelle...' : 'Erstellen'}
                   </Button>
                 </div>
               </form>
@@ -358,12 +570,12 @@ export default function Calendar() {
         />
 
         {/* Setup Instructions - unter dem Kalender */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
+        <div className="bg-gray-50 border border-blue-200 rounded-lg p-4 mt-4">
           <h3 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
             <CalendarIcon className="w-4 h-4" />
             📅 Kalender-Synchronisation einrichten
           </h3>
-          <div className="text-sm text-blue-800 space-y-1">
+          <div className="text-sm text-gray-800 space-y-1">
             <p><strong>So verbinden Sie Ihren SmarterMail-Kalender:</strong></p>
             <ol className="list-decimal list-inside space-y-1 ml-2">
               <li>Gehen Sie zu <strong>Einstellungen → 📅 Mein Kalender</strong></li>
@@ -372,7 +584,7 @@ export default function Calendar() {
               <li>Klicken Sie auf <strong>"Einstellungen speichern"</strong></li>
               <li>Kehren Sie zum Kalender zurück und aktivieren Sie <strong>"Team (Alle)"</strong> im Filter</li>
             </ol>
-            <p className="mt-2 text-blue-700">💡 <em>Ihre Termine werden automatisch synchronisiert und sind für das gesamte Team sichtbar!</em></p>
+            <p className="mt-2 text-orange-700">💡 <em>Ihre Termine werden automatisch synchronisiert und sind für das gesamte Team sichtbar!</em></p>
           </div>
         </div>
       </div>
@@ -457,4 +669,3 @@ export default function Calendar() {
     </div>
   );
 }
-

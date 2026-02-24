@@ -29,7 +29,7 @@ export default function OutreachDashboard() {
         </div>
         <div className="bg-white p-4">
           <div className="text-sm text-gray-500">Zur Review</div>
-          <div className="text-3xl font-bold text-blue-600">{stats?.pendingReview || 0}</div>
+          <div className="text-3xl font-bold text-orange-600">{stats?.pendingReview || 0}</div>
         </div>
         <div className="bg-white p-4">
           <div className="text-sm text-gray-500">Versendet</div>
@@ -112,7 +112,7 @@ export default function OutreachDashboard() {
                         </span>
                       )}
                       {campaign.status === "completed" && (
-                        <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">
+                        <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded text-xs">
                           Abgeschlossen
                         </span>
                       )}

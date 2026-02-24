@@ -182,7 +182,7 @@ export default function Corporations() {
                     </td>
                     <td className="px-3 py-2">
                       <Link href={`/corporations/${corp.id}`}>
-                        <div className="flex items-center gap-2 hover:text-blue-600 cursor-pointer">
+                        <div className="flex items-center gap-2 hover:text-orange-600 cursor-pointer">
                           <Building2 className="h-4 w-4 text-gray-400 flex-shrink-0" />
                           <span className="text-sm font-medium text-gray-900">{corp.name}</span>
                         </div>

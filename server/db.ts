@@ -1,11 +1,10 @@
-import crypto from "crypto";
 import { eq, and, desc, sql, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { 
   InsertUser, users,
   corporations, companies, contacts, contactCompanyRelations, contactEmails,
   deals, activities, productUsage, partners, partnerDeals,
-  userAccountAssignments, userAssignments, commissions, apiKeys,
+  userAccountAssignments, commissions, apiKeys,
   emailTemplates, emailDrafts, emailResponses, emailAccounts, emailAccountsNew, emailFetchLog,
   hunterResults,
   type Corporation, type Company, type Contact, type Deal, type Activity
@@ -1072,90 +1071,12 @@ export async function updateUser(userId: string, data: Partial<{
 export async function deleteUser(userId: string) {
   const db = await getDb();
   if (!db) throw new Error('Database not available');
-
-  // Delete user assignments first
-  await db.delete(userAssignments).where(eq(userAssignments.userId, userId));
   
-  // Delete user
+  // Delete user (CASCADE DELETE handles related records)
   await db.delete(users).where(eq(users.id, userId));
 }
 
-export async function getUserAssignments(userId: string) {
-  const db = await getDb();
-  if (!db) return [];
-
-  return await db
-    .select()
-    .from(userAssignments)
-    .where(eq(userAssignments.userId, userId));
-}
-
-export async function createUserAssignment(data: {
-  id: string;
-  userId: string;
-  entityType: 'company' | 'contact';
-  entityId: string;
-  assignedBy: string;
-}) {
-  const db = await getDb();
-  if (!db) throw new Error('Database not available');
-
-  await db.insert(userAssignments).values(data);
-}
-
-export async function deleteUserAssignment(userId: string, entityType: 'company' | 'contact', entityId: string) {
-  const db = await getDb();
-  if (!db) throw new Error('Database not available');
-
-  await db
-    .delete(userAssignments)
-    .where(
-      and(
-        eq(userAssignments.userId, userId),
-        eq(userAssignments.entityType, entityType),
-        eq(userAssignments.entityId, entityId)
-      )
-    );
-}
-
-
-
-export async function assignUserEntity(
-  userId: string,
-  entityType: 'company' | 'contact',
-  entityId: string,
-  assignedBy: string
-) {
-  const db = await getDb();
-  if (!db) throw new Error('Database not available');
-
-  await db.insert(userAssignments).values({
-    id: crypto.randomUUID(),
-    userId,
-    entityType: entityType as 'company' | 'contact',
-    entityId,
-    assignedBy,
-  });
-}
-
-export async function unassignUserEntity(
-  userId: string,
-  entityType: 'company' | 'contact',
-  entityId: string
-) {
-  const db = await getDb();
-  if (!db) throw new Error('Database not available');
-
-  await db
-    .delete(userAssignments)
-    .where(
-      and(
-        eq(userAssignments.userId, userId),
-        eq(userAssignments.entityType, entityType),
-        eq(userAssignments.entityId, entityId)
-      )
-    );
-}
+// userAssignments functions removed - table no longer exists
 
 
 
@@ -1715,6 +1636,7 @@ export async function createEmailAccount(data: {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
+  const crypto = require('crypto');
   const ENCRYPTION_KEY = process.env.EMAIL_ENCRYPTION_KEY || 'your-32-char-secret-key-here!!';
   const cipher = crypto.createCipher('aes-256-cbc', ENCRYPTION_KEY);
   let encryptedPassword = cipher.update(data.password, 'utf8', 'hex');
@@ -1745,6 +1667,7 @@ export async function updateEmailAccount(id: number, userId: string, data: Parti
   
   const updateData: any = { ...data };
   if (data.password) {
+    const crypto = require('crypto');
     const ENCRYPTION_KEY = process.env.EMAIL_ENCRYPTION_KEY || 'your-32-char-secret-key-here!!';
     const cipher = crypto.createCipher('aes-256-cbc', ENCRYPTION_KEY);
     let encryptedPassword = cipher.update(data.password, 'utf8', 'hex');
@@ -1778,6 +1701,7 @@ export async function getEmailAccountWithPassword(id: number, userId: string) {
   
   if (!account) return null;
   
+  const crypto = require('crypto');
   const ENCRYPTION_KEY = process.env.EMAIL_ENCRYPTION_KEY || 'your-32-char-secret-key-here!!';
   const decipher = crypto.createDecipher('aes-256-cbc', ENCRYPTION_KEY);
   let decryptedPassword = decipher.update(account.passwordEncrypted, 'hex', 'utf8');

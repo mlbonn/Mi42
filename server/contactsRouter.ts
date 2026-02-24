@@ -204,6 +204,42 @@ export const contactsRouter = router({
       );
     }),
 
+  // Search contacts by name or email
+  searchContacts: publicProcedure
+    .input(
+      z.object({
+        query: z.string(),
+        limit: z.number().default(10),
+      })
+    )
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) {
+        throw new Error('Database not available');
+      }
+      
+      const searchPattern = `%${input.query}%`;
+      
+      const result = await db.execute(
+        sql`SELECT 
+          id, firstName, lastName, email, email2, email3, company
+        FROM contacts 
+        WHERE 
+          firstName LIKE ${searchPattern} OR
+          lastName LIKE ${searchPattern} OR
+          email LIKE ${searchPattern} OR
+          email2 LIKE ${searchPattern} OR
+          email3 LIKE ${searchPattern} OR
+          company LIKE ${searchPattern}
+        ORDER BY firstName, lastName
+        LIMIT ${input.limit}`
+      );
+      
+      console.log("🔍 Full result object:", JSON.stringify(result, null, 2));
+      console.log("📧 Query result rows:", result.rows?.length || 0, "emails");
+      return mappedResult;
+    }),
+
   // Get archived emails for contact
   getArchivedEmails: publicProcedure
     .input(
@@ -212,6 +248,8 @@ export const contactsRouter = router({
       })
     )
     .query(async ({ input }) => {
+      console.log("🔍 getArchivedEmails INPUT:", input);
+      console.log("🔍 contactId:", input.contactId, "Type:", typeof input.contactId);
       const db = await getDb();
       if (!db) {
         throw new Error('Database not available');
@@ -226,6 +264,24 @@ export const contactsRouter = router({
         ORDER BY email_date DESC`
       );
       
-      return result.rows || [];
+      console.log("🔍 Full result object:", JSON.stringify(result, null, 2));
+      console.log("📧 Query result rows:", result.rows?.length || 0, "emails");
+      console.log("🔍 result type:", Array.isArray(result) ? "array" : typeof result);
+      console.log("🔍 result keys:", Object.keys(result));
+      console.log("🔍 result[0]:", result[0]);
+      // Map database fields to frontend expected format
+      const rows = result.rows || result[0] || result;
+      const mappedResult = (Array.isArray(rows) ? rows : []).map((email: any) => ({
+        id: email.email_id,
+        from_address: email.from_address,
+        from_name: email.from_name,
+        to_address: email.to_address,
+        subject: email.subject,
+        email_date: email.email_date,
+        timestamp: email.email_date,
+        notes: email.notes,
+        archived_at: email.archived_at,
+      }));
+      return mappedResult;
     }),
 });

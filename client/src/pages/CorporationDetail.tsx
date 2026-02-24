@@ -187,7 +187,7 @@ export default function CorporationDetail() {
 
         {/* Corporation Header */}
         <div className="mb-8">
-          <h2 className="text-3xl font-bold text-black mb-2">{corporation.name}</h2>
+          <h2 className="text-2xl font-bold text-gray-900">{corporation.name}</h2>
           <div className="flex items-center gap-4 text-gray-600">
             {corporation.industry && <span>{corporation.industry}</span>}
             {corporation.headquartersCountry && <span>• {corporation.headquartersCountry}</span>}
@@ -219,7 +219,7 @@ export default function CorporationDetail() {
 
           <Card className="border-2 border-gray-300">
             <CardHeader>
-              <CardTitle className="text-sm font-normal text-gray-600">Firmen</CardTitle>
+              <CardTitle className="text-sm font-normal text-gray-600">Companies</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-xl font-bold text-black">{companies?.length || 0}</div>

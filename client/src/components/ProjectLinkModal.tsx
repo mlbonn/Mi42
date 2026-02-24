@@ -43,7 +43,7 @@ export const ProjectLinkModal: React.FC<ProjectLinkModalProps> = ({
               onClick={() => setSelectedProjectId(project.id)}
               className={`w-full text-left p-3 rounded border transition ${
                 selectedProjectId === project.id
-                  ? 'border-blue-600 bg-blue-50'
+                  ? 'border-orange-600 bg-gray-50'
                   : 'border-gray-200 hover:border-gray-300'
               }`}
             >
@@ -93,7 +93,7 @@ export const ProjectLinkModal: React.FC<ProjectLinkModalProps> = ({
               })
             }
             disabled={!selectedProjectId || linkMutation.isPending}
-            className="flex-1 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+            className="flex-1 px-4 py-2 bg-bl2020-orange text-white rounded hover:bg-bl2020-orange-dark disabled:opacity-50"
           >
             {linkMutation.isPending ? 'Wird verlinkt...' : 'Verlinken'}
           </button>

@@ -342,3 +342,92 @@ export async function moveEmailViaIMAP(
     }
   }
 }
+
+// Get list of email folders for a user
+export async function getEmailFolders(
+  userEmail: string
+): Promise<string[]> {
+  try {
+    console.log(`[EmailService] Fetching folders for ${userEmail}`);
+    
+    const credentials = await getEmailCredentials(userEmail);
+      console.log('[EmailService] No credentials found, returning default folders');
+      return ['INBOX', 'Sent', 'Drafts', 'Trash', 'Spam'];
+    }
+
+    const client = new ImapFlow({
+      host: credentials.imapHost,
+      port: credentials.imapPort,
+      secure: credentials.imapPort === 993,
+      auth: {
+        user: credentials.email,
+        pass: credentials.password,
+      },
+      logger: false,
+    });
+
+    await client.connect();
+    
+    try {
+      const mailboxes = await client.list();
+      const folderNames = mailboxes.map((box: any) => box.path);
+      
+      console.log(`[EmailService] Found ${folderNames.length} folders:`, folderNames);
+      
+      await client.logout();
+      
+      return folderNames;
+    } catch (error) {
+      console.error('[EmailService] Error listing mailboxes:', error);
+      await client.logout();
+      return ['INBOX', 'Sent', 'Drafts', 'Trash', 'Spam'];
+    }
+  } catch (error) {
+    console.error('[EmailService] Error getting folders:', error);
+    return ['INBOX', 'Sent', 'Drafts', 'Trash', 'Spam'];
+  }
+}
+export async function getEmailFolders(
+  userEmail: string
+): Promise<string[]> {
+  try {
+    console.log(`[EmailService] Fetching folders for ${userEmail}`);
+    
+    const credentials = await getEmailCredentials(userEmail);
+    if (!credentials) {
+      console.log('[EmailService] No credentials found, returning default folders');
+      return ['INBOX', 'Sent', 'Drafts', 'Trash', 'Spam'];
+    }
+
+    const client = new ImapFlow({
+      host: credentials.imapHost,
+      port: credentials.imapPort,
+      secure: credentials.imapPort === 993,
+      auth: {
+        user: credentials.email,
+        pass: credentials.password,
+      },
+      logger: false,
+    });
+
+    await client.connect();
+    
+    try {
+      const mailboxes = await client.list();
+      const folderNames = mailboxes.map((box: any) => box.path);
+      
+      console.log(`[EmailService] Found ${folderNames.length} folders:`, folderNames);
+      
+      await client.logout();
+      
+      return folderNames;
+    } catch (error) {
+      console.error('[EmailService] Error listing mailboxes:', error);
+      await client.logout();
+      return ['INBOX', 'Sent', 'Drafts', 'Trash', 'Spam'];
+    }
+  } catch (error) {
+    console.error('[EmailService] Error getting folders:', error);
+    return ['INBOX', 'Sent', 'Drafts', 'Trash', 'Spam'];
+  }
+}

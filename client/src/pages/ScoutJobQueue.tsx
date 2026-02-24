@@ -98,7 +98,7 @@ export default function ScoutJobQueue() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold">Scout Job Queue</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Scout Job Queue</h1>
           <p className="text-sm text-gray-600">Monitor and manage Scout Agent jobs</p>
         </div>
         <div className="flex items-center gap-2">
@@ -146,7 +146,7 @@ export default function ScoutJobQueue() {
             <CardTitle className="text-xs font-medium text-gray-600">Processing</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{stats.processing}</div>
+            <div className="text-2xl font-bold text-orange-600">{stats.processing}</div>
           </CardContent>
         </Card>
 

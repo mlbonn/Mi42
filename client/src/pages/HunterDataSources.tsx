@@ -159,17 +159,17 @@ export default function HunterDataSources() {
     <div className="container py-6 bg-gray-50 min-h-screen">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Datenquellen</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Datenquellen</h1>
         <p className="text-sm text-gray-600">
           Konfiguration und Status der Contact Discovery APIs
         </p>
       </div>
 
       {/* Info Card */}
-      <Card className="mb-6 border-blue-200 bg-blue-50">
+      <Card className="mb-6 border-blue-200 bg-gray-50">
         <CardContent className="pt-6">
           <div className="flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5" />
+            <AlertCircle className="h-5 w-5 text-orange-600 mt-0.5" />
             <div className="text-sm text-gray-700">
               <p className="font-medium mb-1">Wie funktionieren Datenquellen?</p>
               <p>
@@ -201,7 +201,7 @@ export default function HunterDataSources() {
                           href={info.website}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-blue-600 hover:text-blue-700"
+                          className="text-orange-600 hover:text-orange-700"
                         >
                           <ExternalLink className="h-4 w-4" />
                         </a>

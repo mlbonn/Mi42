@@ -31,7 +31,7 @@ export const appRouter = router({
   simpleAuth: simpleAuthRouter,
   auth: authRouter,
   jwtAuth: jwtAuthRouter,
-  user: userRouter,
+  users: userRouter,
   contacts: contactsRouter,
   companies: companiesRouter,
   corporations: corporationsRouter,

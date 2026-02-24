@@ -33,21 +33,7 @@ export const users = mysqlTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-// User Assignments (for staff_plus role)
-export const userAssignments = mysqlTable("user_assignments", {
-  id: varchar("id", { length: 64 }).primaryKey().$defaultFn(() => crypto.randomUUID()),
-  userId: varchar("userId", { length: 64 }).notNull(), // staff_plus user
-  entityType: mysqlEnum("entityType", ["company", "contact"]).notNull(),
-  entityId: varchar("entityId", { length: 64 }).notNull(),
-  assignedBy: varchar("assignedBy", { length: 64 }).notNull(), // staff/admin who assigned
-  assignedAt: timestamp("assignedAt").defaultNow(),
-}, (table) => ({
-  userIdx: index("user_assignments_user_idx").on(table.userId),
-  entityIdx: index("user_assignments_entity_idx").on(table.entityType, table.entityId),
-}));
-
-export type UserAssignment = typeof userAssignments.$inferSelect;
-export type InsertUserAssignment = typeof userAssignments.$inferInsert;
+// User Assignments removed - not needed for staff_plus role
 
 // ============================================================================
 // HIERARCHIE: CORPORATION (Konzern)
@@ -993,3 +979,32 @@ export const archivedEmails = mysqlTable("archived_emails", {
 
 export type ArchivedEmail = typeof archivedEmails.$inferSelect;
 export type InsertArchivedEmail = typeof archivedEmails.$inferInsert;
+
+// Activities Relations
+export const activitiesRelations = relations(activities, ({ one, many }) => ({
+  contact: one(contacts, {
+    fields: [activities.contactId],
+    references: [contacts.id],
+  }),
+  attachments: many(attachments),
+}));
+
+// Attachments Relations
+export const attachmentsRelations = relations(attachments, ({ one }) => ({
+  activity: one(activities, {
+    fields: [attachments.activityId],
+    references: [activities.id],
+  }),
+}));
+
+// Archived Emails Relations
+export const archivedEmailsRelations = relations(archivedEmails, ({ one }) => ({
+  contact: one(contacts, {
+    fields: [archivedEmails.contactId],
+    references: [contacts.id],
+  }),
+  user: one(users, {
+    fields: [archivedEmails.userId],
+    references: [users.id],
+  }),
+}));

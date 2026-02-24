@@ -44,7 +44,7 @@ pids
 *.pid
 *.seed
 *.pid.lock
-*.bak
+*.bak*
 
 # Coverage directory used by tools like istanbul
 coverage/
@@ -100,6 +100,8 @@ jspm_packages/
 # Temporary folders
 tmp/
 temp/
+*backup*
+*fix_password*
 
 # Database
 *.db

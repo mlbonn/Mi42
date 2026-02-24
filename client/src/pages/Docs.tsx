@@ -6,15 +6,15 @@
 export default function Docs() {
   return (
     <div className="container py-8 max-w-4xl">
-      <h1 className="text-3xl font-bold mb-2">FRIDAY CRM Dokumentation</h1>
+      <h1 className="text-2xl font-bold text-gray-900">FRIDAY CRM Dokumentation</h1>
       <p className="text-gray-600 mb-8">
         Technische Dokumentation für IT und User über Prozesse, Hintergrundprozesse und Datenstruktur
       </p>
 
       {/* Phase 1: Scout Agent Database */}
-      <section className="mb-12 border-l-4 border-blue-600 pl-6">
+      <section className="mb-12 border-l-4 border-orange-600 pl-6">
         <div className="flex items-center gap-2 mb-4">
-          <span className="bg-blue-600 text-white px-3 py-1 text-sm font-bold">PHASE 1</span>
+          <span className="bg-bl2020-orange text-white px-3 py-1 text-sm font-bold">PHASE 1</span>
           <span className="text-sm text-gray-600">Implementiert: {new Date().toLocaleDateString('de-DE')}</span>
         </div>
         
@@ -67,7 +67,7 @@ export default function Docs() {
           </ul>
         </div>
 
-        <div className="bg-blue-50 p-6 mb-6">
+        <div className="bg-gray-50 p-6 mb-6">
           <h3 className="font-bold mb-2">🔄 Hintergrundprozess: Kontinuierlicher Scout</h3>
           <p className="text-sm mb-4">
             Der Scout Agent läuft kontinuierlich im Hintergrund und arbeitet die Queue ab. 

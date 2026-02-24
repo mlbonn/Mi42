@@ -62,7 +62,7 @@ export default function ContactActivities({ contactId }: ContactActivitiesProps)
 
   const getActivityTypeColor = (type: string) => {
     const colors: Record<string, string> = {
-      'Email': 'bg-blue-100 text-blue-800',
+      'Email': 'bg-gray-100 text-gray-800',
       'Call': 'bg-green-100 text-green-800',
       'Meeting': 'bg-purple-100 text-purple-800',
       'Demo': 'bg-orange-100 text-orange-800',
@@ -150,7 +150,7 @@ export default function ContactActivities({ contactId }: ContactActivitiesProps)
                       {activity.activityType === 'Document' && activity.hasAttachment ? (
                         <a 
                           href={`/api/download/${activity.id}`}
-                          className="text-blue-600 hover:underline font-medium text-sm flex items-center gap-1"
+                          className="text-orange-600 hover:underline font-medium text-sm flex items-center gap-1"
                           onClick={(e) => e.stopPropagation()}
                           target="_blank"
                           rel="noopener noreferrer"
@@ -179,7 +179,7 @@ export default function ContactActivities({ contactId }: ContactActivitiesProps)
                     {activity.direction && (
                       <span className={`text-xs px-2 py-0.5 rounded ${
                         activity.direction === 'Inbound' 
-                          ? 'bg-blue-50 text-blue-600' 
+                          ? 'bg-gray-50 text-orange-600' 
                           : activity.direction === 'Outbound'
                           ? 'bg-green-50 text-green-600'
                           : 'bg-gray-50 text-gray-600'
@@ -277,7 +277,7 @@ function AttachmentsList({ activityId }: { activityId: string }) {
           </div>
           <a
             href={`/api/download/${att.id}`}
-            className="flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm"
+            className="flex items-center gap-1 text-orange-600 hover:text-gray-800 text-sm"
             target="_blank"
             rel="noopener noreferrer"
           >

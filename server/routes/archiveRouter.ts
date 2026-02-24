@@ -1,164 +1,147 @@
-import { z } from 'zod';
 import { router, protectedProcedure } from '../_core/trpc';
+import { z } from 'zod';
 import { getDb } from '../db';
+import { archivedEmails, attachments, contacts } from '../../drizzle/schema';
+import { eq, desc, or, like } from 'drizzle-orm';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as crypto from 'crypto';
 import OpenAI from 'openai';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+const ATTACHMENT_DIR = path.join(process.cwd(), 'uploads', 'email-attachments');
+
+// Ensure attachment directory exists
+if (!fs.existsSync(ATTACHMENT_DIR)) {
+  fs.mkdirSync(ATTACHMENT_DIR, { recursive: true });
+}
+
 export const archiveRouter = router({
   /**
-   * Archive an email to a contact
+   * Archive email to contact
+   * Saves email to archived_emails table and handles attachments
    */
   archiveEmail: protectedProcedure
     .input(
       z.object({
-        emailId: z.string(),
         contactId: z.string(),
+        emailData: z.object({
+          messageId: z.string(),
+          folder: z.string().default('INBOX'),
+          from: z.string(),
+          fromName: z.string().optional(),
+          to: z.string(),
+          cc: z.string().optional(),
+          subject: z.string(),
+          bodyText: z.string().optional(),
+          bodyHtml: z.string().optional(),
+          date: z.string(),
+          attachments: z.array(z.object({
+            filename: z.string(),
+            contentType: z.string(),
+            size: z.number(),
+            content: z.string(), // Base64 encoded
+          })).optional(),
+        }),
         notes: z.string().optional(),
-        source: z.enum(['inbox', 'sent', 'manual']),
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const userId = ctx.user.id;
-      const db = await getDb();
-      // Get email details
-      const emails = await db.query(
-        `SELECT * FROM emails WHERE id = ? AND user_id = ? LIMIT 1`,
-        [input.emailId, userId]
-      );
-      if (emails.length === 0) {
-        throw new Error('Email not found');
+      try {
+        const userId = ctx.user.id;
+
+        // Verify contact exists
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        const contact = await db.query.contacts.findFirst({
+          where: eq(contacts.id, input.contactId),
+        });
+
+        if (!contact) {
+          throw new Error('Contact not found');
+        }
+
+        // Insert into archived_emails table
+        const result = await db.insert(archivedEmails).values({
+          emailId: input.emailData.messageId,
+          contactId: input.contactId,
+          userId: userId,
+          folder: input.emailData.folder,
+          fromAddress: input.emailData.from,
+          fromName: input.emailData.fromName || '',
+          toAddress: input.emailData.to,
+          ccAddress: input.emailData.cc || '',
+          subject: input.emailData.subject,
+          body: input.emailData.bodyText || '',
+          htmlBody: input.emailData.bodyHtml || '',
+          emailDate: new Date(input.emailData.date),
+          notes: input.notes || '',
+        });
+
+        const archivedEmailId = result.insertId;
+
+        // Handle attachments if present
+        if (input.emailData.attachments && input.emailData.attachments.length > 0) {
+          for (const att of input.emailData.attachments) {
+            const attachmentId = crypto.randomUUID();
+            
+            // Check size: < 5MB = Base64 in DB, >= 5MB = File system
+            const SIZE_LIMIT = 5 * 1024 * 1024; // 5MB
+            
+            if (att.size < SIZE_LIMIT) {
+              // Store small attachments as Base64 in filePath
+              const fileName = `${attachmentId}_${att.filename}`;
+              const filePath = `base64://${att.content}`;
+              
+              await db.insert(attachments).values({
+                id: attachmentId,
+                activityId: `archived_email_${archivedEmailId}`, // Link to archived email
+                fileName: fileName,
+                originalFileName: att.filename,
+                filePath: filePath,
+                fileSize: att.size,
+                mimeType: att.contentType,
+              });
+            } else {
+              // Store large attachments in file system
+              const fileName = `${attachmentId}_${att.filename}`;
+              const filePath = path.join(ATTACHMENT_DIR, fileName);
+              
+              // Decode Base64 and write to file
+              const buffer = Buffer.from(att.content, 'base64');
+              fs.writeFileSync(filePath, buffer);
+              
+              // Store file path in DB
+              const relativePath = path.relative(process.cwd(), filePath);
+              await db.insert(attachments).values({
+                id: attachmentId,
+                activityId: `archived_email_${archivedEmailId}`, // Link to archived email
+                fileName: fileName,
+                originalFileName: att.filename,
+                filePath: relativePath,
+                fileSize: att.size,
+                mimeType: att.contentType,
+              });
+            }
+          }
+        }
+
+        return { 
+          success: true, 
+          archivedEmailId: archivedEmailId.toString(),
+          message: 'Email archived successfully',
+        };
+      } catch (error: any) {
+        console.error('[archiveRouter] Error archiving email:', error);
+        throw new Error(`Failed to archive email: ${error.message}`);
       }
-      const email = emails[0];
-      // Check if contact exists
-      const contacts = await db.query(
-        `SELECT id FROM contacts WHERE id = ? LIMIT 1`,
-        [input.contactId]
-      );
-      if (contacts.length === 0) {
-        throw new Error('Contact not found');
-      }
-      // Archive email
-      await db.query(
-        `INSERT INTO contact_email_archives 
-         (contact_id, user_id, email_uid, email_folder, email_from_address, email_to_address, email_subject, email_body_text, email_body_html, email_date, archive_notes, archive_source, archived_at) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
-        [
-          input.contactId,
-          userId,
-          input.emailId,
-          email.folder || 'INBOX',
-          email.from_address,
-          email.to_address,
-          email.subject,
-          email.body_text,
-          email.body_html,
-          email.date,
-          input.notes || '',
-          input.source,
-        ]
-      );
-      return { success: true };
     }),
 
   /**
-   * Create new contact from extracted data
-   */
-  createContact: protectedProcedure
-    .input(
-      z.object({
-        firstName: z.string(),
-        lastName: z.string(),
-        email: z.string(),
-        jobTitle: z.string().optional(),
-        company: z.string().optional(),
-        phone: z.string().optional(),
-      })
-    )
-    .mutation(async ({ input, ctx }) => {
-      const userId = ctx.user.id;
-      const db = await getDb();
-      
-      const result = await db.query(
-        `INSERT INTO contacts (firstName, lastName, email, jobTitle, company, phone, created_at, updated_at) 
-         VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())`,
-        [input.firstName, input.lastName, input.email, input.jobTitle || '', input.company || '', input.phone || '']
-      );
-      
-      return { contactId: result.insertId };
-    }),
-
-  /**
-   * Add email to existing contact
-   */
-  addEmailToContact: protectedProcedure
-    .input(
-      z.object({
-        contactId: z.string(),
-        email: z.string(),
-      })
-    )
-    .mutation(async ({ input, ctx }) => {
-      const userId = ctx.user.id;
-      const db = await getDb();
-      
-      // Get current email fields
-      const contacts = await db.query(
-        `SELECT email, email2, email3, email4, email5 FROM contacts WHERE id = ? LIMIT 1`,
-        [input.contactId]
-      );
-      
-      if (contacts.length === 0) {
-        throw new Error('Contact not found');
-      }
-      
-      const contact = contacts[0];
-      
-      // Find first empty email field
-      let fieldToUpdate = null;
-      if (!contact.email) fieldToUpdate = 'email';
-      else if (!contact.email2) fieldToUpdate = 'email2';
-      else if (!contact.email3) fieldToUpdate = 'email3';
-      else if (!contact.email4) fieldToUpdate = 'email4';
-      else if (!contact.email5) fieldToUpdate = 'email5';
-      
-      if (!fieldToUpdate) {
-        throw new Error('All email fields are full');
-      }
-      
-      await db.query(
-        `UPDATE contacts SET ${fieldToUpdate} = ?, updated_at = NOW() WHERE id = ?`,
-        [input.email, input.contactId]
-      );
-      
-      return { success: true, field: fieldToUpdate };
-    }),
-
-  /**
-   * Get archived emails for a contact
-   */
-  getArchivedEmails: protectedProcedure
-    .input(
-      z.object({
-        contactId: z.string(),
-      })
-    )
-    .query(async ({ input, ctx }) => {
-      const userId = ctx.user.id;
-      const db = await getDb();
-      const archives = await db.query(
-        `SELECT * FROM contact_email_archives 
-         WHERE contact_id = ? AND user_id = ? 
-         ORDER BY archived_at DESC`,
-        [input.contactId, userId]
-      );
-      return { archives };
-    }),
-
-  /**
-   * Search contacts by email only (email1-email5)
+   * Search contacts by email
    */
   searchContactsByEmail: protectedProcedure
     .input(
@@ -166,49 +149,25 @@ export const archiveRouter = router({
         email: z.string(),
       })
     )
-    .query(async ({ input, ctx }) => {
-      const userId = ctx.user.id;
-      const db = await getDb();
+    .query(async ({ input }) => {
+      const searchPattern = `%${input.email}%`;
       
-      const searchQuery = `%${input.email}%`;
-      const contacts = await db.query(
-        `SELECT id, firstName, lastName, email, email2, email3, email4, email5, jobTitle, company 
-         FROM contacts 
-         WHERE (email LIKE ? OR email2 LIKE ? OR email3 LIKE ? OR email4 LIKE ? OR email5 LIKE ?) 
-         LIMIT 10`,
-        [searchQuery, searchQuery, searchQuery, searchQuery, searchQuery]
-      );
-      
-      return { contacts };
+      const results = await db.query.contacts.findMany({
+        where: or(
+          like(contacts.email, searchPattern),
+          like(contacts.email2, searchPattern),
+          like(contacts.email3, searchPattern),
+          like(contacts.email4, searchPattern),
+          like(contacts.email5, searchPattern)
+        ),
+        limit: 10,
+      });
+
+      return { contacts: results };
     }),
 
   /**
-   * Search contacts by name (fallback)
-   */
-  searchContactsByName: protectedProcedure
-    .input(
-      z.object({
-        name: z.string(),
-      })
-    )
-    .query(async ({ input, ctx }) => {
-      const userId = ctx.user.id;
-      const db = await getDb();
-      
-      const searchQuery = `%${input.name}%`;
-      const contacts = await db.query(
-        `SELECT id, firstName, lastName, email, email2, email3, email4, email5, jobTitle, company 
-         FROM contacts 
-         WHERE (firstName LIKE ? OR lastName LIKE ? OR CONCAT(firstName, ' ', lastName) LIKE ?) 
-         LIMIT 10`,
-        [searchQuery, searchQuery, searchQuery]
-      );
-      
-      return { contacts };
-    }),
-
-  /**
-   * Extract contact info from email signature using LLM
+   * Extract contact info from email using LLM
    */
   extractContactFromSignature: protectedProcedure
     .input(
@@ -225,30 +184,11 @@ export const archiveRouter = router({
           messages: [
             {
               role: 'system',
-              content: `Du bist ein Assistent, der Kontaktinformationen aus E-Mail-Signaturen extrahiert. 
-Extrahiere folgende Informationen:
-- firstName (Vorname)
-- lastName (Nachname)
-- email (E-Mail-Adresse)
-- jobTitle (Position/Titel)
-- company (Firma/Organisation)
-- phone (Telefonnummer)
-
-Antworte NUR mit einem JSON-Objekt. Keine zusätzlichen Texte.
-Wenn eine Information nicht gefunden wird, setze den Wert auf null.
-
-Beispiel:
-{"firstName": "Max", "lastName": "Mustermann", "email": "max@example.com", "jobTitle": "CEO", "company": "Example GmbH", "phone": "+49 123 456789"}`
+              content: `Extract contact information from email signature. Return ONLY a JSON object with: firstName, lastName, email, jobTitle, company, phone. Set to null if not found.`
             },
             {
               role: 'user',
-              content: `E-Mail von: ${input.fromName || input.fromAddress}
-E-Mail-Adresse: ${input.fromAddress}
-
-E-Mail-Inhalt:
-${input.emailBody}
-
-Extrahiere die Kontaktinformationen aus der Signatur.`
+              content: `From: ${input.fromName || input.fromAddress}\nEmail: ${input.fromAddress}\n\n${input.emailBody}`
             }
           ],
           temperature: 0.3,
@@ -260,18 +200,6 @@ Extrahiere die Kontaktinformationen aus der Signatur.`
         }
 
         const extracted = JSON.parse(content);
-        
-        // Ensure email is set
-        if (!extracted.email) {
-          extracted.email = input.fromAddress;
-        }
-        
-        // Parse name if not found
-        if (!extracted.firstName && input.fromName) {
-          const nameParts = input.fromName.split(' ');
-          extracted.firstName = nameParts[0] || '';
-          extracted.lastName = nameParts.slice(1).join(' ') || '';
-        }
         
         return { 
           contact: {
@@ -286,7 +214,7 @@ Extrahiere die Kontaktinformationen aus der Signatur.`
       } catch (error) {
         console.error('LLM extraction error:', error);
         
-        // Fallback: Basic parsing
+        // Fallback
         const nameParts = (input.fromName || '').split(' ');
         return {
           contact: {
@@ -299,5 +227,35 @@ Extrahiere die Kontaktinformationen aus der Signatur.`
           }
         };
       }
+    }),
+
+  /**
+   * Create new contact
+   */
+  createContact: protectedProcedure
+    .input(
+      z.object({
+        firstName: z.string(),
+        lastName: z.string(),
+        email: z.string(),
+        jobTitle: z.string().optional(),
+        company: z.string().optional(),
+        phone: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const contactId = crypto.randomUUID();
+      
+      await db.insert(contacts).values({
+        id: contactId,
+        firstName: input.firstName,
+        lastName: input.lastName,
+        email: input.email,
+        jobTitle: input.jobTitle || '',
+        company: input.company || '',
+        phone: input.phone || '',
+      });
+
+      return { contactId };
     }),
 });

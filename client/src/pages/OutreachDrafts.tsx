@@ -86,7 +86,7 @@ export default function OutreachDrafts() {
       pending: 'bg-yellow-100 text-yellow-800',
       approved: 'bg-green-100 text-green-800',
       rejected: 'bg-red-100 text-red-800',
-      sent: 'bg-blue-100 text-blue-800',
+      sent: 'bg-gray-100 text-gray-800',
     };
     const icons = {
       pending: Clock,
@@ -116,7 +116,7 @@ export default function OutreachDrafts() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-2xl font-semibold text-gray-900">E-Mail-Entwürfe</h1>
+          <h1 className="text-2xl font-bold text-gray-900">E-Mail-Entwürfe</h1>
           <p className="text-sm text-gray-600 mt-1">
             Überprüfe und genehmige automatisch generierte E-Mail-Entwürfe
           </p>
@@ -183,7 +183,7 @@ export default function OutreachDrafts() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setPreviewDraft(draft)}
-                    className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                    className="p-2 text-gray-600 hover:text-orange-600 hover:bg-gray-50 rounded transition-colors"
                     title="Vorschau"
                   >
                     <Eye className="h-4 w-4" />
@@ -192,7 +192,7 @@ export default function OutreachDrafts() {
                     <>
                       <button
                         onClick={() => setEditingDraft(draft)}
-                        className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                        className="p-2 text-gray-600 hover:text-orange-600 hover:bg-gray-50 rounded transition-colors"
                         title="Bearbeiten"
                       >
                         <Edit className="h-4 w-4" />
@@ -216,7 +216,7 @@ export default function OutreachDrafts() {
                   {draft.reviewStatus === 'approved' && (
                     <button
                       onClick={() => handleSend(draft.id)}
-                      className="px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm font-medium flex items-center gap-1"
+                      className="px-3 py-1.5 bg-bl2020-orange text-white rounded hover:bg-bl2020-orange-dark transition-colors text-sm font-medium flex items-center gap-1"
                     >
                       <Send className="h-4 w-4" />
                       Senden
@@ -268,7 +268,7 @@ export default function OutreachDrafts() {
                   type="text"
                   name="subject"
                   defaultValue={editingDraft.subject || ''}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 />
               </div>
               <div>
@@ -277,7 +277,7 @@ export default function OutreachDrafts() {
                   name="body"
                   rows={15}
                   defaultValue={editingDraft.body || ''}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent font-mono text-sm"
                 />
               </div>
               <div className="flex gap-3 pt-4">

@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { trpc } from '../lib/trpc';
 import type { EmailMessage } from '../../../server/emailService';
 import { useSearch } from 'wouter';
 import ComposeModal from '../components/ComposeModal';
 import ArchiveModal from '../components/ArchiveModal';
+import EmailSearchBar, { SearchFilters } from '../components/EmailSearchBar';
 
 // Helper function to extract email address from various formats
 const extractEmailAddress = (addr: any): string | null => {
@@ -57,6 +58,9 @@ const renderEmailWithAddress = (addr: any, contactMap: Record<string, string>): 
   return addr.email || addr.name || 'Unknown';
 };
 
+// Page size for infinite scroll
+const PAGE_SIZE = 100;
+
 export default function Emails() {
   const search = useSearch(); // Tracks query string changes
   const [selectedEmailId, setSelectedEmailId] = useState<string | null>(null);
@@ -69,9 +73,25 @@ export default function Emails() {
   // Archive Modal State
   const [archiveOpen, setArchiveOpen] = useState(false);
   
-  // Selected email full data
-  const [selectedEmailData, setSelectedEmailData] = useState<EmailMessage | null>(null);
+  // Search State with Filters
+  const [searchFilters, setSearchFilters] = useState<SearchFilters>({ folder: 'INBOX' });
+  const [isSearching, setIsSearching] = useState(false);
   
+  // Image Loading State
+  const [imagesAllowed, setImagesAllowed] = useState<Set<string>>(new Set());
+  const [trustedSenders, setTrustedSenders] = useState<Set<string>>(() => {
+    const stored = localStorage.getItem('trustedEmailSenders');
+    return stored ? new Set(JSON.parse(stored)) : new Set();
+  });
+  
+  // Ref for scroll container
+  const emailListRef = useRef<HTMLDivElement>(null);
+
+  // Update search filters when folder changes
+  useEffect(() => {
+    setSearchFilters(prev => ({ ...prev, folder: currentFolder }));
+  }, [currentFolder]);
+
   // Update currentFolder when URL changes
   useEffect(() => {
     const urlParams = new URLSearchParams(search);
@@ -81,23 +101,86 @@ export default function Emails() {
     setSelectedEmailId(null); // Clear selection when folder changes
   }, [search]);
 
-  // Fetch emails for the current folder
-  const { data, isLoading, error, refetch } = trpc.emailClient.getEmails.useQuery(
-    { folder: currentFolder },
+
+
+  // Fetch emails with Infinite Scroll
+  const { 
+    data, 
+    fetchNextPage, 
+    hasNextPage, 
+    isFetchingNextPage,
+    isLoading,
+    error,
+    refetch
+  } = trpc.emailClient.getEmails.useInfiniteQuery(
     { 
+      folder: searchFilters.folder || currentFolder,
+      take: PAGE_SIZE,
+      query: searchFilters.query || '',
+    },
+    {
+      getNextPageParam: (lastPage, allPages) => {
+        // Wenn letzte Seite weniger als PAGE_SIZE E-Mails hat, keine weitere Seite
+        if (lastPage.emails.length < PAGE_SIZE) return undefined;
+        
+        // Nächste Seite: skip = Anzahl aller bisherigen E-Mails
+        const totalLoaded = allPages.reduce((total, page) => total + page.emails.length, 0);
+        return { skip: totalLoaded };
+      },
       enabled: true,
       refetchOnMount: true,
       refetchOnWindowFocus: false,
-      staleTime: 0,
-      cacheTime: 0,
     }
   );
 
+  // tRPC Utils für imperative Aufrufe (z.B. Download)
+  const trpcUtils = trpc.useUtils();
+
+  // Flatten all emails from pages
+  const allEmails = useMemo(() => {
+    if (!data?.pages) return [];
+    return data.pages.flatMap(page => page.emails);
+  }, [data?.pages]);
+
+  // Total count from first page
+  const totalCount = data?.pages?.[0]?.totalCount || 0;
+
+  // Scroll handler for infinite scroll
+  const handleScroll = useCallback(() => {
+    const container = emailListRef.current;
+    if (!container) return;
+    
+    const { scrollTop, scrollHeight, clientHeight } = container;
+    const scrollPercentage = (scrollTop + clientHeight) / scrollHeight;
+    
+    // Wenn 80% gescrollt und weitere Seiten verfügbar
+    if (scrollPercentage > 0.8 && hasNextPage && !isFetchingNextPage) {
+      console.log('[EmailClient] Triggering fetchNextPage at', Math.round(scrollPercentage * 100), '%');
+      fetchNextPage();
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  // Attach scroll listener
+  useEffect(() => {
+    const container = emailListRef.current;
+    if (!container) return;
+    
+    container.addEventListener('scroll', handleScroll);
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
+
+  // Auto-select first email when emails are loaded
+  useEffect(() => {
+    if (allEmails.length > 0 && !selectedEmailId) {
+      setSelectedEmailId(allEmails[0].id);
+    }
+  }, [allEmails, selectedEmailId]);
+
   // Extract all unique email addresses from emails
   const allEmailAddresses = useMemo(() => {
-    if (!data?.emails) return [];
+    if (!allEmails.length) return [];
     const addresses = new Set<string>();
-    data.emails.forEach((email: EmailMessage) => {
+    allEmails.forEach((email: EmailMessage) => {
       const from = extractEmailAddress(email.from);
       if (from) addresses.add(from);
       
@@ -116,13 +199,180 @@ export default function Emails() {
       }
     });
     return Array.from(addresses);
-  }, [data?.emails]);
+  }, [allEmails]);
+
+  // HTML-Processing für E-Mail-Links
+  const processEmailBody = (html: string, allowImages: boolean = false) => {
+    if (!html) return html;
+    
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      
+      // Alle Links durchgehen und target="_blank" hinzufügen
+      doc.querySelectorAll('a').forEach(link => {
+        link.setAttribute('target', '_blank');
+        link.setAttribute('rel', 'noopener noreferrer');
+        
+        // Stelle sicher, dass href nicht entfernt wurde
+        if (!link.getAttribute('href')) {
+          const text = link.textContent;
+          if (text && (text.startsWith('http') || text.startsWith('www'))) {
+            link.setAttribute('href', text.startsWith('www') ? `https://${text}` : text);
+          }
+        }
+        
+        // Explizit pointer-events erlauben
+        link.style.pointerEvents = 'auto';
+        link.style.cursor = 'pointer';
+      });
+      
+      // Bilder blockieren wenn nicht erlaubt, oder wiederherstellen wenn erlaubt
+      doc.querySelectorAll('img').forEach(img => {
+        const originalSrc = img.getAttribute('src') || img.getAttribute('data-original-src');
+        if (originalSrc && !originalSrc.startsWith('data:')) {
+          if (!allowImages) {
+            // Bilder blockieren
+            img.setAttribute('data-original-src', originalSrc);
+            img.removeAttribute('src');
+            img.style.display = 'none';
+          } else {
+            // Bilder wiederherstellen
+            img.setAttribute('src', originalSrc);
+            img.removeAttribute('data-original-src');
+            img.style.display = '';
+          }
+        }
+      });
+      
+      return doc.body.innerHTML;
+    } catch (error) {
+      console.error('Error processing email body:', error);
+      return html;
+    }
+  };
+
+  const handleAttachmentClick = async (att: any, idx: number, email: any) => {
+    if (!email.id) {
+      console.error('Email ID missing');
+      alert('Download fehlgeschlagen: E-Mail ID fehlt');
+      return;
+    }
+    if (idx >= email.attachments.length) {
+      console.error('Attachment index out of bounds');
+      alert('Download fehlgeschlagen: Anhang existiert nicht');
+      return;
+    }
+    try {
+      const downloadLink: string = email.attachments[idx].link;
+      const dateiName: string = email.attachments[idx].filename;
+
+      const a = document.createElement('a');
+      a.href = downloadLink;
+      a.download = dateiName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Download failed:', error);
+      alert('Download fehlgeschlagen');
+    }
+  };
 
   // Fetch contacts for all email addresses
+  // Get full email details when an email is selected
+  const { data: fullEmailData, isLoading: isLoadingFullEmail } = trpc.emailClient.getEmail.useQuery(
+    {
+      folder: currentFolder,
+      uid: selectedEmailId || '',
+    },
+    {
+      enabled: !!selectedEmailId,
+    }
+  );
+
   const { data: contactsData } = trpc.emailClient.findContactsByEmails.useQuery(
     { emails: allEmailAddresses },
     { enabled: allEmailAddresses.length > 0 }
   );
+
+  // Delete email mutation
+  const deleteMutation = trpc.emailClient.deleteEmail.useMutation({
+    onSuccess: () => {
+      setSelectedEmail(null);
+      refetch();
+    },
+    onError: (error) => {
+      console.error('[deleteEmail] Error:', error);
+      alert(`Error deleting: ${error.message}`);
+    }
+  });
+
+  // Mark as read/unread mutation
+  const markAsReadMutation = trpc.emailClient.markAsRead.useMutation({
+    onSuccess: () => {
+      refetch();
+    },
+    onError: (error) => {
+      console.error('[markAsRead] Error:', error);
+      alert(`Error marking: ${error.message}`);
+    }
+  });
+
+  const handleMarkAsRead = async (markRead: boolean) => {
+    if (!selectedEmail) return;
+    
+    try {
+      await markAsReadMutation.mutateAsync({
+        folder: currentFolder,
+        uid: selectedEmail.id,
+        markRead,
+      });
+    } catch (error) {
+      console.error('[handleMarkAsRead] Error:', error);
+    }
+  };
+
+  // Move messages mutation
+  const moveMessagesMutation = trpc.emailClient.moveMessages.useMutation({
+    onSuccess: () => {
+      setSelectedEmail(null);
+      refetch();
+    },
+    onError: (error) => {
+      console.error('[moveMessages] Error:', error);
+      alert(`Error moving: ${error.message}`);
+    }
+  });
+
+  const handleMoveToFolder = async (toFolder: string) => {
+    if (!selectedEmail) return;
+    
+    try {
+      await moveMessagesMutation.mutateAsync({
+        uids: [selectedEmail.id],
+        fromFolder: currentFolder,
+        toFolder,
+      });
+    } catch (error) {
+      console.error('[handleMoveToFolder] Error:', error);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!selectedEmail) return;
+    
+    if (!confirm('E-Mail wirklich löschen?')) return;
+    
+    try {
+      await deleteMutation.mutateAsync({
+        folder: currentFolder,
+        uid: selectedEmail.id,
+      });
+    } catch (error) {
+      console.error('[handleDelete] Error:', error);
+    }
+  };
 
   // Create a map of email -> contact name
   const contactMap = useMemo(() => {
@@ -137,24 +387,8 @@ export default function Emails() {
     return map;
   }, [contactsData]);
 
-  const emails = data?.emails || [];
-  
-  // Fetch full email data when an email is selected
-  console.log('[EmailClient] getEmail query config:', { selectedEmailId, currentFolder, enabled: !!selectedEmailId });
-  const { data: fullEmailData } = trpc.emailClient.getEmail.useQuery(
-    { uid: selectedEmailId || '', folder: currentFolder },
-    { enabled: !!selectedEmailId }
-  );
-  console.log('[EmailClient] fullEmailData:', fullEmailData);
-  
-  // Update selectedEmailData when fullEmailData changes
-  useEffect(() => {
-    if (fullEmailData) {
-      setSelectedEmailData(fullEmailData as EmailMessage);
-    }
-  }, [fullEmailData]);
-  
-  const selectedEmail = selectedEmailData || emails.find((e: EmailMessage) => e.id === selectedEmailId);
+  // Only use fullEmailData (with HTML) when available, don't fall back to allEmails (without HTML)
+  const selectedEmail = fullEmailData;
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -181,104 +415,173 @@ export default function Emails() {
     refetch();
   };
 
+  // Handle search
+  const handleSearch = (filters: SearchFilters) => {
+    setIsSearching(true);
+    setSearchFilters(filters);
+    setSelectedEmailId(null);
+    setTimeout(() => setIsSearching(false), 500);
+  };
+
   return (
     <>
-      <div className="flex h-screen bg-white">
-        {/* LEFT COLUMN - Email List (Small - 35% width) */}
-        <div className="w-[35%] border-r border-gray-200 flex flex-col">
+      <div className="flex flex-col md:flex-row min-h-[calc(100vh-12rem)] bg-white rounded-lg shadow-sm border border-gray-200">
+        <div className="w-full md:w-[35%] lg:w-[30%] xl:w-[25%] 2xl:w-[21%] border-r border-gray-200 flex flex-col">
           {/* Header */}
+        {/* LEFT COLUMN - Email List (Small - 35% width) */}
           <div className="border-b border-gray-200 p-4 bg-gray-50">
-            <h2 className="text-xl font-bold text-gray-900">{currentFolder}</h2>
+            <div className="flex items-center justify-between gap-4">
+              <h2 className="text-base font-bold text-gray-900">{currentFolder}</h2>
+              <EmailSearchBar
+                onSearch={handleSearch}
+              />
+              <span className="text-sm text-gray-500 whitespace-nowrap">
+                {allEmails.length}{totalCount > 0 && ` / ${totalCount}`}
+              </span>
+            </div>
           </div>
 
-          {/* Search Bar */}
-          <div className="p-3 border-b border-gray-200">
-            <input
-              type="text"
-              placeholder="Suchen..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          {/* Email List */}
-          <div className="flex-1 overflow-y-auto">
+          {/* Email List with Scroll Handler */}
+          <div 
+            ref={emailListRef} 
+            className="flex-1 overflow-y-auto"
+          >
             {isLoading ? (
-              <div className="p-4 text-center text-gray-500">Lade E-Mails...</div>
+              <div className="p-4 text-center text-gray-500">Loading emails...</div>
             ) : error ? (
-              <div className="p-4 text-center text-red-500">Fehler beim Laden der E-Mails</div>
-            ) : emails.length === 0 ? (
-              <div className="p-4 text-center text-gray-500">Keine E-Mails vorhanden</div>
+              <div className="p-4 text-center text-red-500">Error loading emails</div>
+            ) : allEmails.length === 0 ? (
+              <div className="p-4 text-center text-gray-500">
+                {debouncedSearch ? 'No emails found' : 'No emails available'}
+              </div>
             ) : (
-              emails.map((email: EmailMessage) => (
-                <div
-                  key={email.id}
-                  onClick={() => setSelectedEmailId(email.id)}
-                  className={`border-b border-gray-100 p-3 cursor-pointer transition-colors hover:bg-gray-50 ${
-                    selectedEmailId === email.id
-                      ? 'bg-blue-50 border-l-4 border-l-blue-600'
-                      : ''
-                  }`}
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-gray-900 text-sm truncate">{renderEmailAddress(email.from, contactMap)}</p>
-                      <p className="text-gray-700 text-xs truncate font-medium mt-1">{email.subject}</p>
-                    </div>
-                    <div className="flex items-center gap-2 ml-2">
-                      {email.hasAttachments && <span className="text-gray-400 text-xs">📎</span>}
-                      <p className="text-gray-500 text-xs whitespace-nowrap">{formatDate(email.date)}</p>
+              <>
+                {allEmails.map((email: EmailMessage) => (
+                  <div
+                    key={email.id}
+                    onClick={() => setSelectedEmailId(email.id)}
+                    className={`border-b border-gray-100 p-3 cursor-pointer transition-colors hover:bg-gray-50 ${
+                      selectedEmailId === email.id
+                        ? 'bg-gray-50 border-l-4 border-l-orange-600'
+                        : ''
+                    }`}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-gray-900 text-sm truncate">{renderEmailAddress(email.from, contactMap)}</p>
+                        <p className="text-gray-700 text-xs truncate font-medium mt-1">{email.subject}</p>
+                      </div>
+                      <div className="flex items-center gap-2 ml-2">
+                        {email.hasAttachments && <span className="text-gray-400 text-xs">📎</span>}
+                        <p className="text-gray-500 text-xs whitespace-nowrap">{formatDate(email.date)}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))
+                ))}
+                
+                {/* Loading indicator for infinite scroll */}
+                {isFetchingNextPage && (
+                  <div className="p-4 text-center text-gray-500 text-sm">
+                    <div className="inline-flex items-center gap-2">
+                      <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                      Lade weitere E-Mails...
+                    </div>
+                  </div>
+                )}
+                
+                {/* End of list indicator */}
+                {!hasNextPage && allEmails.length > 0 && (
+                  <div className="p-4 text-center text-gray-400 text-xs">
+                    All emails loaded ({allEmails.length})
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
 
         {/* RIGHT COLUMN - Email Detail (Large - 65% width) */}
         {selectedEmailId ? (
-          <div className="w-[65%] flex flex-col">
+          <div className="w-full md:w-[65%] lg:w-[70%] xl:w-[75%] 2xl:w-[79%] flex flex-col">
             {/* Action Buttons */}
             <div className="border-b border-gray-200 p-3 bg-white flex gap-2 items-center">
               <button
                 onClick={() => handleCompose('new')}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium"
+                className="px-2 py-1 text-[15px] bg-[#e48f00] text-white rounded hover:bg-[#d17f00] transition-colors"
               >
-                + Neu
+                + New
               </button>
               <button
                 onClick={() => handleCompose('reply')}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium"
+                className="px-2 py-1 text-[15px] bg-[#e48f00] text-white rounded hover:bg-[#d17f00] transition-colors"
               >
                 Reply
               </button>
               <button
                 onClick={() => handleCompose('replyAll')}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium"
+                className="px-2 py-1 text-[15px] bg-[#e48f00] text-white rounded hover:bg-[#d17f00] transition-colors"
               >
                 Reply All
               </button>
               <button
                 onClick={() => handleCompose('forward')}
-                className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 text-sm font-medium"
+                className="px-2 py-1 text-[15px] bg-gray-100 text-gray-600 rounded hover:bg-gray-200 transition-colors"
               >
                 Forward
               </button>
               <button
-                onClick={() => {/* TODO: Delete */}}
-                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-sm font-medium"
+                onClick={() => handleMarkAsRead(true)}
+                disabled={markAsReadMutation.isPending}
+                className="px-2 py-1 text-[15px] bg-[#e48f00] text-white rounded hover:bg-[#d17f00] transition-colors disabled:opacity-50"
               >
-                Delete
+                {markAsReadMutation.isPending ? '...' : '✓'}
               </button>
               <button
-                onClick={() => setArchiveOpen(true)}
-                className="px-3 py-1.5 bg-green-600 text-white rounded hover:bg-green-700 text-sm font-medium"
+                onClick={() => handleMarkAsRead(false)}
+                disabled={markAsReadMutation.isPending}
+                className="px-2 py-1 text-[15px] bg-gray-100 text-gray-600 rounded hover:bg-gray-200 transition-colors disabled:opacity-50" title="Mark as unread"
               >
-                📁 Archivieren
+                {markAsReadMutation.isPending ? '...' : '✉'}
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={deleteMutation.isPending}
+                className="px-2 py-1 text-[15px] bg-gray-100 text-gray-600 rounded hover:bg-gray-200 transition-colors disabled:opacity-50" title="Delete"
+              >
+                {deleteMutation.isPending ? '...' : '🗑'}
+              </button>
+              <select
+                onChange={(e) => {
+                  if (e.target.value) {
+                    handleMoveToFolder(e.target.value);
+                    e.target.value = ''; // Reset dropdown
+                  }
+                }}
+                disabled={moveMessagesMutation.isPending}
+                className="px-2 py-1 text-[15px] bg-gray-100 text-gray-600 rounded hover:bg-gray-200 transition-colors disabled:opacity-50 cursor-pointer"
+              >
+                <option value="">{moveMessagesMutation.isPending ? 'Moving...' : '📂 Move to...'}</option>
+                <option value="Drafts">Drafts</option>
+                <option value="Sent Items">Sent</option>
+                <option value="Deleted Items">Trash</option>
+                <option value="Junk E-Mail">Spam</option>
+              </select>
+              <button
+                onClick={() => setArchiveOpen(true)}
+                className="px-2 py-1 text-[15px] bg-gray-100 text-gray-600 rounded hover:bg-gray-200 transition-colors" title="Archive"
+              >
+                📦
               </button>
             </div>
 
-            {selectedEmail && (
+            {isLoadingFullEmail && selectedEmailId ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-gray-500">Loading email...</div>
+              </div>
+            ) : selectedEmail && (
               <>
                 {/* Compact Header */}
                 <div className="border-b border-gray-200 p-3 bg-gray-50">
@@ -293,11 +596,9 @@ export default function Emails() {
                     </div>
                   </div>
                   <div className="mt-2">
-                    <p className="text-gray-600 text-xs font-semibold">BETREFF</p>
                     <p className="font-semibold text-gray-900 text-sm">{selectedEmail.subject}</p>
                   </div>
                   <div className="mt-2">
-                    <p className="text-gray-600 text-xs font-semibold">DATUM</p>
                     <p className="text-gray-900 text-sm">
                       {new Date(selectedEmail.date).toLocaleString('de-DE')}
                     </p>
@@ -307,12 +608,13 @@ export default function Emails() {
                       <p className="text-gray-600 text-xs font-semibold mb-1">ANHÄNGE ({selectedEmail.attachments.length})</p>
                       <div className="flex flex-wrap gap-2">
                         {selectedEmail.attachments.map((att: any, idx: number) => (
-                          <span
+                          <button
                             key={idx}
-                            className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded"
+                            onClick={() => handleAttachmentClick(att, idx, selectedEmail)}
+                            className="text-xs bg-gray-100 text-orange-700 px-2 py-1 rounded hover:bg-blue-200 cursor-pointer"
                           >
                             📎 {att.filename || `Anhang ${idx + 1}`}
-                          </span>
+                          </button>
                         ))}
                       </div>
                     </div>
@@ -320,28 +622,66 @@ export default function Emails() {
                 </div>
 
                 {/* Email Body */}
-                <div className="flex-1 overflow-y-auto p-4">
-                  {(fullEmailData?.html || selectedEmail.html) ? (
-                    <iframe
-                      srcDoc={fullEmailData?.html || selectedEmail.html}
-                      className="w-full h-full border-0"
-                      sandbox="allow-same-origin"
-                      title="Email Content"
-                    />
-                  ) : (
-                    <pre className="whitespace-pre-wrap text-sm text-gray-700 font-sans">
-                      {fullEmailData?.text || selectedEmail.text || 'Kein Inhalt verfügbar'}
-                    </pre>
-                  )}
+                <div className="flex-1 overflow-y-auto p-4 relative">
+                  {(() => {
+                    const senderEmail = extractEmailAddress(selectedEmail.from);
+                    const isImagesAllowed = imagesAllowed.has(selectedEmail.id) || (senderEmail && trustedSenders.has(senderEmail));
+                    const hasExternalImages = selectedEmail.html && /<img[^>]+src=["'](?!data:)[^"']+["']/i.test(selectedEmail.html);
+                    
+                    return (
+                      <>
+                        {hasExternalImages && !isImagesAllowed && (
+                          <div className="mb-2 text-sm text-gray-600 flex items-center gap-1">
+                            <span>📷</span>
+                            <button
+                              onClick={() => {
+                                setImagesAllowed(prev => new Set(prev).add(selectedEmail.id));
+                              }}
+                              className="text-orange-600 hover:underline"
+                            >
+                              Show images
+                            </button>
+                            <span>or</span>
+                            <button
+                              onClick={() => {
+                                if (senderEmail) {
+                                  const newTrusted = new Set(trustedSenders).add(senderEmail);
+                                  setTrustedSenders(newTrusted);
+                                  localStorage.setItem('trustedEmailSenders', JSON.stringify(Array.from(newTrusted)));
+                                  setImagesAllowed(prev => new Set(prev).add(selectedEmail.id));
+                                }
+                              }}
+                              className="text-orange-600 hover:underline"
+                            >
+                              always show images from this sender
+                            </button>
+                          </div>
+                        )}
+                        {selectedEmail.html ? (
+                          <iframe
+                            key={`${selectedEmail.id}-${isImagesAllowed}`}
+                            srcDoc={processEmailBody(selectedEmail.html, isImagesAllowed)}
+                            className="w-full h-full border-0"
+                            sandbox="allow-same-origin allow-popups"
+                            title="Email Content"
+                          />
+                        ) : (
+                          <pre className="whitespace-pre-wrap text-sm text-gray-700 font-sans">
+                            {selectedEmail.text || 'Kein Inhalt verfügbar'}
+                          </pre>
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
               </>
             )}
           </div>
         ) : (
-          <div className="w-[65%] flex items-center justify-center bg-gray-50">
+          <div className="w-[79%] flex items-center justify-center bg-gray-50">
             <div className="text-center text-gray-400">
               <div className="text-6xl mb-4">📧</div>
-              <p className="text-xl">Wählen Sie eine E-Mail</p>
+              <p className="text-base">Wählen Sie eine E-Mail</p>
               <p className="text-sm mt-2">um sie zu lesen</p>
             </div>
           </div>
@@ -361,15 +701,14 @@ export default function Emails() {
       {archiveOpen && selectedEmailId && (
         <ArchiveModal
           emailId={selectedEmailId}
-          email={(selectedEmailData || selectedEmail) ? { 
-            from: (selectedEmailData || selectedEmail).from?.email || (selectedEmailData || selectedEmail).from || '',
-            fromName: (selectedEmailData || selectedEmail).from?.name || '',
-            to: (selectedEmailData || selectedEmail).to || '',
-            subject: (selectedEmailData || selectedEmail).subject || '',
-            body: (selectedEmailData || selectedEmail).body || (selectedEmailData || selectedEmail).text || '',
-            html: (selectedEmailData || selectedEmail).html || '',
-            date: (selectedEmailData || selectedEmail).date || new Date().toISOString(),
-            attachments: (selectedEmailData || selectedEmail).attachments || [],
+          email={selectedEmail ? { 
+            from: selectedEmail.from?.email || selectedEmail.from || '',
+            fromName: selectedEmail.from?.name || '',
+            to: selectedEmail.to || '',
+            subject: selectedEmail.subject || '',
+            body: selectedEmail.body || '',
+            html: selectedEmail.html || '',
+            date: selectedEmail.date || new Date().toISOString(),
           } : undefined}
           fromAddress={selectedEmail?.from?.email || selectedEmail?.from || ""}
           ccAddresses={Array.isArray(selectedEmail?.cc) ? selectedEmail.cc.map((c: any) => typeof c === "object" ? c.email : c) : []}

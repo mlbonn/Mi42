@@ -52,7 +52,7 @@ export default function MyDeals() {
       {/* Main Content */}
       <main className="container py-12">
         <div className="mb-8">
-          <h2 className="text-3xl font-bold text-black mb-2">My Deals & Commissions</h2>
+          <h2 className="text-2xl font-bold text-gray-900">My Deals & Commissions</h2>
           <p className="text-gray-600">Ihre persönlichen Deals und Provisionen</p>
         </div>
 

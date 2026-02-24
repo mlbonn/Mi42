@@ -122,24 +122,23 @@ export default function ArchiveModal({
         }
       });
 
-      // Archive email for each selected contact
-      for (const contactId of selectedContactIds) {
-            await archiveEmailMutation.mutateAsync({
-              emailId,
-              contactId: contactId.toString(),
-              notes: `Archived from email: ${email?.subject || 'No subject'}`,
-              // Pass email data from frontend
-              fromAddress: fromAddress,
-              fromName: email?.fromName || '',
-              toAddress: email?.to || '',
-              ccAddress: ccAddresses.join(', '),
-              subject: email?.subject || '',
-              body: email?.body || '',
-              htmlBody: email?.html || '',
-              emailDate: email?.date || new Date().toISOString(),
-              attachments: email?.attachments || [],
-            });
-      }
+await archiveEmailMutation.mutateAsync({
+  contactId: contactId.toString(),
+  emailData: {
+    messageId: emailId,
+    folder: 'INBOX',
+    from: fromAddress,
+    fromName: email?.fromName || '',
+    to: email?.to || '',
+    cc: ccAddresses.join(', '),
+    subject: email?.subject || '',
+    bodyText: email?.body || '',
+    bodyHtml: email?.html || '',
+    date: email?.date || new Date().toISOString(),
+    attachments: email?.attachments || [],
+  },
+  notes: `Archived from email: ${email?.subject || "No subject"}`,
+});
 
       // Create new contacts if requested
       const createdContactIds: string[] = [];
@@ -158,24 +157,25 @@ export default function ArchiveModal({
           if (newContact && newContact.id) {
             createdContactIds.push(newContact.id);
             
-            // Archive email for newly created contact
-              await archiveEmailMutation.mutateAsync({
-                emailId,
-                contactId: newContact.id,
-                notes: `Archived from email: ${email?.subject || 'No subject'} (New contact created)`,
-                fromAddress: fromAddress,
-                fromName: email?.fromName || '',
-                toAddress: email?.to || '',
-                ccAddress: ccAddresses.join(', '),
-                subject: email?.subject || '',
-                body: email?.body || '',
-                htmlBody: email?.html || '',
-                emailDate: email?.date || new Date().toISOString(),
-                attachments: email?.attachments || [],
-              });
+await archiveEmailMutation.mutateAsync({
+  contactId: contactId.toString(),
+  emailData: {
+    messageId: emailId,
+    folder: 'INBOX',
+    from: fromAddress,
+    fromName: email?.fromName || '',
+    to: email?.to || '',
+    cc: ccAddresses.join(', '),
+    subject: email?.subject || '',
+    bodyText: email?.body || '',
+    bodyHtml: email?.html || '',
+    date: email?.date || new Date().toISOString(),
+    attachments: email?.attachments || [],
+  },
+  notes: `Archived from email: ${email?.subject || "No subject"}`,
+});
           }
         } catch (error) {
-          console.error(`Error creating contact for ${emailAddr}:`, error);
           alert(`Fehler beim Erstellen des Kontakts für ${emailAddr}`);
         }
       }
@@ -258,7 +258,7 @@ export default function ArchiveModal({
                     onChange={() => toggleCreateNew(index)}
                     className="rounded"
                   />
-                  <span className="text-sm font-medium text-blue-600">
+                  <span className="text-sm font-medium text-orange-600">
                     Neuen Kontakt anlegen
                   </span>
                 </label>

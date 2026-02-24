@@ -38,8 +38,7 @@ import Calendar from "./pages/Calendar";
 import Users from "./pages/Users";
 import EmailClient from "./pages/EmailClient";
 import { useAuth } from "./_core/hooks/useAuth";
-import Sidebar from "./components/Sidebar";
-import Header from "./components/Header";
+import Layout from "./layouts/Layout";
 
 function Router() {
   const { user, loading } = useAuth();
@@ -53,78 +52,74 @@ function Router() {
   }
 
   return (
-    <div className="flex">
-      <Sidebar />
-      <div className="flex-1 ml-64">
-        <Header />
-        <Switch>
-      <Route path={"/"} component={Home} />
-      <Route path={"/corporations"} component={Corporations} />
-      <Route path="/corporations/:id" component={CorporationDetailNew} />
-      <Route path={"/companies"} component={Companies} />
-      <Route path="/companies/:id" component={CompanyDetail} />
-      <Route path={"/contacts"} component={Contacts} />
-      <Route path="/contacts/:id" component={ContactDetail} />
-      <Route path={"/deals"} component={Deals} />
-      
-      {/* External Sales: My Deals */}
-      {user?.role === 'staff_plus' && (
-        <Route path="/my-deals" component={MyDeals} />
-      )}
-      
-      {/* Scout Agent */}
-      <Route path="/scout" component={Scout} />
-      <Route path="/scout/seed" component={ScoutSeed} />
-      <Route path="/scout/review" component={ScoutReview} />
-      <Route path="/scout/queue" component={ScoutQueue} />
-      <Route path="/scout/methods" component={ScoutMethods} />
-      <Route path="/scout/stats" component={Placeholder.ScoutStatsPage} />
-      
-      {/* Hunter Agent */}
-      <Route path="/hunter" component={HunterDashboard} />
-      <Route path="/hunter/targets" component={HunterTargetCompanies} />
-      <Route path="/hunter/review" component={HunterReview} />
-      <Route path="/hunter/contacts" component={HunterFoundContacts} />
-      <Route path="/hunter/data-sources" component={Placeholder.HunterSourcesPage} />
-      <Route path="/hunter/stats" component={Placeholder.HunterStatsPage} />
-      
-      {/* Outreach Agent */}
-      <Route path="/outreach" component={OutreachDashboard} />
-      <Route path="/outreach/campaigns" component={OutreachCampaigns} />
-      <Route path="/outreach/drafts" component={OutreachDrafts} />
-      <Route path="/outreach/review" component={OutreachReview} />
-      <Route path="/outreach/sent" component={OutreachSent} />
-      <Route path="/outreach/responses" component={OutreachResponses} />
-      <Route path="/outreach/templates" component={OutreachTemplates} />
-      <Route path="/outreach/stats" component={Placeholder.OutreachStatsPage} />
-      
-      {/* Analytics */}
-      <Route path="/analytics/funnel" component={Placeholder.AnalyticsFunnelPage} />
-      <Route path="/analytics/agents" component={Placeholder.AnalyticsAgentsPage} />
-      <Route path="/analytics/roi" component={Placeholder.AnalyticsROIPage} />
-      
-      {/* Calendar */}
-      <Route path="/calendar" component={Calendar} />
-      
-      {/* Emails & Projects */}
-      <Route path="/emails" component={EmailClient} />
-      <Route path="/email-client" component={EmailClient} />
-      
-      {/* Settings & Admin */}
-      <Route path="/settings" component={Settings} />
-      <Route path="/users" component={Users} />
-      <Route path="/settings/partners" component={Placeholder.SettingsPartnersPage} />
-      <Route path="/settings/api" component={Settings} />
-      <Route path="/settings/integrations" component={Placeholder.SettingsIntegrationsPage} />
-      
-      {/* Documentation */}
-      <Route path="/docs" component={Docs} />
-      
-      <Route path="/404" component={NotFound} />
-      <Route component={NotFound} />
-        </Switch>
-      </div>
-    </div>
+    <Layout>
+      <Switch>
+        <Route path={"/"} component={Home} />
+        <Route path={"/corporations"} component={Corporations} />
+        <Route path="/corporations/:id" component={CorporationDetailNew} />
+        <Route path={"/companies"} component={Companies} />
+        <Route path="/companies/:id" component={CompanyDetail} />
+        <Route path={"/contacts"} component={Contacts} />
+        <Route path="/contacts/:id" component={ContactDetail} />
+        <Route path={"/deals"} component={Deals} />
+        
+        {/* External Sales: My Deals */}
+        {user?.role === 'staff_plus' && (
+          <Route path="/my-deals" component={MyDeals} />
+        )}
+        
+        {/* Scout Agent */}
+        <Route path="/scout" component={Scout} />
+        <Route path="/scout/seed" component={ScoutSeed} />
+        <Route path="/scout/review" component={ScoutReview} />
+        <Route path="/scout/queue" component={ScoutQueue} />
+        <Route path="/scout/methods" component={ScoutMethods} />
+        <Route path="/scout/stats" component={Placeholder.ScoutStatsPage} />
+        
+        {/* Hunter Agent */}
+        <Route path="/hunter" component={HunterDashboard} />
+        <Route path="/hunter/targets" component={HunterTargetCompanies} />
+        <Route path="/hunter/review" component={HunterReview} />
+        <Route path="/hunter/contacts" component={HunterFoundContacts} />
+        <Route path="/hunter/data-sources" component={Placeholder.HunterSourcesPage} />
+        <Route path="/hunter/stats" component={Placeholder.HunterStatsPage} />
+        
+        {/* Outreach Agent */}
+        <Route path="/outreach" component={OutreachDashboard} />
+        <Route path="/outreach/campaigns" component={OutreachCampaigns} />
+        <Route path="/outreach/drafts" component={OutreachDrafts} />
+        <Route path="/outreach/review" component={OutreachReview} />
+        <Route path="/outreach/sent" component={OutreachSent} />
+        <Route path="/outreach/responses" component={OutreachResponses} />
+        <Route path="/outreach/templates" component={OutreachTemplates} />
+        <Route path="/outreach/stats" component={Placeholder.OutreachStatsPage} />
+        
+        {/* Analytics */}
+        <Route path="/analytics/funnel" component={Placeholder.AnalyticsFunnelPage} />
+        <Route path="/analytics/agents" component={Placeholder.AnalyticsAgentsPage} />
+        <Route path="/analytics/roi" component={Placeholder.AnalyticsROIPage} />
+        
+        {/* Calendar */}
+        <Route path="/calendar" component={Calendar} />
+        
+        {/* Emails & Projects */}
+        <Route path="/emails" component={EmailClient} />
+        <Route path="/email-client" component={EmailClient} />
+        
+        {/* Settings & Admin */}
+        <Route path="/settings" component={Settings} />
+        <Route path="/users" component={Users} />
+        <Route path="/settings/partners" component={Placeholder.SettingsPartnersPage} />
+        <Route path="/settings/api" component={Settings} />
+        <Route path="/settings/integrations" component={Placeholder.SettingsIntegrationsPage} />
+        
+        {/* Documentation */}
+        <Route path="/docs" component={Docs} />
+        
+        <Route path="/404" component={NotFound} />
+        <Route component={NotFound} />
+      </Switch>
+    </Layout>
   );
 }
 
@@ -142,4 +137,3 @@ function App() {
 }
 
 export default App;
-

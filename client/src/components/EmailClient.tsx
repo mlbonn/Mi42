@@ -66,7 +66,7 @@ export function EmailClient() {
             Füge ein E-Mail-Konto hinzu, um E-Mails zu senden und zu empfangen.
           </p>
           <button
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            className="px-4 py-2 bg-bl2020-orange text-white rounded hover:bg-bl2020-orange-dark"
             onClick={() => {
               // TODO: Open account settings modal
               alert('Account-Settings öffnen');
@@ -92,7 +92,7 @@ export function EmailClient() {
           />
         </div>
         <button
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          className="px-4 py-2 bg-bl2020-orange text-white rounded hover:bg-bl2020-orange-dark"
           onClick={() => setIsComposeOpen(true)}
         >
           Verfassen

@@ -69,7 +69,7 @@ export default function ScoutSeed() {
     <div className="px-8 py-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Seed hinzufügen</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Add Seed</h1>
         <p className="text-gray-600">
           Neue Firma manuell zur Scout Queue hinzufügen
         </p>
@@ -83,7 +83,7 @@ export default function ScoutSeed() {
             type="button"
             onClick={() => setSeedType("manual")}
             className={`p-4 border ${
-              seedType === "manual" ? "border-blue-600 bg-blue-50" : "border-gray-300"
+              seedType === "manual" ? "border-orange-600 bg-gray-50" : "border-gray-300"
             }`}
           >
             <div className="font-bold mb-2">✏️ Manuell</div>
@@ -94,7 +94,7 @@ export default function ScoutSeed() {
             type="button"
             onClick={() => setSeedType("linkedin")}
             className={`p-4 border ${
-              seedType === "linkedin" ? "border-blue-600 bg-blue-50" : "border-gray-300"
+              seedType === "linkedin" ? "border-orange-600 bg-gray-50" : "border-gray-300"
             }`}
           >
             <div className="font-bold mb-2">🔗 LinkedIn</div>
@@ -105,7 +105,7 @@ export default function ScoutSeed() {
             type="button"
             onClick={() => setSeedType("press")}
             className={`p-4 border ${
-              seedType === "press" ? "border-blue-600 bg-blue-50" : "border-gray-300"
+              seedType === "press" ? "border-orange-600 bg-gray-50" : "border-gray-300"
             }`}
           >
             <div className="font-bold mb-2">📰 Presse</div>
@@ -182,7 +182,7 @@ export default function ScoutSeed() {
         )}
 
         {/* Info Box */}
-        <div className="bg-blue-50 p-6 border-l-4 border-blue-600">
+        <div className="bg-gray-50 p-6 border-l-4 border-orange-600">
           <h3 className="font-bold mb-2">Was passiert nach dem Hinzufügen?</h3>
           <ol className="text-sm text-gray-700 space-y-2 list-decimal list-inside">
             <li>Firma wird zur Scout Queue hinzugefügt (Generation 0 - Seed)</li>

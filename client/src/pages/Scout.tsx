@@ -28,7 +28,7 @@ export default function Scout() {
     <div className="container py-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Scout Agent</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Scout Agent</h1>
         <p className="text-gray-600">
           Autonome Lead-Generierung durch Wettbewerber-Analyse
         </p>
@@ -48,7 +48,7 @@ export default function Scout() {
           <div className="text-sm text-gray-600 mb-2">Pending Review</div>
           <div className="text-3xl font-bold text-orange-600">{pendingSuggestionsCount}</div>
           <Link href="/scout/review">
-            <span className="text-xs text-blue-600 hover:underline mt-2 inline-block">Review →</span>
+            <span className="text-xs text-orange-600 hover:underline mt-2 inline-block">Review →</span>
           </Link>
         </div>
 
@@ -164,7 +164,7 @@ export default function Scout() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold">Neueste Vorschläge</h2>
           <Link href="/scout/review">
-            <span className="text-sm text-blue-600 hover:underline">Alle anzeigen →</span>
+            <span className="text-sm text-orange-600 hover:underline">Alle anzeigen →</span>
           </Link>
         </div>
         <div className="border">
@@ -212,7 +212,7 @@ export default function Scout() {
       </div>
 
       {/* Footer Info */}
-      <div className="bg-blue-50 p-6 border-l-4 border-blue-600">
+      <div className="bg-gray-50 p-6 border-l-4 border-orange-600">
         <h3 className="font-bold mb-2">🤖 Wie funktioniert der Scout Agent?</h3>
         <p className="text-sm text-gray-700 mb-4">
           Der Scout Agent analysiert kontinuierlich Seed-Firmen, sucht Wettbewerber in Top-15-Märkten
@@ -220,7 +220,7 @@ export default function Scout() {
           Seeds für die nächste Generation.
         </p>
         <Link href="/docs">
-          <span className="text-sm text-blue-600 hover:underline">
+          <span className="text-sm text-orange-600 hover:underline">
             Vollständige Dokumentation lesen →
           </span>
         </Link>

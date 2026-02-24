@@ -128,7 +128,7 @@ export default function HunterTargetCompanies() {
                         href={corp.website.startsWith("http") ? corp.website : `https://${corp.website}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline"
+                        className="text-orange-600 hover:underline"
                       >
                         {corp.website.replace(/^https?:\/\//, "").replace(/^www\./, "")}
                       </a>

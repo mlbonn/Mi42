@@ -161,17 +161,17 @@ export default function ScoutDiscoveryMethods() {
     <div className="container py-6 bg-gray-50 min-h-screen">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Discovery Methods</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Discovery Methods</h1>
         <p className="text-sm text-gray-600">
           Konfigurieren Sie die Discovery-Methoden für den Scout Agent
         </p>
       </div>
 
       {/* Info Card */}
-      <Card className="mb-6 border-blue-200 bg-blue-50">
+      <Card className="mb-6 border-blue-200 bg-gray-50">
         <CardContent className="pt-6">
           <div className="flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5" />
+            <AlertCircle className="h-5 w-5 text-orange-600 mt-0.5" />
             <div className="text-sm text-gray-700">
               <p className="font-medium mb-1">Wie funktionieren Discovery Methods?</p>
               <p>
@@ -195,8 +195,8 @@ export default function ScoutDiscoveryMethods() {
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-3">
-                    <div className="p-2 bg-blue-50 rounded-lg">
-                      <Icon className="h-5 w-5 text-blue-600" />
+                    <div className="p-2 bg-gray-50 rounded-lg">
+                      <Icon className="h-5 w-5 text-orange-600" />
                     </div>
                     <div>
                       <CardTitle className="text-base">{config.label}</CardTitle>

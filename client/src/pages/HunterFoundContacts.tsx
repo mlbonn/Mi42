@@ -60,7 +60,7 @@ export default function HunterFoundContacts() {
   return (
     <div className="p-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Hunter Found Contacts</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Hunter Found Contacts</h1>
         <p className="text-gray-600">
           Kontakte gefunden durch Hunter Agent
         </p>
@@ -154,7 +154,7 @@ export default function HunterFoundContacts() {
                     {result.email && (
                       <div className="flex items-center gap-2">
                         <Mail className="w-4 h-4 text-gray-400" />
-                        <a href={`mailto:${result.email}`} className="text-blue-600 hover:underline">
+                        <a href={`mailto:${result.email}`} className="text-orange-600 hover:underline">
                           {result.email}
                         </a>
                       </div>
@@ -162,7 +162,7 @@ export default function HunterFoundContacts() {
                     {result.phoneNumber && (
                       <div className="flex items-center gap-2">
                         <Phone className="w-4 h-4 text-gray-400" />
-                        <a href={`tel:${result.phoneNumber}`} className="text-blue-600 hover:underline">
+                        <a href={`tel:${result.phoneNumber}`} className="text-orange-600 hover:underline">
                           {result.phoneNumber}
                         </a>
                       </div>
@@ -180,7 +180,7 @@ export default function HunterFoundContacts() {
                           href={result.linkedinUrl} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline flex items-center gap-1"
+                          className="text-orange-600 hover:underline flex items-center gap-1"
                         >
                           LinkedIn
                           <ExternalLink className="w-3 h-3" />

@@ -4,6 +4,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --color-bl2020-orange: var(--bl2020-orange);
+  --color-bl2020-orange-hover: var(--bl2020-orange-hover);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -59,6 +61,10 @@
   --priority-high: oklch(0.578 0.201 27.325); /* Rot */
   --priority-medium: oklch(0.757 0.149 70.67); /* Orange */
   --priority-low: oklch(0.455 0 0); /* Grau */
+  
+  /* BL2020 Orange */
+  --bl2020-orange: oklch(0.675 0.15 60); /* #E48F00 */
+  --bl2020-orange-hover: oklch(0.6 0.15 60); /* Dunkleres Orange für Hover */
   
   /* Contact Status */
   --contact-hot: oklch(0.578 0.201 27.325); /* Rot */
@@ -255,4 +261,34 @@ button, a, [role="button"] {
 .touch-target {
   min-height: 44px;
   min-width: 44px;
+}
+@import "./orange-fix.css";
+
+/* BL2020 Orange Color */
+.bg-bl2020-orange {
+}
+
+.bg-bl2020-orange-dark {
+}
+
+.hover\:bg-bl2020-orange-dark:hover {
+}
+
+.hover\:bg-bl2020-orange:hover {
+}
+/* BL2020 Orange Color */
+.bg-bl2020-orange {
+  background-color: #E48F00;
+}
+
+.bg-bl2020-orange-dark {
+  background-color: #CC7F00;
+}
+
+.hover\:bg-bl2020-orange-dark:hover {
+  background-color: #CC7F00;
+}
+
+.hover\:bg-bl2020-orange:hover {
+  background-color: #E48F00;
 }

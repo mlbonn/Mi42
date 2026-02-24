@@ -4,6 +4,8 @@ import axios from 'axios';
 import https from 'https';
 import { sql } from 'drizzle-orm';
 import * as db from './db';
+import { getSmarterMailClient } from './smartermailClient';
+import * as path from 'path';
 
 
 // SmarterMail API Base URL
@@ -302,34 +304,21 @@ export const emailClientRouter = router({
               if (uploadResponse.data && uploadResponse.data.attachmentGuid) {
                 attachmentGuids.push(uploadResponse.data.attachmentGuid);
               }
-              
-              // Clean up temp file
-              fs.unlinkSync(attachment.path);
-            } catch (uploadError: any) {
-              console.error('[ATTACHMENT UPLOAD ERROR]', uploadError.response?.data || uploadError.message);
-              // Continue with other attachments even if one fails
+            } catch (err) {
+              console.error('Attachment upload error:', err);
             }
           }
         }
         
-        // Send message with attachments
-        const emailData: any = {
-          from: { email: account.imapUser },
-          to: [{ email: input.to }],
-          subject: input.subject,
-          htmlBody: input.body,
-          isHtml: true,
-          replyToMessageId: input.replyToMessageId,
-          forwardMessageId: input.forwardMessageId,
-        };
-        
-        if (attachmentGuids.length > 0) {
-          emailData.attachmentGuids = attachmentGuids;
-        }
-        
-        await axios.post(
-          `${SMARTERMAIL_BASE_URL}/api/v1/mail/message-put`,
-          emailData,
+        // Send email
+        const response = await axios.post(
+          `${SMARTERMAIL_BASE_URL}/api/v1/mail/send-message`,
+          {
+            to: input.to,
+            subject: input.subject,
+            body: input.body,
+            attachmentGuids: attachmentGuids,
+          },
           {
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -339,7 +328,7 @@ export const emailClientRouter = router({
           }
         );
         
-        return { success: true, attachmentCount: attachmentGuids.length };
+        return { success: true };
       } catch (error: any) {
         console.error('Send email error:', error.response?.data || error.message);
         throw new Error(`Failed to send email: ${error.message}`);
@@ -349,33 +338,40 @@ export const emailClientRouter = router({
   moveEmail: protectedProcedure
     .input(
       z.object({
-        messageIds: z.array(z.string()),
+        folder: z.string(),
+        uid: z.string(),
         targetFolder: z.string(),
       })
     )
     .mutation(async ({ input, ctx }) => {
       try {
-        // Get email account
-        const accounts = await db.getEmailAccounts();
+        const userId = ctx.user?.id;
+        if (!userId) {
+          throw new Error('User not authenticated');
+        }
+        
+        const accounts = await db.getEmailAccounts(userId);
         
         if (!accounts || accounts.length === 0) {
           throw new Error('No email account configured');
         }
         
-        const account = accounts[0];
+        const account = accounts.find(a => a.isPrimary) || accounts[0];
+        const token = await authenticateSmarterMail(account.emailAddress, account.passwordEncrypted);
+        const serverUrl = account.serverUrl || 'https://mail.bl2020.com';
         
-        // Authenticate
-        const token = await authenticateSmarterMail(account.imapUser, account.imapPassword);
+        const sourceFolder = FOLDER_MAP[input.folder] || input.folder;
+        const destFolder = FOLDER_MAP[input.targetFolder] || input.targetFolder;
         
-        // Map folder name
-        const smarterMailFolder = FOLDER_MAP[input.targetFolder] || input.targetFolder;
+        console.log(`Moving email ${input.uid} from ${sourceFolder} to ${destFolder}`);
         
-        // Move messages
-        await axios.post(
-          `${SMARTERMAIL_BASE_URL}/api/v1/mail/messages-move`,
+        const response = await axios.post(
+          `${serverUrl}/api/v1/mail/move`,
           {
-            messageIds: input.messageIds.map(id => parseInt(id)),
-            targetFolder: smarterMailFolder,
+            folder: sourceFolder,
+            destinationFolder: destFolder,
+            uids: [parseInt(input.uid)],
+            ownerEmailAddress: account.emailAddress,
           },
           {
             headers: {
@@ -408,6 +404,7 @@ export const emailClientRouter = router({
         body: z.string().optional(),
         htmlBody: z.string().optional(),
         emailDate: z.string().optional(),
+        folder: z.string().default('INBOX'),
         attachments: z.array(z.object({
           filename: z.string(),
           type: z.string(),
@@ -434,7 +431,8 @@ export const emailClientRouter = router({
           from: fromAddress,
           to: toAddressString,
           cc: ccAddressString,
-          subject: input.subject
+          subject: input.subject,
+          attachmentsCount: input.attachments?.length || 0
         });
         
         // Insert into archived_emails table using raw SQL
@@ -466,25 +464,73 @@ export const emailClientRouter = router({
         // Get the inserted ID
         const archivedEmailId = (insertResult as any).insertId || (insertResult as any)[0]?.insertId;
         
+        console.log(`✅ Email archived with ID: ${archivedEmailId}`);
+        
         // Save attachments if provided
         if (input.attachments && input.attachments.length > 0 && archivedEmailId) {
-          const fs = await import('fs/promises');
-          const path = await import('path');
+          console.log(`📎 Processing ${input.attachments.length} attachment(s)...`);
           
-          const attachmentsDir = `/home/manus02/friday-crm/attachments/${archivedEmailId}`;
+          // Get email account for authentication
+          const accounts = await db.getEmailAccounts(userId);
+          if (!accounts || accounts.length === 0) {
+            console.error('❌ No email account found for attachment download');
+            throw new Error('No email account configured');
+          }
+          
+          const account = accounts.find(a => a.isPrimary) || accounts[0];
+          const serverUrl = account.serverUrl || 'https://mail.bl2020.com';
+          
+          // Get SmarterMail client
+          const smartermailClient = getSmarterMailClient(serverUrl);
+          
+          // Create attachments directory
+          const attachmentsDir = `/home/manus02/friday-crm/email-attachments/${archivedEmailId}`;
+          const fs = await import('fs/promises');
           await fs.mkdir(attachmentsDir, { recursive: true });
           
+          // Save email metadata as JSON
+          const emailMetadata = {
+            archivedEmailId: archivedEmailId,
+            emailId: input.emailId,
+            contactId: input.contactId,
+            from: fromAddress,
+            fromName: fromName,
+            to: toAddressString,
+            cc: ccAddressString,
+            subject: input.subject,
+            body: input.body,
+            htmlBody: input.htmlBody,
+            emailDate: input.emailDate,
+            folder: input.folder,
+            notes: input.notes,
+            attachments: input.attachments.map(att => ({
+              filename: att.filename,
+              type: att.type,
+              size: att.size,
+              localPath: path.join(attachmentsDir, att.filename)
+            })),
+            archivedAt: new Date().toISOString()
+          };
+          
+          await fs.writeFile(
+            path.join(attachmentsDir, 'email.json'),
+            JSON.stringify(emailMetadata, null, 2)
+          );
+          console.log(`✅ Saved email.json metadata`);
+          
+          // Download each attachment
+          let successCount = 0;
           for (const attachment of input.attachments) {
             try {
-              // Download attachment from SmarterMail server
-              const response = await fetch(attachment.link);
-              if (!response.ok) {
-                throw new Error(`Failed to download attachment: ${response.statusText}`);
-              }
+              console.log(`📥 Downloading: ${attachment.filename} (${attachment.size} bytes)`);
               
-              const buffer = Buffer.from(await response.arrayBuffer());
-              const filePath = path.join(attachmentsDir, attachment.filename);
-              await fs.writeFile(filePath, buffer);
+              // Download attachment using SmarterMail client with authentication
+              const saved = await smartermailClient.downloadAndSaveAttachment(
+                attachment,
+                path.join(attachmentsDir, attachment.filename),
+                account.emailAddress,
+                account.passwordEncrypted
+              );
               
               // Save attachment metadata to DB
               await dbInstance.execute(
@@ -495,20 +541,28 @@ export const emailClientRouter = router({
                    ${attachment.filename}, 
                    ${attachment.type}, 
                    ${attachment.size}, 
-                   ${filePath}
+                   ${saved.filepath}
                  )`
               );
               
-              console.log(`✅ Saved attachment: ${attachment.filename} (${attachment.size} bytes)`);
-            } catch (err) {
-              console.error(`❌ Error saving attachment ${attachment.filename}:`, err);
+              successCount++;
+              console.log(`✅ Saved attachment: ${attachment.filename} (${saved.size} bytes)`);
+            } catch (err: any) {
+              console.error(`❌ Error saving attachment ${attachment.filename}:`, err.message);
+              // Continue with other attachments even if one fails
             }
           }
+          
+          console.log(`✅ Successfully saved ${successCount}/${input.attachments.length} attachments`);
         }
         
-        console.log(`Email ${input.emailId} archived for contact ${input.contactId}`);
+        console.log(`✅ Email ${input.emailId} fully archived for contact ${input.contactId}`);
         
-        return { success: true };
+        return { 
+          success: true,
+          archivedEmailId: archivedEmailId,
+          attachmentsCount: input.attachments?.length || 0
+        };
       } catch (error: any) {
         console.error('Archive email error:', error.response?.data || error.message);
         throw new Error(`Failed to archive email: ${error.message}`);
@@ -597,6 +651,300 @@ export const emailClientRouter = router({
       } catch (error: any) {
         console.error('[deleteEmail] Error:', error);
         throw new Error(`Failed to delete email: ${error.message}`);
+      }
+    }),
+
+  // Search emails with advanced filters
+  searchMessages: protectedProcedure
+    .input(z.object({
+      query: z.string().optional(),
+      dateFrom: z.string().optional(),
+      dateTo: z.string().optional(),
+      sender: z.string().optional(),
+      folder: z.string().default('INBOX'),
+      skip: z.number().default(0),
+      take: z.number().default(50),
+    }))
+    .query(async ({ input, ctx }) => {
+      try {
+        const userId = ctx.user?.id;
+        if (!userId) throw new Error('User not authenticated');
+        
+        const accounts = await db.getEmailAccounts(userId);
+        if (!accounts || accounts.length === 0) {
+          return { messages: [], total: 0 };
+        }
+        
+        const account = accounts[0];
+        const client = await getSmarterMailClient(
+          account.email,
+          account.password
+        );
+        
+        // Build search criteria
+        const searchCriteria: any = {
+          folder: FOLDER_MAP[input.folder] || input.folder,
+          searchFields: 0,
+        };
+        
+        if (input.query) {
+          searchCriteria.searchText = input.query;
+          searchCriteria.searchFields = 1 | 2 | 4 | 8;
+        }
+        
+        if (input.sender) {
+          searchCriteria.from = input.sender;
+          searchCriteria.searchFields |= 1;
+        }
+        
+        if (input.dateFrom) {
+          searchCriteria.startDate = input.dateFrom;
+        }
+        if (input.dateTo) {
+          searchCriteria.endDate = input.dateTo;
+        }
+        
+        searchCriteria.skip = input.skip;
+        searchCriteria.take = input.take;
+        
+        const token = await client.getToken();
+        const response = await axios.post(
+          `${SMARTERMAIL_BASE_URL}/api/v1/mail/search-messages`,
+          searchCriteria,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+            httpsAgent,
+          }
+        );
+        
+        return {
+          messages: response.data.messages || [],
+          total: response.data.totalCount || 0,
+        };
+      } catch (error: any) {
+        console.error('Search messages error:', error.response?.data || error.message);
+        throw new Error(`Failed to search messages: ${error.message}`);
+      }
+    }),
+
+  // Send email
+  sendMessage: protectedProcedure
+    .input(z.object({
+      to: z.array(z.string().email()),
+      cc: z.array(z.string().email()).optional(),
+      bcc: z.array(z.string().email()).optional(),
+      subject: z.string(),
+      body: z.string(),
+      htmlBody: z.string().optional(),
+      inReplyTo: z.string().optional(),
+      references: z.string().optional(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const userId = ctx.user?.id;
+        if (!userId) throw new Error('User not authenticated');
+        
+        const accounts = await db.getEmailAccounts(userId);
+        if (!accounts || accounts.length === 0) {
+          throw new Error('No email account configured');
+        }
+        
+        const account = accounts[0];
+        const client = await getSmarterMailClient(
+          account.email,
+          account.password
+        );
+        
+        const messageData: any = {
+          to: input.to.map(email => ({ email })),
+          subject: input.subject,
+          textBody: input.body,
+        };
+        
+        if (input.cc && input.cc.length > 0) {
+          messageData.cc = input.cc.map(email => ({ email }));
+        }
+        
+        if (input.bcc && input.bcc.length > 0) {
+          messageData.bcc = input.bcc.map(email => ({ email }));
+        }
+        
+        if (input.htmlBody) {
+          messageData.htmlBody = input.htmlBody;
+        }
+        
+        if (input.inReplyTo) {
+          messageData.inReplyTo = input.inReplyTo;
+        }
+        
+        if (input.references) {
+          messageData.references = input.references;
+        }
+        
+        const token = await client.getToken();
+        const response = await axios.post(
+          `${SMARTERMAIL_BASE_URL}/api/v1/mail/send-message`,
+          messageData,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+            httpsAgent,
+          }
+        );
+        
+        console.log('[sendMessage] Email sent successfully');
+        return { success: true, messageId: response.data.messageId };
+      } catch (error: any) {
+        console.error('Send message error:', error.response?.data || error.message);
+        throw new Error(`Failed to send message: ${error.message}`);
+      }
+    }),
+
+  // Get email templates
+  getEmailTemplates: protectedProcedure
+    .query(async ({ ctx }) => {
+      try {
+        const userId = ctx.user?.id;
+        if (!userId) throw new Error('User not authenticated');
+        
+        const dbInstance = await db.getDb();
+        if (!dbInstance) throw new Error('DB not available');
+        
+        const templates = await dbInstance.execute(
+          sql`SELECT id, name, subject, body, htmlBody, createdAt 
+              FROM email_templates
+              WHERE userId = ${userId}
+              ORDER BY createdAt DESC`
+        );
+        
+        const rows = Array.isArray(templates) && templates.length > 0 ? templates[0] : [];
+        return rows;
+      } catch (error: any) {
+        console.error('Get templates error:', error);
+        throw new Error(`Failed to get templates: ${error.message}`);
+      }
+    }),
+
+  // Save email template
+  saveEmailTemplate: protectedProcedure
+    .input(z.object({
+      id: z.string().optional(),
+      name: z.string(),
+      subject: z.string(),
+      body: z.string(),
+      htmlBody: z.string().optional(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const userId = ctx.user?.id;
+        if (!userId) throw new Error('User not authenticated');
+        
+        const dbInstance = await db.getDb();
+        if (!dbInstance) throw new Error('DB not available');
+        
+        if (input.id) {
+          await dbInstance.execute(
+            sql`UPDATE email_templates 
+                SET name = ${input.name}, 
+                    subject = ${input.subject}, 
+                    body = ${input.body}, 
+                    htmlBody = ${input.htmlBody || null}
+                WHERE id = ${input.id} AND userId = ${userId}`
+          );
+          return { success: true, id: input.id };
+        } else {
+          const result = await dbInstance.execute(
+            sql`INSERT INTO email_templates (userId, name, subject, body, htmlBody, createdAt)
+                VALUES (${userId}, ${input.name}, ${input.subject}, ${input.body}, ${input.htmlBody || null}, NOW())`
+          );
+          return { success: true, id: result.insertId };
+        }
+      } catch (error: any) {
+        console.error('Save template error:', error);
+        throw new Error(`Failed to save template: ${error.message}`);
+      }
+    }),
+
+  // Generate AI reply
+  generateAIReply: protectedProcedure
+    .input(z.object({
+      originalMessage: z.object({
+        from: z.string(),
+        subject: z.string(),
+        body: z.string(),
+      }),
+      context: z.string().optional(),
+      tone: z.enum(['professional', 'friendly', 'formal']).default('professional'),
+    }))
+    .mutation(async ({ input }) => {
+      try {
+        const OpenAI = (await import('openai')).default;
+        const openai = new OpenAI({
+          apiKey: process.env.OPENAI_API_KEY,
+        });
+        
+        const toneInstructions = {
+          professional: 'Write in a professional, business-appropriate tone.',
+          friendly: 'Write in a friendly, warm tone while maintaining professionalism.',
+          formal: 'Write in a formal, respectful tone suitable for official correspondence.',
+        };
+        
+        const prompt = `You are an AI assistant helping to write email replies.
+
+Original Email:
+From: ${input.originalMessage.from}
+Subject: ${input.originalMessage.subject}
+Body: ${input.originalMessage.body}
+
+${input.context ? `Additional Context: ${input.context}` : ''}
+
+Please generate a professional reply to this email. ${toneInstructions[input.tone]}
+
+Requirements:
+- Keep it concise and to the point
+- Address the main points from the original email
+- Use appropriate greeting and closing
+- Write in the same language as the original email
+
+Generate only the email body, without subject line.`;
+        
+        const completion = await openai.chat.completions.create({
+          model: 'gpt-4',
+          messages: [
+            { role: 'system', content: 'You are a professional email assistant.' },
+            { role: 'user', content: prompt }
+          ],
+          temperature: 0.7,
+          max_tokens: 500,
+        });
+        
+        const generatedReply = completion.choices[0]?.message?.content || '';
+        
+        return {
+          success: true,
+          reply: generatedReply,
+        };
+      } catch (error: any) {
+        console.error('Generate AI reply error:', error);
+        throw new Error(`Failed to generate AI reply: ${error.message}`);
+      }
+    }),
+  // Get list of email folders
+  getFolders: protectedProcedure
+    .query(async ({ ctx }) => {
+      try {
+        const userEmail = ctx.user.email;
+        console.log(`[emailClientRouter] Getting folders for ${userEmail}`);
+        const folders = await getEmailFolders(userEmail);
+        return folders;
+      } catch (error: any) {
+        console.error('[emailClientRouter] Error getting folders:', error.message);
+        return ['INBOX', 'Sent', 'Drafts', 'Trash', 'Spam'];
       }
     }),
 });

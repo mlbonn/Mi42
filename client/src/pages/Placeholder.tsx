@@ -18,10 +18,10 @@ export default function Placeholder({ title, description, backLink = "/", backLa
     <div className="container py-8">
       <div className="max-w-2xl mx-auto text-center">
         <div className="text-6xl mb-8">🚧</div>
-        <h1 className="text-3xl font-bold mb-4">{title}</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
         <p className="text-gray-600 mb-8">{description}</p>
         
-        <div className="bg-blue-50 p-6 border-l-4 border-blue-600 text-left mb-8">
+        <div className="bg-gray-50 p-6 border-l-4 border-orange-600 text-left mb-8">
           <h3 className="font-bold mb-2">Status: In Entwicklung</h3>
           <p className="text-sm text-gray-700">
             Diese Funktion ist Teil des FRIDAY CRM Roadmaps und wird in den nächsten Entwicklungszyklen implementiert.

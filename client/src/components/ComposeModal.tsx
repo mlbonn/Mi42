@@ -1,5 +1,6 @@
-import { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { trpc } from '../lib/trpc';
+import ContactAutocomplete from '../components/ContactAutocomplete';
 
 interface ComposeModalProps {
   isOpen: boolean;
@@ -244,7 +245,7 @@ function ComposeModal({
     >
       {/* Resize handle */}
       <div
-        className="absolute top-0 left-0 right-0 h-1 cursor-ns-resize hover:bg-blue-500 transition-colors"
+        className="absolute top-0 left-0 right-0 h-1 cursor-ns-resize hover:bg-orange-500 transition-colors"
         onMouseDown={(e) => {
           e.preventDefault();
           resizeRef.current = e.currentTarget as any;
@@ -282,7 +283,7 @@ function ComposeModal({
           <select
             value={from}
             onChange={(e) => setFrom(e.target.value)}
-            className="flex-1 px-2 py-1 text-xs border-b border-gray-300 focus:outline-none focus:border-blue-500"
+            className="flex-1 px-2 py-1 text-xs border-b border-gray-300 focus:outline-none focus:border-orange-500"
             disabled={isSending}
           >
             <option value="ml@bl2020.com">ml@bl2020.com</option>
@@ -290,14 +291,14 @@ function ComposeModal({
           <div className="flex gap-1">
             <button
               onClick={() => setShowCc(!showCc)}
-              className="text-xs text-gray-600 hover:text-blue-600 px-1"
+              className="text-xs text-gray-600 hover:text-orange-600 px-1"
               disabled={isSending}
             >
               Cc
             </button>
             <button
               onClick={() => setShowBcc(!showBcc)}
-              className="text-xs text-gray-600 hover:text-blue-600 px-1"
+              className="text-xs text-gray-600 hover:text-orange-600 px-1"
               disabled={isSending}
             >
               Bcc
@@ -307,28 +308,26 @@ function ComposeModal({
 
         {/* To */}
         <div className="flex items-center gap-2">
-          <label className="text-xs text-gray-600 w-12">An:</label>
-          <input
-            type="email"
+          <ContactAutocomplete
             value={to}
-            onChange={(e) => setTo(e.target.value)}
-            className="flex-1 px-2 py-1 text-xs border-b border-gray-300 focus:outline-none focus:border-blue-500"
-            placeholder="empfaenger@beispiel.de"
+            onChange={setTo}
+            placeholder="Name oder E-Mail eingeben..."
             disabled={isSending}
+            className="flex-1 px-2 py-1 text-xs border-b border-gray-300 focus:outline-none focus:border-orange-500"
+            label="An:"
           />
         </div>
 
         {/* Cc */}
         {showCc && (
           <div className="flex items-center gap-2">
-            <label className="text-xs text-gray-600 w-12">Cc:</label>
-            <input
-              type="email"
+            <ContactAutocomplete
               value={cc}
-              onChange={(e) => setCc(e.target.value)}
-              className="flex-1 px-2 py-1 text-xs border-b border-gray-300 focus:outline-none focus:border-blue-500"
-              placeholder="cc@beispiel.de"
+              onChange={setCc}
+              placeholder="Name oder E-Mail eingeben..."
               disabled={isSending}
+              className="flex-1 px-2 py-1 text-xs border-b border-gray-300 focus:outline-none focus:border-orange-500"
+              label="Cc:"
             />
           </div>
         )}
@@ -336,14 +335,13 @@ function ComposeModal({
         {/* Bcc */}
         {showBcc && (
           <div className="flex items-center gap-2">
-            <label className="text-xs text-gray-600 w-12">Bcc:</label>
-            <input
-              type="email"
+            <ContactAutocomplete
               value={bcc}
-              onChange={(e) => setBcc(e.target.value)}
-              className="flex-1 px-2 py-1 text-xs border-b border-gray-300 focus:outline-none focus:border-blue-500"
-              placeholder="bcc@beispiel.de"
+              onChange={setBcc}
+              placeholder="Name oder E-Mail eingeben..."
               disabled={isSending}
+              className="flex-1 px-2 py-1 text-xs border-b border-gray-300 focus:outline-none focus:border-orange-500"
+              label="Bcc:"
             />
           </div>
         )}
@@ -355,7 +353,7 @@ function ComposeModal({
             type="text"
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
-            className="flex-1 px-2 py-1 text-xs border-b border-gray-300 focus:outline-none focus:border-blue-500"
+            className="flex-1 px-2 py-1 text-xs border-b border-gray-300 focus:outline-none focus:border-orange-500"
             placeholder="Betreff"
             disabled={isSending}
           />
@@ -441,7 +439,7 @@ function ComposeModal({
       <div className="flex items-center justify-between px-3 py-2 border-t bg-gray-50">
         <button
           onClick={handleSend}
-          className="px-4 py-1 text-xs text-white bg-blue-600 rounded hover:bg-blue-700 disabled:bg-gray-400"
+          className="px-4 py-1 text-xs text-white bg-bl2020-orange rounded hover:bg-bl2020-orange-dark disabled:bg-gray-400"
           disabled={isSending || isUploading}
         >
           {isSending ? 'Wird gesendet...' : 'Senden'}

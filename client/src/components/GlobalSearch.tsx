@@ -50,7 +50,7 @@ export default function GlobalSearch() {
             setIsOpen(e.target.value.length >= 2);
           }}
           onFocus={() => query.length >= 2 && setIsOpen(true)}
-          className="w-full px-4 py-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-4 py-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
         />
         <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
           🔍
@@ -75,25 +75,25 @@ export default function GlobalSearch() {
           <div className="flex border-b">
             <button
               onClick={() => setActiveTab("all")}
-              className={`px-4 py-2 text-sm ${activeTab === "all" ? "border-b-2 border-blue-600 font-bold" : "text-gray-600"}`}
+              className={`px-4 py-2 text-sm ${activeTab === "all" ? "border-b-2 border-orange-600 font-bold" : "text-gray-600"}`}
             >
               Alle ({filteredCorporations.length + filteredContacts.length + filteredDeals.length})
             </button>
             <button
               onClick={() => setActiveTab("corporations")}
-              className={`px-4 py-2 text-sm ${activeTab === "corporations" ? "border-b-2 border-blue-600 font-bold" : "text-gray-600"}`}
+              className={`px-4 py-2 text-sm ${activeTab === "corporations" ? "border-b-2 border-orange-600 font-bold" : "text-gray-600"}`}
             >
               Konzerne ({filteredCorporations.length})
             </button>
             <button
               onClick={() => setActiveTab("contacts")}
-              className={`px-4 py-2 text-sm ${activeTab === "contacts" ? "border-b-2 border-blue-600 font-bold" : "text-gray-600"}`}
+              className={`px-4 py-2 text-sm ${activeTab === "contacts" ? "border-b-2 border-orange-600 font-bold" : "text-gray-600"}`}
             >
               Kontakte ({filteredContacts.length})
             </button>
             <button
               onClick={() => setActiveTab("deals")}
-              className={`px-4 py-2 text-sm ${activeTab === "deals" ? "border-b-2 border-blue-600 font-bold" : "text-gray-600"}`}
+              className={`px-4 py-2 text-sm ${activeTab === "deals" ? "border-b-2 border-orange-600 font-bold" : "text-gray-600"}`}
             >
               Deals ({filteredDeals.length})
             </button>

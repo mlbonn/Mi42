@@ -57,27 +57,42 @@ export async function fetchCalendars(config: CalDAVConfig): Promise<DAVCalendar[
 
 /**
  * Fetch events from a calendar
+ * NEW: Support for specific calendar URL
  */
 export async function fetchCalendarEvents(
   config: CalDAVConfig,
   start: Date,
   end: Date,
-  calendarName: string = 'Calendar'
+  calendarUrl?: string // NEW: Specific calendar URL
 ): Promise<CalendarEvent[]> {
   try {
+    console.log(`[CALDAV] Fetching events for ${config.username}, calendarUrl: ${calendarUrl}`);
     const client = await getCalDAVClient(config);
     const calendars = await client.fetchCalendars();
+    console.log(`[CALDAV] Found ${calendars.length} calendars for ${config.username}`);
     
-    // Find the calendar (default to first one if not found)
-    const calendar = calendars.find(cal => 
-      cal.displayName === calendarName || cal.url.includes(calendarName)
-    ) || calendars[0];
+    // NEW: Find calendar by URL if provided, otherwise use first calendar
+    let calendar: DAVCalendar | undefined;
+    if (calendarUrl) {
+      console.log(`[CALDAV] Looking for calendar with URL: ${calendarUrl}`);
+      calendar = calendars.find(cal => cal.url === calendarUrl);
+      if (!calendar) {
+        console.warn(`[CALDAV] Calendar with URL ${calendarUrl} not found for ${config.username}`);
+        console.warn(`[CALDAV] Available calendars:`, calendars.map(c => ({ url: c.url, name: c.displayName })));
+        return [];
+      }
+      console.log(`[CALDAV] Found calendar: ${calendar.displayName}`);
+    } else {
+      calendar = calendars[0];
+      console.log(`[CALDAV] Using first calendar: ${calendar?.displayName}`);
+    }
 
     if (!calendar) {
-      console.warn(`No calendar found for ${config.username}`);
+      console.warn(`[CALDAV] No calendar found for ${config.username}`);
       return [];
     }
 
+    console.log(`[CALDAV] Fetching calendar objects from ${calendar.displayName}...`);
     const calendarObjects = await client.fetchCalendarObjects({
       calendar: calendar,
       timeRange: {
@@ -85,8 +100,11 @@ export async function fetchCalendarEvents(
         end: end.toISOString(),
       },
     });
+    console.log(`[CALDAV] Found ${calendarObjects.length} calendar objects`);
 
-    return parseCalendarObjects(calendarObjects, config.username);
+    const events = parseCalendarObjects(calendarObjects, config.username);
+    console.log(`[CALDAV] Parsed ${events.length} events from ${calendar.displayName}`);
+    return events;
   } catch (error) {
     console.error(`Error fetching calendar for ${config.username}:`, error);
     return [];
@@ -151,13 +169,31 @@ export async function createCalendarEvent(
     throw new Error('No calendar found');
   }
 
-  const uid = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  const icsString = createICSString(uid, event);
+  const uid = `${Date.now()}@friday-crm`;
+  
+  const icalEvent = new ICAL.Component('vevent');
+  icalEvent.addPropertyWithValue('uid', uid);
+  icalEvent.addPropertyWithValue('summary', event.summary);
+  icalEvent.addPropertyWithValue('dtstart', ICAL.Time.fromJSDate(event.start, true));
+  icalEvent.addPropertyWithValue('dtend', ICAL.Time.fromJSDate(event.end, true));
+  
+  if (event.description) {
+    icalEvent.addPropertyWithValue('description', event.description);
+  }
+  
+  if (event.location) {
+    icalEvent.addPropertyWithValue('location', event.location);
+  }
+
+  const vcalendar = new ICAL.Component('vcalendar');
+  vcalendar.addPropertyWithValue('version', '2.0');
+  vcalendar.addPropertyWithValue('prodid', '-//FRIDAY CRM//EN');
+  vcalendar.addSubcomponent(icalEvent);
 
   await client.createCalendarObject({
-    calendar: calendar,
+    calendar,
     filename: `${uid}.ics`,
-    iCalString: icsString,
+    iCalString: vcalendar.toString(),
   });
 
   return uid;
@@ -169,7 +205,7 @@ export async function createCalendarEvent(
 export async function updateCalendarEvent(
   config: CalDAVConfig,
   eventId: string,
-  event: Partial<Omit<CalendarEvent, 'id' | 'calendar'>>
+  event: Omit<CalendarEvent, 'id' | 'calendar'>
 ): Promise<void> {
   const client = await getCalDAVClient(config);
   const calendars = await client.fetchCalendars();
@@ -179,42 +215,36 @@ export async function updateCalendarEvent(
     throw new Error('No calendar found');
   }
 
-  // Fetch existing event
-  const objects = await client.fetchCalendarObjects({ calendar });
-  const existingObject = objects.find(obj => obj.data?.includes(eventId));
+  const calendarObjects = await client.fetchCalendarObjects({ calendar });
+  const existingObject = calendarObjects.find(obj => obj.data?.includes(eventId));
 
   if (!existingObject) {
     throw new Error('Event not found');
   }
 
-  // Parse existing event
-  const jcalData = ICAL.parse(existingObject.data!);
-  const comp = new ICAL.Component(jcalData);
-  const vevent = comp.getFirstSubcomponent('vevent');
-  if (!vevent) {
-    throw new Error('No VEVENT found in calendar object');
+  const icalEvent = new ICAL.Component('vevent');
+  icalEvent.addPropertyWithValue('uid', eventId);
+  icalEvent.addPropertyWithValue('summary', event.summary);
+  icalEvent.addPropertyWithValue('dtstart', ICAL.Time.fromJSDate(event.start, true));
+  icalEvent.addPropertyWithValue('dtend', ICAL.Time.fromJSDate(event.end, true));
+  
+  if (event.description) {
+    icalEvent.addPropertyWithValue('description', event.description);
   }
-  const icalEvent = new ICAL.Event(vevent);
+  
+  if (event.location) {
+    icalEvent.addPropertyWithValue('location', event.location);
+  }
 
-  // Update fields
-  const updatedEvent: Omit<CalendarEvent, 'id' | 'calendar'> = {
-    summary: event.summary || icalEvent.summary,
-    description: event.description !== undefined ? event.description : icalEvent.description,
-    start: event.start || icalEvent.startDate.toJSDate(),
-    end: event.end || icalEvent.endDate.toJSDate(),
-    location: event.location !== undefined ? event.location : icalEvent.location,
-    attendees: event.attendees || icalEvent.attendees.map(att => {
-      const value = att.getFirstValue();
-      return typeof value === 'string' ? value : '';
-    }).filter(Boolean),
-  };
-
-  const icsString = createICSString(eventId, updatedEvent);
+  const vcalendar = new ICAL.Component('vcalendar');
+  vcalendar.addPropertyWithValue('version', '2.0');
+  vcalendar.addPropertyWithValue('prodid', '-//FRIDAY CRM//EN');
+  vcalendar.addSubcomponent(icalEvent);
 
   await client.updateCalendarObject({
     calendarObject: {
       ...existingObject,
-      data: icsString,
+      data: vcalendar.toString(),
     },
   });
 }
@@ -234,58 +264,14 @@ export async function deleteCalendarEvent(
     throw new Error('No calendar found');
   }
 
-  const objects = await client.fetchCalendarObjects({ calendar });
-  const objectToDelete = objects.find(obj => obj.data?.includes(eventId));
+  const calendarObjects = await client.fetchCalendarObjects({ calendar });
+  const existingObject = calendarObjects.find(obj => obj.data?.includes(eventId));
 
-  if (!objectToDelete) {
+  if (!existingObject) {
     throw new Error('Event not found');
   }
 
   await client.deleteCalendarObject({
-    calendarObject: objectToDelete,
+    calendarObject: existingObject,
   });
 }
-
-/**
- * Create ICS string from event data
- */
-function createICSString(
-  uid: string,
-  event: Omit<CalendarEvent, 'id' | 'calendar'>
-): string {
-  const comp = new ICAL.Component(['vcalendar', [], []]);
-  comp.updatePropertyWithValue('prodid', '-//FRIDAY CRM//Calendar//EN');
-  comp.updatePropertyWithValue('version', '2.0');
-
-  const vevent = new ICAL.Component('vevent');
-  vevent.updatePropertyWithValue('uid', uid);
-  vevent.updatePropertyWithValue('summary', event.summary);
-  
-  if (event.description) {
-    vevent.updatePropertyWithValue('description', event.description);
-  }
-  
-  if (event.location) {
-    vevent.updatePropertyWithValue('location', event.location);
-  }
-
-  const startTime = ICAL.Time.fromJSDate(event.start, false);
-  vevent.updatePropertyWithValue('dtstart', startTime);
-
-  const endTime = ICAL.Time.fromJSDate(event.end, false);
-  vevent.updatePropertyWithValue('dtend', endTime);
-
-  vevent.updatePropertyWithValue('dtstamp', ICAL.Time.now());
-
-  comp.addSubcomponent(vevent);
-
-  return comp.toString();
-}
-
-/**
- * Clear client cache (for testing/logout)
- */
-export function clearCalDAVCache(): void {
-  clientCache.clear();
-}
-

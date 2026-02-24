@@ -228,7 +228,7 @@ export default function CorporationDetailNew() {
           <Link href="/corporations" className="text-sm text-muted-foreground hover:underline mb-2 block">
             ← Zurück zur Konzernliste
           </Link>
-          <h1 className="text-2xl font-bold">{corporation.name}</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{corporation.name}</h1>
         </div>
         <Button onClick={() => setIsEditOpen(true)}>Bearbeiten</Button>
       </div>
@@ -399,7 +399,7 @@ export default function CorporationDetailNew() {
                 <span>€{(dealStats.lost.value / 1000).toFixed(0)}k</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-blue-600">Open: {dealStats.open.count}</span>
+                <span className="text-orange-600">Open: {dealStats.open.count}</span>
                 <span>€{(dealStats.open.value / 1000).toFixed(0)}k</span>
               </div>
             </CardContent>

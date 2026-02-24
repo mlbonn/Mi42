@@ -168,7 +168,7 @@ export default function OutreachCampaigns() {
                         </span>
                       )}
                       {campaign.status === "completed" && (
-                        <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">
+                        <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded text-xs">
                           Abgeschlossen
                         </span>
                       )}
