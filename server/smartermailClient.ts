@@ -340,6 +340,32 @@ export class SmarterMailClient {
       throw new Error(`Failed to search messages: ${error.message}`);
     }
   }
+  /**
+   * Get all email folders for a user
+   */
+  async getFolders(email: string, password: string): Promise<any[]> {
+    await this.ensureAuthenticated(email, password);
+    
+    try {
+      const response = await this.axiosInstance.get(
+        `${this.baseUrl}/api/v1/folders/list-email-folders`,
+        {
+          headers: {
+            'Authorization': `Bearer ${this.accessToken}`,
+          },
+        }
+      );
+      
+      const folders = response.data.folderList || [];
+      
+      console.log(`✅ Retrieved ${folders.length} folders for ${email}`);
+      
+      return folders;
+    } catch (error: any) {
+      console.error('❌ GetFolders Error:', error.response?.data || error.message);
+      throw new Error(`Failed to get folders: ${error.message}`);
+    }
+  }
 }
 
 /**

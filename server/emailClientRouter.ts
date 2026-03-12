@@ -947,4 +947,102 @@ Generate only the email body, without subject line.`;
         return ['INBOX', 'Sent', 'Drafts', 'Trash', 'Spam'];
       }
     }),
+  extractContactFromSignature: protectedProcedure
+    .input(z.object({
+      emailBody: z.string(),
+      fromAddress: z.string().email(),
+    }))
+    .mutation(async ({ input }) => {
+      console.log('[extractContactFromSignature] Extracting contact from email body');
+      
+      try {
+        const OpenAI = (await import('openai')).default;
+        const openai = new OpenAI({
+          apiKey: process.env.OPENAI_API_KEY,
+        });
+
+        // Remove HTML tags for cleaner parsing
+        const cleanBody = input.emailBody
+          .replace(/<[^>]*>/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+
+        const prompt = `Extract contact information from the following email signature. Return ONLY a JSON object with these fields:
+- firstName: string (first name)
+- lastName: string (last name)
+- company: string (company name)
+- title: string (job title)
+- phone: string (phone number)
+- email: string (email address, use "${input.fromAddress}" if not found in signature)
+
+If a field is not found, use an empty string. Do not include any explanation, only the JSON object.
+
+Email content:
+${cleanBody.slice(-1000)}`;
+
+        console.log('[extractContactFromSignature] Calling OpenAI API...');
+        
+        const response = await openai.chat.completions.create({
+          model: 'gpt-4o-mini',
+          messages: [
+            {
+              role: 'system',
+              content: 'You are a contact information extraction assistant. Extract contact details from email signatures and return only valid JSON.',
+            },
+            {
+              role: 'user',
+              content: prompt,
+            },
+          ],
+          temperature: 0.3,
+          max_tokens: 300,
+        });
+
+        const content = response.choices[0]?.message?.content || '{}';
+        console.log('[extractContactFromSignature] OpenAI response:', content);
+
+        // Parse JSON response
+        let extractedData;
+        try {
+          // Remove markdown code blocks if present
+          const jsonContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+          extractedData = JSON.parse(jsonContent);
+        } catch (parseError) {
+          console.error('[extractContactFromSignature] JSON parse error:', parseError);
+          extractedData = {};
+        }
+
+        // Ensure email is set
+        if (!extractedData.email) {
+          extractedData.email = input.fromAddress;
+        }
+
+        // Build result with defaults
+        const result = {
+          firstName: extractedData.firstName || '',
+          lastName: extractedData.lastName || '',
+          company: extractedData.company || '',
+          title: extractedData.title || '',
+          phone: extractedData.phone || '',
+          email: extractedData.email || input.fromAddress,
+          confidence: extractedData.firstName && extractedData.lastName ? 'high' : 'low',
+        };
+
+        console.log('[extractContactFromSignature] Extracted contact:', result);
+        return result;
+      } catch (error: any) {
+        console.error('[extractContactFromSignature] Error:', error);
+        
+        // Return fallback with email only
+        return {
+          firstName: '',
+          lastName: '',
+          company: '',
+          title: '',
+          phone: '',
+          email: input.fromAddress,
+          confidence: 'none',
+        };
+      }
+    }),
 });

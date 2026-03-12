@@ -399,31 +399,21 @@ export async function getEmailFolders(
       return ['INBOX', 'Sent', 'Drafts', 'Trash', 'Spam'];
     }
 
-    const client = new ImapFlow({
-      host: credentials.imapHost,
-      port: credentials.imapPort,
-      secure: credentials.imapPort === 993,
-      auth: {
-        user: credentials.email,
-        pass: credentials.password,
-      },
-      logger: false,
-    });
-
-    await client.connect();
+    // Use Smartermail API instead of IMAP
+    const { getSmarterMailClient } = await import('./smartermailClient');
+    const client = getSmarterMailClient(credentials.serverUrl || 'https://mail.bl2020.com');
     
     try {
-      const mailboxes = await client.list();
-      const folderNames = mailboxes.map((box: any) => box.path);
+      const folders = await client.getFolders(credentials.email, credentials.password);
       
-      console.log(`[EmailService] Found ${folderNames.length} folders:`, folderNames);
+      // Return folder names (translatedName preferred, fallback to name)
+      const folderNames = folders.map((f: any) => f.translatedName || f.name);
       
-      await client.logout();
+      console.log(`[EmailService] Found ${folderNames.length} folders via Smartermail API:`, folderNames);
       
       return folderNames;
     } catch (error) {
-      console.error('[EmailService] Error listing mailboxes:', error);
-      await client.logout();
+      console.error('[EmailService] Error getting folders from Smartermail API:', error);
       return ['INBOX', 'Sent', 'Drafts', 'Trash', 'Spam'];
     }
   } catch (error) {

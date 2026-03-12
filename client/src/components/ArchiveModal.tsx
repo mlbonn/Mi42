@@ -1,301 +1,347 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { trpc } from '../lib/trpc';
 
 interface ArchiveModalProps {
-  isOpen?: boolean;
-  onClose: () => void;
-  emailId: string;
-  fromAddress: string;
-  ccAddresses: string[];
-  onSuccess: () => void;
-  email?: { 
-    from: string; 
-    fromName?: string;
-    to?: string;
-    subject: string;
-    body?: string;
-    html?: string;
-    date?: string;
-    attachments?: Array<{
-      filename: string;
-      contentType: string;
-      size: number;
-      content?: string; // Base64
-    }>;
-  };
-}
-
-interface ContactMatch {
-  email: string;
-  contacts: Array<{
+  email: {
     id: number;
-    name: string;
-    email: string;
-  }>;
-  selected: number[];  // IDs of selected contacts
-  createNew: boolean;
+    subject: string;
+    fromName: string;
+    fromAddress: string;
+    toAddress: string;
+    ccAddress?: string;
+    body: string;
+  };
+  onClose: () => void;
+  onSuccess: () => void;
 }
 
-export default function ArchiveModal({ 
-  isOpen = true,
-  onClose, 
-  emailId, 
-  fromAddress, 
-  ccAddresses, 
-  onSuccess,
-  email
-}: ArchiveModalProps) {
-  const [contactMatches, setContactMatches] = useState<ContactMatch[]>([]);
-  const [deleteFromInbox, setDeleteFromInbox] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
+interface Contact {
+  id: number;
+  firstName: string;
+  lastName: string;
+  company: string;
+  email: string;
+}
 
-  // Debug logging
-  console.log('[ArchiveModal] Received email prop:', email);
-  console.log('[ArchiveModal] email.fromName type:', typeof email?.fromName);
-  console.log('[ArchiveModal] email.fromName value:', email?.fromName);
+interface ExtractedContact {
+  firstName: string;
+  lastName: string;
+  company: string;
+  title: string;
+  phone: string;
+  email: string;
+  confidence: 'high' | 'low' | 'none';
+}
 
-  // Collect all email addresses
-  const allEmails = useMemo(() => 
-    [fromAddress, ...ccAddresses].filter(e => e && e.trim()),
-    [fromAddress, ccAddresses]
-  );
+export default function ArchiveModal({ email, onClose, onSuccess }: ArchiveModalProps) {
+  const [loading, setLoading] = useState(true);
+  const [suggestedContact, setSuggestedContact] = useState<Contact | null>(null);
+  const [additionalContacts, setAdditionalContacts] = useState<Contact[]>([]);
+  const [selectedAdditionalIds, setSelectedAdditionalIds] = useState<number[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<Contact[]>([]);
+  const [showNewContactForm, setShowNewContactForm] = useState(false);
+  const [extractedContact, setExtractedContact] = useState<ExtractedContact | null>(null);
+  const [deleteAfterArchive, setDeleteAfterArchive] = useState(false);
+  const [archiving, setArchiving] = useState(false);
 
-  // Query to find contacts by emails (using useQuery instead of useMutation)
-  const { data: contactsData, isLoading } = trpc.emailClient.findContactsByEmails.useQuery(
-    { emails: allEmails },
-    { enabled: isOpen && allEmails.length > 0 }
-  );
-  
+  const findContactsMutation = trpc.emailClient.findContactsByEmails.useMutation();
+  const extractContactMutation = trpc.emailClient.extractContactFromSignature.useMutation();
   const archiveEmailMutation = trpc.emailClient.archiveEmail.useMutation();
-  const createContactMutation = trpc.contacts.create.useMutation();
-  const deleteEmailMutation = trpc.emailClient.deleteEmail.useMutation();
+  const searchContactsMutation = trpc.contacts.searchContacts.useMutation();
 
-  // Initialize contact matches when data is loaded
+  // Initial: Find contacts by email addresses
   useEffect(() => {
-    if (contactsData) {
-      const matches: ContactMatch[] = allEmails.map(email => {
-        const foundContacts = contactsData[email] || [];
-        return {
-          email,
-          contacts: foundContacts,
-          selected: foundContacts.length > 0 ? [foundContacts[0].id] : [],
-          createNew: foundContacts.length === 0
-        };
-      });
-      setContactMatches(matches);
+    const emails = [email.fromAddress];
+    if (email.toAddress) emails.push(email.toAddress);
+    if (email.ccAddress) {
+      email.ccAddress.split(',').forEach(cc => emails.push(cc.trim()));
     }
-  }, [contactsData, allEmails]);
 
-  const toggleContactSelection = (emailIndex: number, contactId: number) => {
-    setContactMatches(prev => {
-      const updated = [...prev];
-      const match = updated[emailIndex];
-      if (match.selected.includes(contactId)) {
-        match.selected = match.selected.filter(id => id !== contactId);
-      } else {
-        match.selected = [...match.selected, contactId];
+    findContactsMutation.mutate(
+      { emails },
+      {
+        onSuccess: (data) => {
+          // First email (from) is suggested contact
+          if (data[email.fromAddress] && data[email.fromAddress].length > 0) {
+            setSuggestedContact(data[email.fromAddress][0]);
+          }
+
+          // Other emails are additional contacts
+          const additional: Contact[] = [];
+          Object.entries(data).forEach(([emailAddr, contacts]) => {
+            if (emailAddr !== email.fromAddress && contacts.length > 0) {
+              additional.push(...contacts);
+            }
+          });
+          setAdditionalContacts(additional);
+          setLoading(false);
+
+          // If no contact found, extract from signature
+          if (!data[email.fromAddress] || data[email.fromAddress].length === 0) {
+            extractContactMutation.mutate(
+              { emailBody: email.body, fromAddress: email.fromAddress },
+              {
+                onSuccess: (extracted) => {
+                  setExtractedContact(extracted);
+                },
+              }
+            );
+          }
+        },
+        onError: () => {
+          setLoading(false);
+        },
       }
-      return updated;
-    });
-  };
+    );
+  }, []);
 
-  const toggleCreateNew = (emailIndex: number) => {
-    setContactMatches(prev => {
-      const updated = [...prev];
-      updated[emailIndex].createNew = !updated[emailIndex].createNew;
-      return updated;
-    });
-  };
+  // Search contacts
+  useEffect(() => {
+    if (searchQuery.length < 2) {
+      setSearchResults([]);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      searchContactsMutation.mutate(
+        { query: searchQuery },
+        {
+          onSuccess: (results) => {
+            setSearchResults(results);
+          },
+        }
+      );
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const handleArchive = async () => {
-    setIsSaving(true);
-    
-    try {
-      // Collect all selected contact IDs
-      const selectedContactIds: number[] = [];
-      const newContactEmails: string[] = [];
+    if (!suggestedContact) {
+      alert('Bitte wählen Sie einen Kontakt aus oder legen Sie einen neuen an.');
+      return;
+    }
 
-      contactMatches.forEach(match => {
-        selectedContactIds.push(...match.selected);
-        if (match.createNew && match.contacts.length === 0) {
-          newContactEmails.push(match.email);
-        }
+    setArchiving(true);
+
+    try {
+      const contactIds = [suggestedContact.id, ...selectedAdditionalIds];
+
+      await archiveEmailMutation.mutateAsync({
+        emailId: email.id,
+        contactIds,
+        deleteAfterArchive,
       });
 
-await archiveEmailMutation.mutateAsync({
-  contactId: contactId.toString(),
-  emailData: {
-    messageId: emailId,
-    folder: 'INBOX',
-    from: fromAddress,
-    fromName: email?.fromName || '',
-    to: email?.to || '',
-    cc: ccAddresses.join(', '),
-    subject: email?.subject || '',
-    bodyText: email?.body || '',
-    bodyHtml: email?.html || '',
-    date: email?.date || new Date().toISOString(),
-    attachments: email?.attachments || [],
-  },
-  notes: `Archived from email: ${email?.subject || "No subject"}`,
-});
-
-      // Create new contacts if requested
-      const createdContactIds: string[] = [];
-      for (const emailAddr of newContactEmails) {
-        try {
-          const [localPart, domain] = emailAddr.split('@');
-          const firstName = localPart.split('.')[0] || localPart;
-          const lastName = localPart.split('.')[1] || '';
-          
-          const newContact = await createContactMutation.mutateAsync({
-            firstName: firstName.charAt(0).toUpperCase() + firstName.slice(1),
-            lastName: lastName ? lastName.charAt(0).toUpperCase() + lastName.slice(1) : '',
-            email: emailAddr,
-          });
-          
-          if (newContact && newContact.id) {
-            createdContactIds.push(newContact.id);
-            
-await archiveEmailMutation.mutateAsync({
-  contactId: contactId.toString(),
-  emailData: {
-    messageId: emailId,
-    folder: 'INBOX',
-    from: fromAddress,
-    fromName: email?.fromName || '',
-    to: email?.to || '',
-    cc: ccAddresses.join(', '),
-    subject: email?.subject || '',
-    bodyText: email?.body || '',
-    bodyHtml: email?.html || '',
-    date: email?.date || new Date().toISOString(),
-    attachments: email?.attachments || [],
-  },
-  notes: `Archived from email: ${email?.subject || "No subject"}`,
-});
-          }
-        } catch (error) {
-          alert(`Fehler beim Erstellen des Kontakts für ${emailAddr}`);
-        }
-      }
-
-      // Delete from inbox if requested
-      if (deleteFromInbox) {
-        try {
-          // Get account ID from email data (assuming it's available)
-          // For now, we'll need to get the first email account
-          // TODO: Pass accountId from EmailClient
-          await deleteEmailMutation.mutateAsync({
-            accountId: '1', // Default account ID
-            folder: 'INBOX',
-            messageUid: emailId,
-          });
-        } catch (error) {
-          console.error('Error deleting email from inbox:', error);
-          // Don't fail the whole operation if delete fails
-        }
-      }
-
       onSuccess();
+      onClose();
     } catch (error) {
-      console.error('Error archiving email:', error);
-      alert('Fehler beim Archivieren der Email');
-    } finally {
-      setIsSaving(false);
+      console.error('Archive error:', error);
+      alert('Fehler beim Archivieren der E-Mail');
+      setArchiving(false);
     }
   };
 
-  if (!isOpen) return null;
+  const toggleAdditionalContact = (id: number) => {
+    setSelectedAdditionalIds((prev) =>
+      prev.includes(id) ? prev.filter((cid) => cid !== id) : [...prev, id]
+    );
+  };
+
+  if (loading) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg p-6 max-w-md w-full">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
+            <p className="text-gray-600">Suche nach Kontakten...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 max-w-3xl w-full max-h-[80vh] overflow-y-auto">
-        <h2 className="text-xl font-bold mb-4">Email archivieren</h2>
-        
-        {email && (
-          <div className="mb-4 p-3 bg-gray-50 rounded">
-            <div className="text-sm text-gray-600">Betreff: {email.subject}</div>
-            <div className="text-xs text-gray-500">Email ID: {emailId}</div>
-          </div>
-        )}
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="p-6">
+          <h2 className="text-2xl font-bold mb-2">📧 Email archivieren</h2>
+          <p className="text-sm text-gray-600 mb-4">
+            Betreff: {email.subject}
+            <br />
+            Email-ID: {email.id}
+          </p>
 
-        {isLoading ? (
-          <div className="text-center py-8">
-            <div className="text-gray-500">Suche nach Kontakten...</div>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {contactMatches.map((match, index) => (
-              <div key={index} className="border rounded p-4">
-                <div className="font-semibold mb-2">{match.email}</div>
-                
-                {match.contacts.length > 0 ? (
-                  <div className="space-y-2">
-                    <div className="text-sm text-gray-600">Gefundene Kontakte:</div>
-                    {match.contacts.map(contact => (
-                      <label key={contact.id} className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                          checked={match.selected.includes(contact.id)}
-                          onChange={() => toggleContactSelection(index, contact.id)}
-                          className="rounded"
-                        />
-                        <span>{contact.name} ({contact.email})</span>
-                      </label>
-                    ))}
+          {/* Suggested Contact */}
+          {suggestedContact && (
+            <div className="mb-6">
+              <h3 className="text-sm font-semibold text-gray-700 mb-2">
+                ✅ VORGESCHLAGENER KONTAKT
+              </h3>
+              <div className="border-2 border-green-500 rounded-lg p-4 bg-green-50">
+                <div className="flex items-start">
+                  <div className="flex-1">
+                    <p className="font-semibold text-lg">
+                      👤 {suggestedContact.firstName} {suggestedContact.lastName}
+                      {suggestedContact.company && ` | ${suggestedContact.company}`}
+                    </p>
+                    <p className="text-sm text-gray-600">✉️ {suggestedContact.email}</p>
+                    <p className="text-xs text-green-600 mt-1">[Automatisch gefunden]</p>
                   </div>
-                ) : (
-                  <div className="text-sm text-gray-500 mb-2">
-                    Kein Kontakt gefunden
-                  </div>
-                )}
-
-                <label className="flex items-center space-x-2 mt-3 pt-3 border-t">
-                  <input
-                    type="checkbox"
-                    checked={match.createNew}
-                    onChange={() => toggleCreateNew(index)}
-                    className="rounded"
-                  />
-                  <span className="text-sm font-medium text-orange-600">
-                    Neuen Kontakt anlegen
-                  </span>
-                </label>
+                </div>
               </div>
-            ))}
-
-            <div className="border-t pt-4">
-              <label className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  checked={deleteFromInbox}
-                  onChange={(e) => setDeleteFromInbox(e.target.checked)}
-                  className="rounded"
-                />
-                <span className="text-sm font-medium">
-                  Mail im Eingang löschen
-                </span>
-              </label>
             </div>
-          </div>
-        )}
+          )}
 
-        <div className="flex justify-end space-x-3 mt-6">
-          <button
-            onClick={onClose}
-            disabled={isSaving}
-            className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50"
-          >
-            Abbrechen
-          </button>
-          <button
-            onClick={handleArchive}
-            disabled={isLoading || isSaving}
-            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
-          >
-            {isSaving ? 'Archiviere...' : 'Archivieren'}
-          </button>
+          {/* Additional Recipients */}
+          {additionalContacts.length > 0 && (
+            <div className="mb-6">
+              <h3 className="text-sm font-semibold text-gray-700 mb-2">
+                📋 WEITERE EMPFÄNGER (Optional)
+              </h3>
+              <div className="space-y-2">
+                {additionalContacts.map((contact) => (
+                  <div
+                    key={contact.id}
+                    className="border rounded-lg p-3 cursor-pointer hover:bg-gray-50"
+                    onClick={() => toggleAdditionalContact(contact.id)}
+                  >
+                    <div className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={selectedAdditionalIds.includes(contact.id)}
+                        onChange={() => toggleAdditionalContact(contact.id)}
+                        className="mr-3"
+                      />
+                      <div>
+                        <p className="font-medium">
+                          {contact.firstName} {contact.lastName}
+                          {contact.company && ` | ${contact.company}`}
+                        </p>
+                        <p className="text-sm text-gray-600">{contact.email}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Search for additional contacts */}
+          <div className="mb-6">
+            <h3 className="text-sm font-semibold text-gray-700 mb-2">
+              🔍 Weiteren Kontakt suchen...
+            </h3>
+            <input
+              type="text"
+              placeholder="Name, E-Mail oder Firma eingeben..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full border rounded-lg px-4 py-2"
+            />
+            {searchResults.length > 0 && (
+              <div className="mt-2 border rounded-lg max-h-40 overflow-y-auto">
+                {searchResults.map((contact) => (
+                  <div
+                    key={contact.id}
+                    className="p-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
+                    onClick={() => {
+                      if (!suggestedContact) {
+                        setSuggestedContact(contact);
+                      } else {
+                        toggleAdditionalContact(contact.id);
+                      }
+                      setSearchQuery('');
+                      setSearchResults([]);
+                    }}
+                  >
+                    <p className="font-medium">
+                      {contact.firstName} {contact.lastName}
+                      {contact.company && ` | ${contact.company}`}
+                    </p>
+                    <p className="text-sm text-gray-600">{contact.email}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* New Contact Form */}
+          {!suggestedContact && (
+            <div className="mb-6">
+              <h3 className="text-sm font-semibold text-gray-700 mb-2">
+                ➕ KONTAKT NICHT GEFUNDEN?
+              </h3>
+              <button
+                onClick={() => setShowNewContactForm(!showNewContactForm)}
+                className="w-full border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-orange-500 hover:bg-orange-50 transition"
+              >
+                <span className="text-orange-600 font-medium">
+                  + Neuen Kontakt anlegen
+                </span>
+              </button>
+
+              {showNewContactForm && extractedContact && (
+                <div className="mt-4 border rounded-lg p-4 bg-blue-50">
+                  <p className="text-sm font-semibold text-blue-900 mb-3">
+                    🤖 KI-Vorschlag aus Signatur:
+                  </p>
+                  <div className="space-y-2 text-sm">
+                    {extractedContact.firstName && (
+                      <p>• Name: {extractedContact.firstName} {extractedContact.lastName}</p>
+                    )}
+                    {extractedContact.company && <p>• Company: {extractedContact.company}</p>}
+                    {extractedContact.title && <p>• Title: {extractedContact.title}</p>}
+                    {extractedContact.phone && <p>• Phone: {extractedContact.phone}</p>}
+                  </div>
+                  <p className="text-xs text-gray-600 mt-2">
+                    Confidence: {extractedContact.confidence}
+                  </p>
+                  <button
+                    className="mt-3 w-full bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700"
+                    onClick={() => {
+                      // TODO: Open contact creation modal with pre-filled data
+                      alert('Contact creation modal would open here with pre-filled data');
+                    }}
+                  >
+                    Bearbeiten & Speichern
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Delete after archive option */}
+          <div className="mb-6">
+            <label className="flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={deleteAfterArchive}
+                onChange={(e) => setDeleteAfterArchive(e.target.checked)}
+                className="mr-2"
+              />
+              <span className="text-sm text-gray-700">Mail nach Archivierung löschen</span>
+            </label>
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-3">
+            <button
+              onClick={onClose}
+              disabled={archiving}
+              className="flex-1 border border-gray-300 rounded-lg px-4 py-2 hover:bg-gray-50 disabled:opacity-50"
+            >
+              Abbrechen
+            </button>
+            <button
+              onClick={handleArchive}
+              disabled={archiving || !suggestedContact}
+              className="flex-1 bg-orange-600 text-white rounded-lg px-4 py-2 hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {archiving ? 'Archiviere...' : 'Archivieren'}
+            </button>
+          </div>
         </div>
       </div>
     </div>

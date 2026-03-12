@@ -358,6 +358,32 @@ export default function ContactDetail() {
                   Keine E-Mail-Adresse
                 </span>
               )}
+
+            {/* Address Section */}
+            {((contact as any).street || (contact as any).city || (contact as any).country) && (
+              <div className="mt-3 pt-3 border-t border-gray-200">
+                <div className="flex items-start gap-2 text-sm text-gray-600">
+                  <Building2 className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                  <div className="flex flex-wrap gap-2">
+                    {(contact as any).street && (
+                      <span>{(contact as any).street}</span>
+                    )}
+                    {((contact as any).postalCode || (contact as any).city) && (
+                      <span>
+                        {(contact as any).postalCode && `${(contact as any).postalCode} `}
+                        {(contact as any).city}
+                      </span>
+                    )}
+                    {(contact as any).state && (
+                      <span>{(contact as any).state}</span>
+                    )}
+                    {(contact as any).country && (
+                      <span>{(contact as any).country}</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
             </div>
           </div>
           
@@ -372,55 +398,6 @@ export default function ContactDetail() {
       </div>
 
       {/* Email History Timeline */}
-
-
-      <EmailHistoryTimeline
-
-
-        emails={allEmailsForDisplay.map((email: any) => ({
-
-
-          id: email.id,
-
-
-          subject: email.subject,
-
-
-          from_address: email.fromAddress,
-
-
-          from_name: email.fromName,
-
-
-          to_address: email.toAddress,
-
-
-          email_date: email.email_date || email.timestamp,
-
-
-          body: email.body,
-
-
-          html_body: email.htmlBody,
-
-
-          direction: email.direction,
-
-
-          attachments: email.attachments || []
-
-
-        }))}
-
-
-        onRefresh={() => refetchEmails()}
-
-
-        onArchive={() => {/* TODO: Implement archive */}}
-
-
-      />
-
 
 
       {/* Bottom Section - 3 Columns */}
@@ -550,6 +527,57 @@ export default function ContactDetail() {
             </p>
           )}
         </div>
+      <EmailHistoryTimeline
+
+
+        emails={allEmailsForDisplay.map((email: any) => ({
+
+
+          id: email.id,
+
+
+          subject: email.subject,
+
+
+          from_address: email.fromAddress,
+
+
+          from_name: email.fromName,
+
+
+          to_address: email.toAddress,
+
+
+          email_date: email.email_date || email.timestamp,
+
+
+          body: email.body,
+
+
+          html_body: email.htmlBody,
+
+
+          direction: email.direction,
+
+
+          attachments: email.attachments || []
+
+
+        }))}
+
+
+        onRefresh={() => refetchEmails()}
+
+
+        onArchive={() => {/* TODO: Implement archive */}}
+
+
+      />
+
+
+
+
+      
       </div>
 
       {/* Edit Dialog */}
