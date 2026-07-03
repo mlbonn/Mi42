@@ -13,7 +13,7 @@ HETZNER_HOST="46.224.13.250"
 HETZNER_USER="manus02"
 HETZNER_PASS="mIlrq2NQiGP88yLo"
 REMOTE_DIR="friday-crm-dev"
-OPENAI_KEY="REMOVED"
+OPENAI_KEY=""  # removed
 
 echo "Building project..."
 pnpm build
@@ -32,7 +32,7 @@ cd ~/friday-crm-dev
 cat > start-worker.sh << 'EOF'
 #!/bin/bash
 export DATABASE_URL='mysql://manus02:mIlrq2NQiGP88yLo@localhost:3306/friday_crm'
-export OPENAI_API_KEY='REMOVED'
+export OPENAI_API_KEY=  # removed
 nohup node dist/scoutWorkerDaemon.js > worker.log 2>&1 &
 echo $! > worker.pid
 echo "Worker started with PID $(cat worker.pid)"
