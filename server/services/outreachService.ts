@@ -1,194 +1,118 @@
 /**
  * Outreach Agent Service
- * Handles email generation, personalization, and sending
+ * Handles email generation using real CRM data and LLM.
+ * No mock data. No fake news. No automatic sending.
  */
-
+import { z } from "zod";
+import { eq } from "drizzle-orm";
 import { createEmailDraft } from "../outreachDb";
-import { getCorporation } from "../db";
+import { getDb } from "../db";
+import { contacts, contactCompanyRelations, companies, corporations } from "../../drizzle/schema";
+import { invokeLLMWithDbKeys } from "../_core/llm";
 
-// ============================================================================
-// NEWS & CONTEXT GATHERING
-// ============================================================================
+// ─── Context Loader ──────────────────────────────────────────────────────────
 
-/**
- * Mock Google News API - Fetch recent news about a corporation
- */
-async function fetchCorporationNews(corporationName: string): Promise<any[]> {
-  // Mock implementation - in production, use Google News API
-  const mockNews = [
-    {
-      title: `${corporationName} announces Q4 2024 results with 12% growth`,
-      snippet: "Strong performance in European markets drives revenue increase...",
-      publishedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-      source: "Reuters",
-      url: "https://example.com/news1",
-    },
-    {
-      title: `${corporationName} expands sustainability initiatives`,
-      snippet: "New carbon-neutral production facility opens in Germany...",
-      publishedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-      source: "Bloomberg",
-      url: "https://example.com/news2",
-    },
-  ];
+async function getOutreachContext(contactId: string, corporationId?: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
 
-  return mockNews.slice(0, 2);
+  const contactRows = await db.select().from(contacts).where(eq(contacts.id, contactId)).limit(1);
+  const contact = contactRows[0];
+  if (!contact) throw new Error("Contact not found");
+
+  let corporation = null;
+  let company = null;
+
+  if (corporationId) {
+    const corpRows = await db.select().from(corporations).where(eq(corporations.id, corporationId)).limit(1);
+    corporation = corpRows[0] ?? null;
+  } else {
+    const relRows = await db.select().from(contactCompanyRelations).where(eq(contactCompanyRelations.contactId, contactId)).limit(1);
+    const rel = relRows[0];
+    if (rel?.companyId) {
+      const companyRows = await db.select().from(companies).where(eq(companies.id, rel.companyId)).limit(1);
+      company = companyRows[0] ?? null;
+      if (company?.corporationId) {
+        const corpRows = await db.select().from(corporations).where(eq(corporations.id, company.corporationId)).limit(1);
+        corporation = corpRows[0] ?? null;
+      }
+    }
+  }
+
+  return { contact, company, corporation };
 }
 
-/**
- * Mock LinkedIn Posts - Fetch recent posts from company page
- */
-async function fetchLinkedInPosts(linkedinUrl: string): Promise<any[]> {
-  // Mock implementation - in production, use Phantombuster or LinkedIn API
-  const mockPosts = [
-    {
-      text: "Excited to announce our new innovation hub in Munich! Join us in shaping the future of sustainable building materials.",
-      publishedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
-      likes: 342,
-      comments: 28,
-    },
-    {
-      text: "Our team at the European Construction Summit discussing digital transformation in the industry.",
-      publishedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-      likes: 189,
-      comments: 15,
-    },
-  ];
+// ─── LLM Email Generation ────────────────────────────────────────────────────
 
-  return mockPosts.slice(0, 2);
-}
+const EmailDraftOutput = z.object({
+  subject: z.string(),
+  body: z.string(),
+  personalizationReason: z.string(),
+  riskFlags: z.array(z.string()).default([]),
+});
 
-// ============================================================================
-// EMAIL GENERATION
-// ============================================================================
+type EmailDraftOutput = z.infer<typeof EmailDraftOutput>;
 
-interface EmailGenerationContext {
-  corporationName: string;
+async function generatePersonalizedEmail(context: {
   contactName: string;
-  contactTitle: string;
+  contactTitle?: string | null;
+  corporationName?: string | null;
+  products?: string | null;
+  targetMarkets?: string | null;
   language: string;
-  news?: any[];
-  linkedinPosts?: any[];
-  targetMarkets?: string;
-  products?: string;
+}): Promise<EmailDraftOutput> {
+  const response = await invokeLLMWithDbKeys({
+    messages: [
+      {
+        role: "system",
+        content: `You write concise, professional B2B outreach emails for a construction forecast database product. Use only the provided CRM context. Do not invent company news. Do not claim that competitors use the product unless provided in context. Return JSON with subject, body, personalizationReason, and riskFlags. Keep the email short and specific. Language: ${context.language}.`,
+      },
+      {
+        role: "user",
+        content: JSON.stringify({
+          contactName: context.contactName,
+          contactTitle: context.contactTitle,
+          corporationName: context.corporationName,
+          products: context.products,
+          targetMarkets: context.targetMarkets,
+        }),
+      },
+    ],
+    outputSchema: {
+      name: "email_draft_output",
+      strict: true,
+      schema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          subject: { type: "string" },
+          body: { type: "string" },
+          personalizationReason: { type: "string" },
+          riskFlags: { type: "array", items: { type: "string" } },
+        },
+        required: ["subject", "body", "personalizationReason", "riskFlags"],
+      },
+    },
+  });
+
+  const content = response.choices[0]?.message?.content;
+  const raw = typeof content === "string" ? content : JSON.stringify(content);
+  return EmailDraftOutput.parse(JSON.parse(raw));
 }
 
-/**
- * Generate personalized email using GPT-4
- */
-async function generatePersonalizedEmail(context: EmailGenerationContext): Promise<{ subject: string; body: string }> {
-  // Mock implementation - in production, use OpenAI GPT-4 API
-  const { corporationName, contactName, contactTitle, language, news, linkedinPosts } = context;
-
-  // Determine language-specific templates
-  const templates: Record<string, { subject: string; body: string }> = {
-    de: {
-      subject: `Exklusive Einladung: Webinar zu Marktintelligenz für ${corporationName}`,
-      body: `Sehr geehrte/r ${contactName},
-
-ich habe mit großem Interesse Ihre jüngsten Erfolge bei ${corporationName} verfolgt${
-        news && news.length > 0 ? `, insbesondere ${news[0].title.toLowerCase()}` : ""
-      }.
-
-Als ${contactTitle} wissen Sie, wie wichtig fundierte Marktdaten für strategische Entscheidungen sind. Unser Global Building Monitor bietet Ihnen Zugang zu weltweiten Bauprojektdaten in Echtzeit – eine Ressource, die führende Unternehmen wie Ihre Wettbewerber bereits nutzen.
-
-Ich möchte Sie zu einem exklusiven 30-minütigen Webinar einladen, in dem wir Ihnen zeigen:
-• Wie Sie neue Absatzmärkte identifizieren
-• Welche Wettbewerber in Ihren Zielmärkten aktiv sind
-• Wie Sie Vertriebschancen frühzeitig erkennen
-
-Hätten Sie nächste Woche Zeit für ein kurzes Gespräch?
-
-Mit freundlichen Grüßen`,
-    },
-    en: {
-      subject: `Exclusive Invitation: Market Intelligence Webinar for ${corporationName}`,
-      body: `Dear ${contactName},
-
-I've been following ${corporationName}'s recent achievements with great interest${
-        news && news.length > 0 ? `, particularly ${news[0].title.toLowerCase()}` : ""
-      }.
-
-As ${contactTitle}, you understand the importance of solid market data for strategic decisions. Our Global Building Monitor provides access to real-time construction project data worldwide – a resource already used by leading companies including your competitors.
-
-I'd like to invite you to an exclusive 30-minute webinar where we'll show you:
-• How to identify new sales markets
-• Which competitors are active in your target markets
-• How to spot sales opportunities early
-
-Would you have time for a brief conversation next week?
-
-Best regards`,
-    },
-    fr: {
-      subject: `Invitation exclusive: Webinaire sur l'intelligence de marché pour ${corporationName}`,
-      body: `Cher/Chère ${contactName},
-
-J'ai suivi avec grand intérêt les récents succès de ${corporationName}${
-        news && news.length > 0 ? `, notamment ${news[0].title.toLowerCase()}` : ""
-      }.
-
-En tant que ${contactTitle}, vous savez combien des données de marché solides sont importantes pour les décisions stratégiques. Notre Global Building Monitor vous donne accès aux données de projets de construction en temps réel dans le monde entier – une ressource déjà utilisée par des entreprises leaders, y compris vos concurrents.
-
-Je souhaite vous inviter à un webinaire exclusif de 30 minutes où nous vous montrerons:
-• Comment identifier de nouveaux marchés de vente
-• Quels concurrents sont actifs dans vos marchés cibles
-• Comment repérer les opportunités de vente tôt
-
-Auriez-vous du temps pour une brève conversation la semaine prochaine?
-
-Cordialement`,
-    },
-  };
-
-  const template = templates[language] || templates.en;
-
-  return {
-    subject: template.subject,
-    body: template.body,
-  };
-}
-
-// ============================================================================
-// CAMPAIGN PROCESSING
-// ============================================================================
+// ─── Public API ──────────────────────────────────────────────────────────────
 
 /**
- * Process a campaign and generate email drafts for all contacts
+ * Process a campaign and generate email drafts for all contacts using real CRM data.
  */
 export async function processCampaign(campaignId: string, contactIds: string[]): Promise<void> {
   console.log(`[OutreachService] Processing campaign ${campaignId} with ${contactIds.length} contacts`);
 
   for (const contactId of contactIds) {
     try {
-      // In production, fetch contact and corporation data
-      // For now, create mock email drafts
-      const mockEmail = await generatePersonalizedEmail({
-        corporationName: "Saint-Gobain",
-        contactName: "Marie Dubois",
-        contactTitle: "VP Sales EMEA",
-        language: "fr",
-        news: await fetchCorporationNews("Saint-Gobain"),
-        linkedinPosts: [],
-      });
-
-      await createEmailDraft({
-        campaignId,
-        contactId,
-        corporationId: "mock-corp-id",
-        subject: mockEmail.subject,
-        body: mockEmail.body,
-        language: "fr",
-        personalizationData: {
-          news: await fetchCorporationNews("Saint-Gobain"),
-          linkedinPosts: [],
-        },
-        reviewStatus: "pending",
-      });
-
-      console.log(`[OutreachService] Created email draft for contact ${contactId}`);
+      await generateEmailForContact(campaignId, contactId, undefined, "en");
     } catch (error) {
-      console.error(`[OutreachService] Failed to create email draft for contact ${contactId}:`, error);
+      console.error(`[OutreachService] Failed for contact ${contactId}:`, error);
     }
   }
 
@@ -196,53 +120,48 @@ export async function processCampaign(campaignId: string, contactIds: string[]):
 }
 
 /**
- * Generate a single email draft for a contact
+ * Generate a single email draft for a contact using real CRM data and LLM.
  */
 export async function generateEmailForContact(
   campaignId: string,
   contactId: string,
-  corporationId: string,
+  corporationId: string | undefined,
   language: string
 ): Promise<string> {
   console.log(`[OutreachService] Generating email for contact ${contactId}`);
 
-  // Fetch corporation data
-  const corporation = await getCorporation(corporationId);
-  if (!corporation) {
-    throw new Error("Corporation not found");
-  }
+  const { contact, corporation } = await getOutreachContext(contactId, corporationId);
 
-  // Gather context
-  const news = await fetchCorporationNews(corporation.name);
-  const linkedinPosts = corporation.linkedinUrl ? await fetchLinkedInPosts(corporation.linkedinUrl) : [];
+  const contactName = [contact.firstName, contact.lastName].filter(Boolean).join(" ") || "there";
+  const contactTitle = (contact as Record<string, unknown>).title as string | null ?? null;
 
-  // Generate email
   const email = await generatePersonalizedEmail({
-    corporationName: corporation.name,
-    contactName: "Contact Name", // In production, fetch from contact
-    contactTitle: "VP Sales", // In production, fetch from contact
+    contactName,
+    contactTitle,
+    corporationName: corporation?.name ?? null,
+    products: corporation?.products ?? null,
+    targetMarkets: corporation?.targetMarkets ?? null,
     language,
-    news,
-    linkedinPosts,
-    targetMarkets: corporation.targetMarkets || undefined,
-    products: corporation.products || undefined,
   });
 
-  // Create draft
+  if (email.riskFlags.length > 0) {
+    console.warn(`[OutreachService] Risk flags for contact ${contactId}:`, email.riskFlags);
+  }
+
   const draftId = await createEmailDraft({
     campaignId,
     contactId,
-    corporationId,
+    corporationId: corporation?.id,
     subject: email.subject,
     body: email.body,
     language,
     personalizationData: {
-      news,
-      linkedinPosts,
+      personalizationReason: email.personalizationReason,
+      riskFlags: email.riskFlags,
     },
     reviewStatus: "pending",
   });
 
+  console.log(`[OutreachService] Created draft ${draftId} for contact ${contactId}`);
   return draftId;
 }
-

@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { Link, useLocation } from "wouter";
-import { trpc } from "../lib/trpc";
+import { Bot, useState } from "react";
+import { Bot, Link, useLocation } from "wouter";
+import { Bot, trpc } from "../lib/trpc";
 
-import {
+import { Bot,
   Home,
   Building2,
   Users,
@@ -39,6 +39,7 @@ const navItems: NavItem[] = [
   { name: "Pipeline", path: "/deals", icon: BarChart3 },
   { name: "Calendar", path: "/calendar", icon: Calendar },
   { name: "Emails", path: "/emails", icon: Mail, children: [] },
+  { name: "AI Inbox", path: "/ai-inbox", icon: Bot },
   {
     name: "Scout Agent",
     path: "/scout",

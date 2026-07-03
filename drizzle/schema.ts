@@ -1013,3 +1013,107 @@ export const archivedEmailsRelations = relations(archivedEmails, ({ one }) => ({
     references: [users.id],
   }),
 }));
+
+// ─── Agent Runtime Tables ───────────────────────────────────────────────────
+
+export const agentJobs = mysqlTable("agent_jobs", {
+  id: varchar("id", { length: 64 }).primaryKey().$defaultFn(() => crypto.randomUUID()),
+  type: varchar("type", { length: 100 }).notNull(),
+  entityType: varchar("entityType", { length: 100 }),
+  entityId: varchar("entityId", { length: 64 }),
+  payload: json("payload"),
+  priority: int("priority").default(5),
+  status: mysqlEnum("status", ["pending", "processing", "completed", "failed", "cancelled"]).default("pending").notNull(),
+  attempts: int("attempts").default(0),
+  maxAttempts: int("maxAttempts").default(3),
+  scheduledAt: timestamp("scheduledAt").defaultNow(),
+  lockedBy: varchar("lockedBy", { length: 100 }),
+  lockedAt: timestamp("lockedAt"),
+  errorMessage: text("errorMessage"),
+  createdBy: varchar("createdBy", { length: 64 }),
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow(),
+}, (table) => ({
+  statusIdx: index("agent_jobs_status_idx").on(table.status),
+  typeIdx: index("agent_jobs_type_idx").on(table.type),
+  scheduledIdx: index("agent_jobs_scheduled_idx").on(table.scheduledAt),
+  entityIdx: index("agent_jobs_entity_idx").on(table.entityType, table.entityId),
+}));
+
+export const agentRuns = mysqlTable("agent_runs", {
+  id: varchar("id", { length: 64 }).primaryKey().$defaultFn(() => crypto.randomUUID()),
+  jobId: varchar("jobId", { length: 64 }),
+  agentName: varchar("agentName", { length: 100 }).notNull(),
+  model: varchar("model", { length: 100 }),
+  promptVersion: varchar("promptVersion", { length: 50 }),
+  inputJson: json("inputJson"),
+  outputJson: json("outputJson"),
+  status: mysqlEnum("status", ["running", "completed", "failed"]).default("running").notNull(),
+  errorMessage: text("errorMessage"),
+  startedAt: timestamp("startedAt").defaultNow(),
+  finishedAt: timestamp("finishedAt"),
+}, (table) => ({
+  jobIdx: index("agent_runs_job_idx").on(table.jobId),
+  agentIdx: index("agent_runs_agent_idx").on(table.agentName),
+}));
+
+export const agentToolCalls = mysqlTable("agent_tool_calls", {
+  id: varchar("id", { length: 64 }).primaryKey().$defaultFn(() => crypto.randomUUID()),
+  runId: varchar("runId", { length: 64 }).notNull(),
+  toolName: varchar("toolName", { length: 100 }).notNull(),
+  argumentsJson: json("argumentsJson"),
+  resultJson: json("resultJson"),
+  sideEffectLevel: int("sideEffectLevel").default(0),
+  createdAt: timestamp("createdAt").defaultNow(),
+}, (table) => ({
+  runIdx: index("agent_tool_calls_run_idx").on(table.runId),
+  toolIdx: index("agent_tool_calls_tool_idx").on(table.toolName),
+}));
+
+export const agentSuggestions = mysqlTable("agent_suggestions", {
+  id: varchar("id", { length: 64 }).primaryKey().$defaultFn(() => crypto.randomUUID()),
+  agentRunId: varchar("agentRunId", { length: 64 }),
+  entityType: varchar("entityType", { length: 100 }),
+  entityId: varchar("entityId", { length: 64 }),
+  suggestionType: varchar("suggestionType", { length: 100 }).notNull(),
+  suggestionJson: json("suggestionJson"),
+  confidence: decimal("confidence", { precision: 5, scale: 4 }),
+  status: mysqlEnum("status", ["pending", "approved", "rejected", "applied"]).default("pending").notNull(),
+  reviewedBy: varchar("reviewedBy", { length: 64 }),
+  reviewedAt: timestamp("reviewedAt"),
+  createdAt: timestamp("createdAt").defaultNow(),
+}, (table) => ({
+  statusIdx: index("agent_suggestions_status_idx").on(table.status),
+  entityIdx: index("agent_suggestions_entity_idx").on(table.entityType, table.entityId),
+  typeIdx: index("agent_suggestions_type_idx").on(table.suggestionType),
+}));
+
+export const tasks = mysqlTable("tasks", {
+  id: varchar("id", { length: 64 }).primaryKey().$defaultFn(() => crypto.randomUUID()),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  ownerUserId: varchar("ownerUserId", { length: 64 }),
+  entityType: varchar("entityType", { length: 100 }),
+  entityId: varchar("entityId", { length: 64 }),
+  priority: int("priority").default(50),
+  status: mysqlEnum("status", ["open", "in_progress", "done", "cancelled"]).default("open").notNull(),
+  dueAt: timestamp("dueAt"),
+  source: varchar("source", { length: 100 }),
+  sourceAgentRunId: varchar("sourceAgentRunId", { length: 64 }),
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow(),
+}, (table) => ({
+  ownerIdx: index("tasks_owner_idx").on(table.ownerUserId),
+  statusIdx: index("tasks_status_idx").on(table.status),
+  dueIdx: index("tasks_due_idx").on(table.dueAt),
+  entityIdx: index("tasks_entity_idx").on(table.entityType, table.entityId),
+}));
+
+export type AgentJob = typeof agentJobs.$inferSelect;
+export type InsertAgentJob = typeof agentJobs.$inferInsert;
+export type AgentRun = typeof agentRuns.$inferSelect;
+export type InsertAgentRun = typeof agentRuns.$inferInsert;
+export type AgentSuggestion = typeof agentSuggestions.$inferSelect;
+export type InsertAgentSuggestion = typeof agentSuggestions.$inferInsert;
+export type Task = typeof tasks.$inferSelect;
+export type InsertTask = typeof tasks.$inferInsert;

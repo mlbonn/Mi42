@@ -39,6 +39,7 @@ import Users from "./pages/Users";
 import EmailClient from "./pages/EmailClient";
 import { useAuth } from "./_core/hooks/useAuth";
 import Layout from "./layouts/Layout";
+import AIInbox from "./pages/AIInbox";
 
 function Router() {
   const { user, loading } = useAuth();
@@ -116,6 +117,7 @@ function Router() {
         {/* Documentation */}
         <Route path="/docs" component={Docs} />
         
+        <Route path="/ai-inbox" component={AIInbox} />
         <Route path="/404" component={NotFound} />
         <Route component={NotFound} />
       </Switch>

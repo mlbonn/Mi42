@@ -25,6 +25,10 @@ import { userSettingsRouter } from './userSettingsRouter';
 import { projectRouter } from "./projectRouter";
 import { emailContactSearchRouter } from "./emailContactSearchRouter";
 import { smartermailApiAccountsRouter } from "./smartermailApiAccountsRouter";
+import { hunterRouter } from "./hunterRouter";
+import { hunterResultsRouter } from "./hunterResultsRouter";
+import { outreachRouter } from "./outreachRouter";
+import { agentRouter } from "./agentRouter";
 
 export const appRouter = router({
   system: systemRouter,
@@ -53,6 +57,10 @@ export const appRouter = router({
   projects: projectRouter,
   emailSearch: emailContactSearchRouter,
   smartermailApiAccounts: smartermailApiAccountsRouter,
+  hunter: hunterRouter,
+  hunterResults: hunterResultsRouter,
+  outreach: outreachRouter,
+  agent: agentRouter,
 });
 
 export type AppRouter = typeof appRouter;

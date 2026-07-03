@@ -24,7 +24,7 @@ export async function processNextQueueJob(): Promise<{
   try {
     // Get next pending job
     const jobs = await scoutDb.getScoutQueueJobs({
-      status: "Pending",
+      status: "pending",
       limit: 1,
     });
 
@@ -36,7 +36,7 @@ export async function processNextQueueJob(): Promise<{
 
     // Update status to Processing
     await scoutDb.updateScoutQueueJob(job.id, {
-      status: "Processing",
+      status: "processing",
       startedAt: new Date(),
     });
 
@@ -46,7 +46,7 @@ export async function processNextQueueJob(): Promise<{
 
       // Mark as completed
       await scoutDb.updateScoutQueueJob(job.id, {
-        status: "Completed",
+        status: "completed",
         completedAt: new Date(),
       });
 
@@ -54,7 +54,7 @@ export async function processNextQueueJob(): Promise<{
     } catch (error: any) {
       // Mark as failed
       await scoutDb.updateScoutQueueJob(job.id, {
-        status: "Failed",
+        status: "failed",
         completedAt: new Date(),
         errorMessage: error.message,
         metadata: { error: error.message },
@@ -392,7 +392,7 @@ async function createCompetitorSuggestion(
       priority: "Medium",
       notes: `${competitor.description}\n\nEstimated Revenue: ${competitor.estimatedRevenue || 'Unknown'}\nEstimated Employees: ${competitor.estimatedEmployees || 'Unknown'}`,
       stage: "Producer",
-      scoutStatus: "Pending",
+      scoutStatus: "pending",
       scoutGeneration: parentGeneration + 1,
       discoveryMethod: "competitor_analysis",
       discoveredAt: new Date(),
