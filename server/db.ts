@@ -1855,3 +1855,83 @@ export async function addProjectBudget(
 }
 
 
+
+// ============================================================================
+// EMAIL FETCH LOGS
+// ============================================================================
+export async function getEmailFetchLogs(emailAccountId: string, limit: number = 50) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+  return db
+    .select()
+    .from(emailFetchLog)
+    .where(eq(emailFetchLog.emailAccountId, emailAccountId))
+    .orderBy(desc(emailFetchLog.processedAt))
+    .limit(limit);
+}
+
+// ============================================================================
+// RBAC: USER ASSIGNMENTS (staff_plus entity access control)
+// user_account_assignments stores {userId, corporationId}
+// rbac.ts expects {entityType, entityId} - we map corporationId -> entityId
+// ============================================================================
+export async function getUserAssignments(userId: string) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+  const rows = await db
+    .select()
+    .from(userAccountAssignments)
+    .where(eq(userAccountAssignments.userId, userId));
+  // Map to the shape rbac.ts expects: {entityType, entityId}
+  return rows.map((r) => ({
+    id: r.id,
+    userId: r.userId,
+    entityType: 'company' as const,
+    entityId: r.corporationId,
+    assignedAt: r.assignedAt,
+    assignedBy: r.assignedBy,
+  }));
+}
+
+export async function assignUserEntity(
+  userId: string,
+  entityType: 'company' | 'contact',
+  entityId: string,
+  assignedBy: string
+) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+  if (entityType !== 'company') {
+    // contact assignments not yet supported in schema - log and skip
+    console.warn('[db] assignUserEntity: contact assignments not yet supported, skipping');
+    return;
+  }
+  const id = `uaa_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  await db.insert(userAccountAssignments).values({
+    id,
+    userId,
+    corporationId: entityId,
+    assignedBy,
+  });
+}
+
+export async function unassignUserEntity(
+  userId: string,
+  entityType: 'company' | 'contact',
+  entityId: string
+) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+  if (entityType !== 'company') {
+    console.warn('[db] unassignUserEntity: contact assignments not yet supported, skipping');
+    return;
+  }
+  await db
+    .delete(userAccountAssignments)
+    .where(
+      and(
+        eq(userAccountAssignments.userId, userId),
+        eq(userAccountAssignments.corporationId, entityId)
+      )
+    );
+}
