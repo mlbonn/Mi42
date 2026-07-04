@@ -138,7 +138,7 @@ export async function fetchEmailsViaIMAP(
     // Get credentials
     const credentials = await getIMAPCredentialsForUser(userEmail);
 
-    if (!credentials) {
+    if (!credentials || !credentials.email) {
       console.log(
         `[EmailService] No credentials found, using demo emails for ${folder}`
       );
@@ -295,7 +295,7 @@ export async function moveEmailViaIMAP(
     // Get credentials
     const credentials = await getIMAPCredentialsForUser(userEmail);
 
-    if (!credentials) {
+    if (!credentials || !credentials.email) {
       console.log(`[EmailService] No credentials found for ${userEmail}`);
       return false;
     }
@@ -350,8 +350,8 @@ export async function getEmailFolders(
 ): Promise<string[]> {
   const DEFAULT_FOLDERS = ['INBOX', 'Sent', 'Drafts', 'Trash', 'Spam'];
   try {
-    const credentials = await getEmailCredentials(userEmail);
-    if (!credentials) {
+    const credentials = await getIMAPCredentialsForUser(userEmail);
+    if (!credentials || !credentials.email) {
       console.log('[EmailService] No credentials found, returning default folders');
       return DEFAULT_FOLDERS;
     }

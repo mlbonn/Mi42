@@ -405,7 +405,8 @@ export function EmailDetail({ accountId, messageUid, onClose }: EmailDetailProps
           html: message.htmlBody,
           date: message.receivedDate,
           attachments: message.attachments
-        }}      </div>
+        }}
+      />
 
       {/* Reply Modal */}
       <ReplyModal
@@ -419,7 +420,9 @@ export function EmailDetail({ accountId, messageUid, onClose }: EmailDetailProps
       />
     </div>
   );
-}unction formatFileSize(bytes: number): string {
+}
+
+function formatFileSize(bytes: number): string {
   const units = ['B', 'KB', 'MB', 'GB'];
   let size = bytes;
   let unitIndex = 0;

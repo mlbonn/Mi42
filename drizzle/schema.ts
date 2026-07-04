@@ -1095,7 +1095,7 @@ export const tasks = mysqlTable("tasks", {
   ownerUserId: varchar("ownerUserId", { length: 64 }),
   entityType: varchar("entityType", { length: 100 }),
   entityId: varchar("entityId", { length: 64 }),
-  priority: int("priority").default(50),
+  priority: int("priority").default(50), // 0 = lowest, 100 = highest; default 50 = normal
   status: mysqlEnum("status", ["open", "in_progress", "done", "cancelled"]).default("open").notNull(),
   dueAt: timestamp("dueAt"),
   source: varchar("source", { length: 100 }),

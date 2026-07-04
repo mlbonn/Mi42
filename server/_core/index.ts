@@ -8,7 +8,6 @@ import { registerSimpleAuthRoutes } from "./simpleAuth";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
-import scoutRoutes from "../routes/scoutRoutes";
 import jwtAuthRouter from "./jwtAuthRouter";
 import restApiMiddleware from "./restApiMiddleware";
 import uploadRoute from "../uploadRoute";

@@ -1,176 +1,212 @@
-import { and, asc, eq, lte } from "drizzle-orm";
-import { getDb } from "../db";
-import {
-  agentJobs,
-  agentRuns,
-  agentSuggestions,
-  agentToolCalls,
-  tasks,
-} from "../../drizzle/schema";
+import { getDb } from '../db';
+import { agentJobs, agentRuns, agentToolCalls, agentSuggestions, tasks } from '../../drizzle/schema';
+import { eq, and, lt, sql } from 'drizzle-orm';
 
-export async function enqueueAgentJob(input: {
+// ─── Job Enqueue ────────────────────────────────────────────────────────────
+
+export async function enqueueAgentJob(params: {
   type: string;
   entityType?: string;
   entityId?: string;
-  payload?: unknown;
+  payload?: Record<string, unknown>;
   priority?: number;
-  scheduledAt?: Date;
   createdBy?: string;
 }) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-
   const id = crypto.randomUUID();
-  await db.insert(agentJobs).values({
+  (await getDb())!.insert(agentJobs).values({
     id,
-    type: input.type,
-    entityType: input.entityType,
-    entityId: input.entityId,
-    payload: input.payload as Record<string, unknown>,
-    priority: input.priority ?? 5,
-    scheduledAt: input.scheduledAt ?? new Date(),
-    createdBy: input.createdBy,
-    status: "pending",
+    type: params.type,
+    entityType: params.entityType,
+    entityId: params.entityId,
+    payload: params.payload ?? {},
+    priority: params.priority ?? 5,
+    status: 'pending',
+    createdBy: params.createdBy,
+    createdAt: new Date(),
   });
-
   return id;
 }
 
-export async function claimNextAgentJob(workerId: string) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
+// ─── Atomic Job Claiming (B1) ────────────────────────────────────────────────
+// Nutzt SELECT + UPDATE WHERE status='pending' mit atomarem Guard gegen Race Conditions.
 
-  const jobs = await db
+export async function claimNextAgentJob() {
+  // Wähle den nächsten Job per SELECT
+  const rows = await db
     .select()
     .from(agentJobs)
-    .where(
-      and(eq(agentJobs.status, "pending"), lte(agentJobs.scheduledAt, new Date()))
-    )
-    .orderBy(asc(agentJobs.priority), asc(agentJobs.scheduledAt))
+    .where(eq(agentJobs.status, 'pending'))
+    .orderBy(sql`${agentJobs.priority} DESC, ${agentJobs.createdAt} ASC`)
     .limit(1);
 
-  const job = jobs[0];
-  if (!job) return null;
+  if (rows.length === 0) return null;
 
-  await db
+  const candidate = rows[0];
+  const workerId = `worker-${process.pid}-${Date.now()}`;
+
+  // Atomares UPDATE: nur wenn Status noch 'pending' ist
+  const result = await db
     .update(agentJobs)
     .set({
-      status: "processing",
+      status: 'processing',
       lockedBy: workerId,
       lockedAt: new Date(),
-      attempts: (job.attempts ?? 0) + 1,
     })
-    .where(eq(agentJobs.id, job.id));
+    .where(
+      and(
+        eq(agentJobs.id, candidate.id),
+        eq(agentJobs.status, 'pending') // Guard gegen Race Condition
+      )
+    );
 
-  return { ...job, status: "processing" as const };
+  // Drizzle gibt bei MySQL rowsAffected zurück
+  const affected = (result as any).rowsAffected ?? (result as any)[0]?.affectedRows ?? 1;
+  if (affected === 0) {
+    // Ein anderer Worker hat diesen Job bereits geclaimt
+    return null;
+  }
+
+  return { ...candidate, lockedBy: workerId };
 }
 
-export async function createAgentRun(input: {
+// ─── Stale-Lock Recovery (B2) ────────────────────────────────────────────────
+// Setzt Jobs zurück auf 'pending', die seit > timeoutMinutes im Status 'processing' hängen.
+
+export async function recoverStaleJobs(timeoutMinutes = 15) {
+  const cutoff = new Date(Date.now() - timeoutMinutes * 60 * 1000);
+
+  const result = await db
+    .update(agentJobs)
+    .set({
+      status: 'pending',
+      lockedBy: null,
+      lockedAt: null,
+    })
+    .where(
+      and(
+        eq(agentJobs.status, 'processing'),
+        lt(agentJobs.lockedAt, cutoff)
+      )
+    );
+
+  const affected = (result as any).rowsAffected ?? (result as any)[0]?.affectedRows ?? 0;
+  if (affected > 0) {
+    console.log(`[AgentWorker] Recovered ${affected} stale job(s) (timeout: ${timeoutMinutes}min)`);
+  }
+  return affected;
+}
+
+// ─── Run Lifecycle ───────────────────────────────────────────────────────────
+
+export async function createAgentRun(params: {
   jobId: string;
   agentName: string;
-  model?: string;
   promptVersion?: string;
   inputJson?: unknown;
 }) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-
   const id = crypto.randomUUID();
-  await db.insert(agentRuns).values({
+  (await getDb())!.insert(agentRuns).values({
     id,
-    jobId: input.jobId,
-    agentName: input.agentName,
-    model: input.model,
-    promptVersion: input.promptVersion,
-    inputJson: input.inputJson as Record<string, unknown>,
-    status: "running",
+    jobId: params.jobId,
+    agentName: params.agentName,
+    promptVersion: params.promptVersion,
+    inputJson: params.inputJson as Record<string, unknown>,
+    status: 'running',
     startedAt: new Date(),
   });
-
   return id;
 }
 
 export async function completeAgentRun(runId: string, outputJson: unknown) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-
   await db
     .update(agentRuns)
     .set({
-      status: "completed",
+      status: 'completed',
+      finishedAt: new Date(),
       outputJson: outputJson as Record<string, unknown>,
-      finishedAt: new Date(),
     })
     .where(eq(agentRuns.id, runId));
 }
 
-export async function failAgentRun(runId: string, error: unknown) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-
-  const msg = error instanceof Error ? error.message : String(error);
+export async function failAgentRun(runId: string, errorMessage: string) {
   await db
     .update(agentRuns)
     .set({
-      status: "failed",
-      errorMessage: msg,
+      status: 'failed',
       finishedAt: new Date(),
+      errorMessage,
     })
     .where(eq(agentRuns.id, runId));
 }
+
+// ─── Job Completion ──────────────────────────────────────────────────────────
 
 export async function completeAgentJob(jobId: string) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-
-  await db
-    .update(agentJobs)
-    .set({ status: "completed" })
-    .where(eq(agentJobs.id, jobId));
-}
-
-export async function failAgentJob(jobId: string, error: unknown) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-
-  const msg = error instanceof Error ? error.message : String(error);
-  const job = await db
-    .select()
-    .from(agentJobs)
-    .where(eq(agentJobs.id, jobId))
-    .limit(1);
-
-  const current = job[0];
-  const attempts = current?.attempts ?? 1;
-  const maxAttempts = current?.maxAttempts ?? 3;
-
   await db
     .update(agentJobs)
     .set({
-      status: attempts >= maxAttempts ? "failed" : "pending",
-      errorMessage: msg,
+      status: 'completed',
       lockedBy: null,
-      lockedAt: null,
+      updatedAt: new Date(),
     })
     .where(eq(agentJobs.id, jobId));
 }
 
-export async function logToolCall(input: {
+export async function failAgentJob(jobId: string, errorMessage: string) {
+  await db
+    .update(agentJobs)
+    .set({
+      status: 'failed',
+      errorMessage,
+      lockedBy: null,
+      updatedAt: new Date(),
+    })
+    .where(eq(agentJobs.id, jobId));
+}
+
+// ─── Tool Call Logging ───────────────────────────────────────────────────────
+
+export async function logToolCall(params: {
   runId: string;
   toolName: string;
-  argumentsJson?: unknown;
-  resultJson?: unknown;
+  input: unknown;
+  output?: unknown;
   sideEffectLevel?: number;
 }) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-
-  await db.insert(agentToolCalls).values({
-    id: crypto.randomUUID(),
-    runId: input.runId,
-    toolName: input.toolName,
-    argumentsJson: input.argumentsJson as Record<string, unknown>,
-    resultJson: input.resultJson as Record<string, unknown>,
-    sideEffectLevel: input.sideEffectLevel ?? 0,
+  const id = crypto.randomUUID();
+  (await getDb())!.insert(agentToolCalls).values({
+    id,
+    runId: params.runId,
+    toolName: params.toolName,
+    argumentsJson: params.input as Record<string, unknown>,
+    resultJson: params.output ? (params.output as Record<string, unknown>) : null,
+    sideEffectLevel: params.sideEffectLevel ?? 0,
+    createdAt: new Date(),
   });
+  return id;
+}
+
+// ─── Suggestion Persistence ──────────────────────────────────────────────────
+
+export async function saveAgentSuggestion(params: {
+  agentRunId: string;
+  entityType?: string;
+  entityId?: string;
+  suggestionType: string;
+  payload: unknown;
+  confidence?: number;
+}) {
+  const id = crypto.randomUUID();
+  (await getDb())!.insert(agentSuggestions).values({
+    id,
+    agentRunId: params.agentRunId,
+    entityType: params.entityType,
+    entityId: params.entityId,
+    suggestionType: params.suggestionType,
+    suggestionJson: params.payload as Record<string, unknown>,
+    confidence: params.confidence ? String(params.confidence) : null,
+    status: 'pending',
+    createdAt: new Date(),
+  });
+  return id;
 }
