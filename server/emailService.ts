@@ -387,37 +387,4 @@ export async function getEmailFolders(
     return ['INBOX', 'Sent', 'Drafts', 'Trash', 'Spam'];
   }
 }
-export async function getEmailFolders(
-  userEmail: string
-): Promise<string[]> {
-  try {
-    console.log(`[EmailService] Fetching folders for ${userEmail}`);
-    
-    const credentials = await getEmailCredentials(userEmail);
-    if (!credentials) {
-      console.log('[EmailService] No credentials found, returning default folders');
-      return ['INBOX', 'Sent', 'Drafts', 'Trash', 'Spam'];
-    }
 
-    // Use Smartermail API instead of IMAP
-    const { getSmarterMailClient } = await import('./smartermailClient');
-    const client = getSmarterMailClient(credentials.serverUrl || 'https://mail.bl2020.com');
-    
-    try {
-      const folders = await client.getFolders(credentials.email, credentials.password);
-      
-      // Return folder names (translatedName preferred, fallback to name)
-      const folderNames = folders.map((f: any) => f.translatedName || f.name);
-      
-      console.log(`[EmailService] Found ${folderNames.length} folders via Smartermail API:`, folderNames);
-      
-      return folderNames;
-    } catch (error) {
-      console.error('[EmailService] Error getting folders from Smartermail API:', error);
-      return ['INBOX', 'Sent', 'Drafts', 'Trash', 'Spam'];
-    }
-  } catch (error) {
-    console.error('[EmailService] Error getting folders:', error);
-    return ['INBOX', 'Sent', 'Drafts', 'Trash', 'Spam'];
-  }
-}

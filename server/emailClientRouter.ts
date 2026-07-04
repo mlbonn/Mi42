@@ -6,6 +6,7 @@ import { sql } from 'drizzle-orm';
 import * as db from './db';
 import { getSmarterMailClient } from './smartermailClient';
 import * as path from 'path';
+import { getEmailFolders } from './emailService';
 
 
 // SmarterMail API Base URL
