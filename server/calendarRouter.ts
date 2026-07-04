@@ -101,15 +101,8 @@ async function getAllCalendarConfigs(): Promise<Array<{
       } catch (e) {
         console.warn("[CALENDAR] Failed to decrypt caldavPassword for", user.email, e);
       }
-    } else if (user.passwordHash && user.passwordHash.includes('|')) {
-      const parts = user.passwordHash.split('|');
-      try {
-        password = decryptPassword(parts[1]);
-        console.log("[CALENDAR] Legacy: Using passwordHash split for", user.email);
-      } catch (e) {
-        console.warn("[CALENDAR] Failed to decrypt legacy passwordHash for", user.email, e);
-      }
     }
+    // Legacy-Fallback (passwordHash.split) wurde entfernt (PR4 Migration abgeschlossen)
     if (!password) {
       console.log("[CALENDAR] Skipping user", user.email, "- no CalDAV password available");
       continue;
