@@ -343,7 +343,6 @@ export async function moveEmailViaIMAP(
   }
 }
 
-// Get list of email folders for a user
 // Get list of email folders for a user via Smartermail API
 export async function getEmailFolders(
   userEmail: string
@@ -357,12 +356,7 @@ export async function getEmailFolders(
     }
     const { getSmarterMailClient } = await import('./smartermailClient');
     const client = getSmarterMailClient();
-    const token = await client.authenticate(credentials.email, credentials.password);
-    if (!token) {
-      console.warn('[EmailService] Smartermail auth failed, returning default folders');
-      return DEFAULT_FOLDERS;
-    }
-    const folders = await client.getFolders(token);
+    const folders = await client.getFolders(credentials.email, credentials.password);
     if (folders && folders.length > 0) {
       console.log(`[EmailService] Found ${folders.length} folders via Smartermail API`);
       return folders;
@@ -373,4 +367,3 @@ export async function getEmailFolders(
     return DEFAULT_FOLDERS;
   }
 }
-
