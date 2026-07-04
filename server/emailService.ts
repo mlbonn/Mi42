@@ -344,47 +344,33 @@ export async function moveEmailViaIMAP(
 }
 
 // Get list of email folders for a user
+// Get list of email folders for a user via Smartermail API
 export async function getEmailFolders(
   userEmail: string
 ): Promise<string[]> {
+  const DEFAULT_FOLDERS = ['INBOX', 'Sent', 'Drafts', 'Trash', 'Spam'];
   try {
-    console.log(`[EmailService] Fetching folders for ${userEmail}`);
-    
     const credentials = await getEmailCredentials(userEmail);
+    if (!credentials) {
       console.log('[EmailService] No credentials found, returning default folders');
-      return ['INBOX', 'Sent', 'Drafts', 'Trash', 'Spam'];
+      return DEFAULT_FOLDERS;
     }
-
-    const client = new ImapFlow({
-      host: credentials.imapHost,
-      port: credentials.imapPort,
-      secure: credentials.imapPort === 993,
-      auth: {
-        user: credentials.email,
-        pass: credentials.password,
-      },
-      logger: false,
-    });
-
-    await client.connect();
-    
-    try {
-      const mailboxes = await client.list();
-      const folderNames = mailboxes.map((box: any) => box.path);
-      
-      console.log(`[EmailService] Found ${folderNames.length} folders:`, folderNames);
-      
-      await client.logout();
-      
-      return folderNames;
-    } catch (error) {
-      console.error('[EmailService] Error listing mailboxes:', error);
-      await client.logout();
-      return ['INBOX', 'Sent', 'Drafts', 'Trash', 'Spam'];
+    const { getSmarterMailClient } = await import('./smartermailClient');
+    const client = getSmarterMailClient();
+    const token = await client.authenticate(credentials.email, credentials.password);
+    if (!token) {
+      console.warn('[EmailService] Smartermail auth failed, returning default folders');
+      return DEFAULT_FOLDERS;
     }
-  } catch (error) {
-    console.error('[EmailService] Error getting folders:', error);
-    return ['INBOX', 'Sent', 'Drafts', 'Trash', 'Spam'];
+    const folders = await client.getFolders(token);
+    if (folders && folders.length > 0) {
+      console.log(`[EmailService] Found ${folders.length} folders via Smartermail API`);
+      return folders;
+    }
+    return DEFAULT_FOLDERS;
+  } catch (error: any) {
+    console.error('[EmailService] Error getting folders:', error.message);
+    return DEFAULT_FOLDERS;
   }
 }
 
