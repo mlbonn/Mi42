@@ -1417,6 +1417,7 @@ export async function getHunterResultsStats() {
 // ============================================================================
 
 import crypto from "crypto";
+import { encryptCredential, decryptCredential } from './_core/credentialService';
 
 /**
  * Authenticate user with email and password
@@ -1636,11 +1637,7 @@ export async function createEmailAccount(data: {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  const crypto = require('crypto');
-  const ENCRYPTION_KEY = process.env.EMAIL_ENCRYPTION_KEY || 'your-32-char-secret-key-here!!';
-  const cipher = crypto.createCipher('aes-256-cbc', ENCRYPTION_KEY);
-  let encryptedPassword = cipher.update(data.password, 'utf8', 'hex');
-  encryptedPassword += cipher.final('hex');
+  const encryptedPassword = encryptCredential(data.password);
   
   const [account] = await db.insert(emailAccountsNew).values({
     userId: data.userId,
@@ -1667,12 +1664,7 @@ export async function updateEmailAccount(id: number, userId: string, data: Parti
   
   const updateData: any = { ...data };
   if (data.password) {
-    const crypto = require('crypto');
-    const ENCRYPTION_KEY = process.env.EMAIL_ENCRYPTION_KEY || 'your-32-char-secret-key-here!!';
-    const cipher = crypto.createCipher('aes-256-cbc', ENCRYPTION_KEY);
-    let encryptedPassword = cipher.update(data.password, 'utf8', 'hex');
-    encryptedPassword += cipher.final('hex');
-    updateData.passwordEncrypted = encryptedPassword;
+    updateData.passwordEncrypted = encryptCredential(data.password);
     delete updateData.password;
   }
   
@@ -1701,15 +1693,10 @@ export async function getEmailAccountWithPassword(id: number, userId: string) {
   
   if (!account) return null;
   
-  const crypto = require('crypto');
-  const ENCRYPTION_KEY = process.env.EMAIL_ENCRYPTION_KEY || 'your-32-char-secret-key-here!!';
-  const decipher = crypto.createDecipher('aes-256-cbc', ENCRYPTION_KEY);
-  let decryptedPassword = decipher.update(account.passwordEncrypted, 'hex', 'utf8');
-  decryptedPassword += decipher.final('utf8');
-  
+  const password = decryptCredential(account.passwordEncrypted);
   return {
     ...account,
-    password: decryptedPassword,
+    password,
   };
 }
 

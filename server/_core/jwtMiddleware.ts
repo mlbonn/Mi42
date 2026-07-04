@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import { ENV } from "./env";
 import * as db from "../db";
 
-const JWT_SECRET = ENV.jwtSecret || "your-secret-key-change-in-production";
+const JWT_SECRET = ENV.jwtSecret!;
 
 interface JwtPayload {
   userId: string;

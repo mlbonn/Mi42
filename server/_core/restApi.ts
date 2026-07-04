@@ -5,7 +5,7 @@ import * as db from "./db";
 import { ENV } from "./_core/env";
 
 const router = Router();
-const JWT_SECRET = ENV.jwtSecret || "your-secret-key-change-in-production";
+const JWT_SECRET = ENV.jwtSecret!;
 const JWT_EXPIRY = "7d";
 
 interface JwtPayload {

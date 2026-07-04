@@ -1117,3 +1117,25 @@ export type AgentSuggestion = typeof agentSuggestions.$inferSelect;
 export type InsertAgentSuggestion = typeof agentSuggestions.$inferInsert;
 export type Task = typeof tasks.$inferSelect;
 export type InsertTask = typeof tasks.$inferInsert;
+
+// ============================================================================
+// SESSIONS - Serverseitige Session-Verwaltung (PR3)
+// ============================================================================
+export const sessions = mysqlTable("sessions", {
+  id: varchar("id", { length: 64 }).primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId: varchar("userId", { length: 64 }).notNull(),
+  tokenHash: varchar("tokenHash", { length: 64 }).notNull(), // sha256(jwt) hex
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  expiresAt: timestamp("expiresAt").notNull(),
+  lastSeenAt: timestamp("lastSeenAt").defaultNow().notNull(),
+  revokedAt: timestamp("revokedAt"),
+  userAgent: varchar("userAgent", { length: 512 }),
+  ipAddress: varchar("ipAddress", { length: 64 }),
+}, (table) => ({
+  userIdx: index("sessions_user_idx").on(table.userId),
+  tokenHashIdx: index("sessions_token_hash_idx").on(table.tokenHash),
+  expiresIdx: index("sessions_expires_idx").on(table.expiresAt),
+}));
+
+export type Session = typeof sessions.$inferSelect;
+export type InsertSession = typeof sessions.$inferInsert;

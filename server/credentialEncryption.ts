@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 
 const ENCRYPTION_ALGORITHM = 'aes-256-gcm';
-const ENCRYPTION_KEY = process.env.CREDENTIAL_ENCRYPTION_KEY || crypto.randomBytes(32).toString('hex');
+const ENCRYPTION_KEY = process.env.CREDENTIAL_ENCRYPTION_KEY!;
 
 /**
  * Verschlüsselt ein Passwort mit AES-256-GCM

@@ -1,14 +1,13 @@
 import "dotenv/config";
+import { validateEnv } from "./validateEnv";
 import express from "express";
 import { createServer } from "http";
 import net from "net";
 import cookieParser from "cookie-parser";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
-import { registerSimpleAuthRoutes } from "./simpleAuth";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
-import jwtAuthRouter from "./jwtAuthRouter";
 import restApiMiddleware from "./restApiMiddleware";
 import uploadRoute from "../uploadRoute";
 import emailAttachmentRouter from "../routes/emailAttachmentRouter";
@@ -34,6 +33,7 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 }
 
 async function startServer() {
+  validateEnv();
   const app = express();
   const server = createServer(app);
 
@@ -47,11 +47,6 @@ async function startServer() {
   // Serve uploaded files statically
   app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
-  // Simple auth routes under /api/auth/*
-  registerSimpleAuthRoutes(app);
-
-  // JWT Auth routes
-  app.use("/api/auth/jwt", jwtAuthRouter);
 
   // Email attachment upload routes (BEFORE tRPC)
   app.use("/api/email-attachment", emailAttachmentRouter);

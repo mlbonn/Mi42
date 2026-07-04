@@ -98,3 +98,28 @@ poll().catch(err => console.error('[AgentWorker] Initial poll error:', err));
 setInterval(() => {
   poll().catch(err => console.error('[AgentWorker] Poll error:', err));
 }, POLL_INTERVAL_MS);
+
+// Session-Aufräumjob: Abgelaufene und widerrufene Sessions löschen (täglich)
+const SESSION_CLEANUP_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24h
+async function cleanupExpiredSessions() {
+  try {
+    const { getDb } = await import('../db');
+    const { sql: rawSql } = await import('drizzle-orm');
+    const db = await getDb();
+    if (!db) return;
+    const result = await db.execute(
+      rawSql`DELETE FROM sessions WHERE expiresAt < NOW() OR (revokedAt IS NOT NULL AND revokedAt < DATE_SUB(NOW(), INTERVAL 7 DAY))`
+    );
+    const deleted = (result[0] as any)?.affectedRows || 0;
+    if (deleted > 0) {
+      console.log(`[AgentWorker] Cleaned up ${deleted} expired/revoked session(s)`);
+    }
+  } catch (err) {
+    console.error('[AgentWorker] Session cleanup error:', err);
+  }
+}
+// Erster Cleanup nach 1 Stunde, dann täglich
+setTimeout(() => {
+  cleanupExpiredSessions();
+  setInterval(cleanupExpiredSessions, SESSION_CLEANUP_INTERVAL_MS);
+}, 60 * 60 * 1000);

@@ -2,14 +2,11 @@
 // SmarterMail API Client mit Attachment-Download
 
 import axios, { AxiosInstance } from 'axios';
-import crypto from 'crypto';
 import fs from 'fs/promises';
 import path from 'path';
 import { pipeline } from 'stream/promises';
 import { createWriteStream } from 'fs';
-
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY!; // 32 Zeichen
-const ALGORITHM = 'aes-256-cbc';
+import { encryptCredential, decryptCredential } from '../_core/credentialService';
 
 export interface SmarterMailMessage {
   uid: string;
@@ -57,29 +54,6 @@ export class SmarterMailService {
       timeout: 30000,
     });
   }
-
-  // ============================================================
-  // Passwort-Verschlüsselung
-  // ============================================================
-
-  static encryptPassword(password: string): string {
-    const iv = crypto.randomBytes(16);
-    const cipher = crypto.createCipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY), iv);
-    let encrypted = cipher.update(password, 'utf8', 'hex');
-    encrypted += cipher.final('hex');
-    return iv.toString('hex') + ':' + encrypted;
-  }
-
-  static decryptPassword(encryptedPassword: string): string {
-    const parts = encryptedPassword.split(':');
-    const iv = Buffer.from(parts[0], 'hex');
-    const encrypted = parts[1];
-    const decipher = crypto.createDecipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY), iv);
-    let decrypted = decipher.update(encrypted, 'hex', 'utf8');
-    decrypted += decipher.final('utf8');
-    return decrypted;
-  }
-
   // ============================================================
   // Authentifizierung
   // ============================================================

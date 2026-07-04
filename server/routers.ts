@@ -8,7 +8,6 @@ import { companiesRouter } from "./companiesRouter";
 import { corporationsRouter } from "./corporationsRouter";
 import { dealsRouter } from "./dealsRouter";
 import { activitiesRouter } from "./activitiesRouter";
-import { jwtAuthRouter } from "./jwtAuthRouter";
 import { dashboardRouter } from "./dashboardRouter";
 import { emailsRouter } from "./emailsRouter";
 import { contactAddressesRouter } from "./contactAddressesRouter";
@@ -34,7 +33,6 @@ export const appRouter = router({
   system: systemRouter,
   simpleAuth: simpleAuthRouter,
   auth: authRouter,
-  jwtAuth: jwtAuthRouter,
   users: userRouter,
   contacts: contactsRouter,
   companies: companiesRouter,

@@ -12,7 +12,7 @@ const TAG_LENGTH = 16;
 const KEY_LENGTH = 32;
 
 function getEncryptionKey(): Buffer {
-  const secret = process.env.JWT_SECRET || 'default-secret-change-me';
+  const secret = process.env.JWT_SECRET!;
   // Derive a consistent key from JWT_SECRET
   return crypto.pbkdf2Sync(secret, 'caldav-salt', 100000, KEY_LENGTH, 'sha512');
 }

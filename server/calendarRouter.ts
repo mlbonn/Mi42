@@ -82,27 +82,41 @@ async function getAllCalendarConfigs(): Promise<Array<{
     id: users.id,
     email: users.email,
     passwordHash: users.passwordHash,
+    caldavPassword: users.caldavPassword,
   }).from(users);
   
   console.log("[CALENDAR] Found", allUsers.length, "users in database");
 
   // Build configs for each user (use FRIDAY email + decrypted password)
   for (const user of allUsers) {
-    if (!user.email || !user.passwordHash) continue;
+    if (!user.email) continue;
+    if (!user.passwordHash && !user.caldavPassword) continue;
 
-    // Skip if passwordHash doesn't contain encrypted password (old users)
-    // Format: "bcrypt_hash|encrypted_password" or just "bcrypt_hash"
-    const parts = user.passwordHash.split('|');
-    console.log("[CALENDAR] User", user.email, "has", parts.length, "parts in passwordHash");
-    if (parts.length < 2) {
-      console.log("[CALENDAR] Skipping user", user.email, "- no encrypted password");
-      continue; // No encrypted password stored
+    // Credential-Entkopplung (PR4): CalDAV-Passwort aus caldavPassword Feld
+    // Legacy-Fallback: passwordHash.split('|') für Altdaten
+    let password: string | null = null;
+    if (user.caldavPassword) {
+      try {
+        password = decryptPassword(user.caldavPassword);
+      } catch (e) {
+        console.warn("[CALENDAR] Failed to decrypt caldavPassword for", user.email, e);
+      }
+    } else if (user.passwordHash && user.passwordHash.includes('|')) {
+      const parts = user.passwordHash.split('|');
+      try {
+        password = decryptPassword(parts[1]);
+        console.log("[CALENDAR] Legacy: Using passwordHash split for", user.email);
+      } catch (e) {
+        console.warn("[CALENDAR] Failed to decrypt legacy passwordHash for", user.email, e);
+      }
+    }
+    if (!password) {
+      console.log("[CALENDAR] Skipping user", user.email, "- no CalDAV password available");
+      continue;
     }
 
     try {
-      // Decrypt CalDAV password from second part
-      const encryptedPassword = parts[1];
-      const password = decryptPassword(encryptedPassword);
+      const encryptedPassword = ''; // Unused in new path
 
       // Extract username and domain from FRIDAY email
       const username = user.email.split('@')[0];

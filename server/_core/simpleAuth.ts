@@ -6,7 +6,7 @@ import { SignJWT, jwtVerify } from "jose";
 import crypto from "crypto";
 
 const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "friday-crm-default-secret-change-in-production"
+  process.env.JWT_SECRET!
 );
 
 // Hash password with SHA-256 + encrypt for CalDAV
@@ -23,7 +23,7 @@ function hashPassword(password: string): string {
 }
 
 // Create JWT session token
-async function createSessionToken(userId: string, name: string): Promise<string> {
+export async function createSessionToken(userId: string, name: string): Promise<string> {
   const token = await new SignJWT({ userId, name })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()

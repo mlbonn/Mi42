@@ -15,7 +15,7 @@ import {
 } from "./rbac";
 import { getDb } from './db';
 import { users } from '../drizzle/schema';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { encryptPassword, decryptPassword } from './encryption';
 import bcrypt from 'bcryptjs';
 
@@ -115,20 +115,19 @@ export const userRouter = router({
       // Create user
       const userId = crypto.randomUUID();
       
-      // Hash password with bcrypt
+      // Hash password with bcrypt (nur für Login-Auth)
       const bcryptHash = await bcrypt.hash(input.password, 10);
       
-      // Encrypt password for CalDAV
-      const encryptedPassword = encryptPassword(input.password);
-      
-      // Combine: bcrypt_hash|encrypted_password
-      const passwordHash = `${bcryptHash}|${encryptedPassword}`;
+      // CalDAV-Passwort separat verschlüsseln (Credential-Entkopplung PR4)
+      const encryptedCalDAVPassword = encryptPassword(input.password);
       
       await db.createUser({
         id: userId,
         name: input.name,
         email: input.email,
-        passwordHash: passwordHash,
+        passwordHash: bcryptHash,
+        caldavPassword: encryptedCalDAVPassword,
+        caldavEmail: input.email,
         role: input.role,
         status: 'active',
         assignedTo: input.assignedTo,
@@ -367,5 +366,15 @@ export const userRouter = router({
       
       return { success: true, count: input.users.length };
     }),
+
+  // Revoke all sessions for current user
+  revokeAllSessions: protectedProcedure.mutation(async ({ ctx }) => {
+    const db = await getDb();
+    if (!db) throw new Error("Database not available");
+    await db.execute(
+      sql`UPDATE sessions SET revokedAt = NOW() WHERE userId = ${ctx.user.id} AND revokedAt IS NULL`
+    );
+    return { success: true };
+  }),
 });
 
