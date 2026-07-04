@@ -10,7 +10,13 @@
     "dist",
     "**/*.test.ts",
     "**/*_backup*",
-    "**/*_new.ts"
+    "**/*_new.ts",
+    "**/*.bak",
+    "**/*.backup",
+    "**/*.old",
+    "**/*.orig",
+    "**/*_before_fix*",
+    "**/*-multiaccounts*"
   ],
   "compilerOptions": {
     "incremental": true,
