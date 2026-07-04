@@ -116,7 +116,6 @@ async function getAllCalendarConfigs(): Promise<Array<{
     }
 
     try {
-      const encryptedPassword = ''; // Unused in new path
 
       // Extract username and domain from FRIDAY email
       const username = user.email.split('@')[0];
