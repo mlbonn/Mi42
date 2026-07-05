@@ -11,8 +11,7 @@ import {
   addContactToCompany,
   getDb,
 } from "./db";
-import { archivedEmails, archivedEmailAttachments   archivedEmailAttachments,
-} from "../drizzle/schema";
+import { archivedEmails, archivedEmailAttachments } from "../drizzle/schema";
 import { eq, desc } from "drizzle-orm";
 
 export const contactsRouter = router({
