@@ -1,6 +1,6 @@
 # Firmenprofil: Swissforecast GmbH
 
-**Generiert:** 2026-07-05T18:41:10.791Z
+**Generiert:** 2026-07-05T18:59:32.336Z
 **Agent:** company_enrichment v1.0
 
 ---
@@ -9,7 +9,7 @@
 
 | Feld | Wert |
 |---|---|
-| Branche | Material Price Forecasting |
+| Branche | Finanzdienstleistungen |
 | Mitarbeiter | – |
 | Website | swissforecast.ch |
 | Stadt | Cham |
@@ -48,7 +48,7 @@ _Keine belastbaren Informationen gefunden._
 
 | Feld | Quelle | Abgerufen |
 |---|---|---|
-| industry | https://swissforecast.ch | 2026-07-05 |
+| industry | Website (https://swissforecast.ch) | 2026-07-05 |
 
 ---
 

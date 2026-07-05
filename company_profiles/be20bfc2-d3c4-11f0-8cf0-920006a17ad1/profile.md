@@ -1,6 +1,6 @@
-# Firmenprofil: EGGER Retail Products GmbH
+# Firmenprofil: ROCKWOOL Rockfon GmbH
 
-**Generiert:** 2026-07-05T18:59:24.114Z
+**Generiert:** 2026-07-05T18:59:28.244Z
 **Agent:** company_enrichment v1.0
 
 ---
@@ -9,11 +9,11 @@
 
 | Feld | Wert |
 |---|---|
-| Branche | Holzwerkstoffhersteller |
+| Branche | Hersteller von Dämmstoffen |
 | Mitarbeiter | – |
-| Website | – |
-| Stadt | St. Johann in Tirol |
-| Land | AT |
+| Website | https://www.rockwool.de |
+| Stadt | Gladbeck |
+| Land | DE |
 | Segment | – |
 | Unternehmensgröße | – |
 | Umsatz (EUR) | – |
@@ -22,25 +22,25 @@
 
 ## Marktposition
 
-Vorreiter in der Laminatbodentechnologie
+Weltmarktführer für Steinwolle-Dämmstoffe
 
 ---
 
 ## Standorte
 
-Brilon, Wismar, Gifhorn, Bünde, Marienmünster, Bevern, Markt Bibart (Deutschland); Europa; Amerika
+_Keine belastbaren Informationen gefunden._
 
 ---
 
 ## Jüngste Entwicklungen
 
-Errichtung eines Laminatbodenwerks mit einer Jahreskapazität von 30 Mio. qm am Standort Brilon
+Messeauftritt auf der DACH+HOLZ in Köln; 10 Jahre Kältedämmung mit Teclit; Vorstellung von Woodrock Protect für den Holzbau
 
 ---
 
 ## Relevante Zielmärkte (Bau/Renovierung)
 
-Möbel- und Innenausbau, Holzbau, Fußbodenbereich
+_Keine belastbaren Informationen gefunden._
 
 ---
 
@@ -48,12 +48,13 @@ Möbel- und Innenausbau, Holzbau, Fußbodenbereich
 
 | Feld | Quelle | Abgerufen |
 |---|---|---|
-| industry | DuckDuckGo-Suche (EGGER Retail Products GmbH) | 2026-07-05 |
+| industry | Website (https://www.rockwool.de) | 2026-07-05 |
 
 ---
 
 ## Übersprungene Felder (manuell gesetzt, nicht überschrieben)
 
+- website
 - city
 - country
 

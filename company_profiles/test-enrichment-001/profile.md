@@ -1,6 +1,6 @@
 # Firmenprofil: EGGER Holzwerkstoffe GmbH
 
-**Generiert:** 2026-07-05T18:53:12.685Z
+**Generiert:** 2026-07-05T18:59:32.111Z
 **Agent:** company_enrichment v1.0
 
 ---
@@ -11,9 +11,9 @@
 |---|---|
 | Branche | – |
 | Mitarbeiter | – |
-| Website | https://www.egger.com/MANUELL |
-| Stadt | St. Johann in Tirol |
-| Land | AT |
+| Website | – |
+| Stadt | – |
+| Land | – |
 | Segment | – |
 | Unternehmensgröße | – |
 | Umsatz (EUR) | – |
@@ -54,9 +54,7 @@ _(keine angereicherten Felder)_
 
 ## Übersprungene Felder (manuell gesetzt, nicht überschrieben)
 
-- website
-- city
-- country
+_(keine)_
 
 ---
 

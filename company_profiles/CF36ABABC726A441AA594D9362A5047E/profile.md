@@ -1,6 +1,6 @@
 # Firmenprofil: OOO "Egger Drevprodukt Shuya"
 
-**Generiert:** 2026-07-05T18:41:20.534Z
+**Generiert:** 2026-07-05T18:59:27.017Z
 **Agent:** company_enrichment v1.0
 
 ---

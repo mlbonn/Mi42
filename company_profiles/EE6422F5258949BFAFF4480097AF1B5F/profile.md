@@ -1,6 +1,6 @@
 # Firmenprofil: EGGER Building Products GmbH
 
-**Generiert:** 2026-07-05T18:41:20.520Z
+**Generiert:** 2026-07-05T18:59:23.548Z
 **Agent:** company_enrichment v1.0
 
 ---
@@ -9,8 +9,8 @@
 
 | Feld | Wert |
 |---|---|
-| Branche | – |
-| Mitarbeiter | – |
+| Branche | Holzwerkstoffhersteller |
+| Mitarbeiter | 12000 |
 | Website | – |
 | Stadt | St. Johann in Tirol |
 | Land | AT |
@@ -22,13 +22,13 @@
 
 ## Marktposition
 
-_Keine belastbaren Informationen gefunden._
+führenden Holzwerkstoffherstellern
 
 ---
 
 ## Standorte
 
-_Keine belastbaren Informationen gefunden._
+22 Standorte in 11 Ländern
 
 ---
 
@@ -40,7 +40,7 @@ _Keine belastbaren Informationen gefunden._
 
 ## Relevante Zielmärkte (Bau/Renovierung)
 
-_Keine belastbaren Informationen gefunden._
+Möbelindustrie, Holz-Fachhandel, Baumärkte, DIY-Geschäfte
 
 ---
 
@@ -48,7 +48,8 @@ _Keine belastbaren Informationen gefunden._
 
 | Feld | Quelle | Abgerufen |
 |---|---|---|
-_(keine angereicherten Felder)_
+| industry | DuckDuckGo-Suche (EGGER Building Products GmbH) | 2026-07-05 |
+| employeeCount | DuckDuckGo-Suche (EGGER Building Products GmbH) | 2026-07-05 |
 
 ---
 

@@ -100,14 +100,14 @@ async function fetchPublicInfo(
 ): Promise<string> {
   const sources: string[] = [];
 
+  // 1. Website abrufen (mit Redirect-Follow)
   if (website) {
     try {
       const url = website.startsWith("http") ? website : `https://${website}`;
       const res = await fetch(url, {
-        headers: {
-          "User-Agent": "FRIDAY-CRM-Enrichment/1.0 (company research bot)",
-        },
-        signal: AbortSignal.timeout(8000),
+        headers: { "User-Agent": "Mozilla/5.0 (compatible; FRIDAY-CRM-Enrichment/1.0)" },
+        redirect: "follow",
+        signal: AbortSignal.timeout(10000),
       });
       if (res.ok) {
         const html = await res.text();
@@ -117,64 +117,100 @@ async function fetchPublicInfo(
           .replace(/<[^>]+>/g, " ")
           .replace(/\s+/g, " ")
           .trim()
-          .slice(0, 4000);
-        sources.push(`=== Website (${url}) ===\n${text}`);
+          .slice(0, 3000);
+        sources.push(`=== Website (${url}) ===
+${text}`);
       }
     } catch {
       // Nicht erreichbar – überspringen
     }
   }
 
+  // 2. Wikipedia-Suche (zuverlässiger als DuckDuckGo)
   try {
-    const query = encodeURIComponent(
-      `${companyName} Unternehmen Profil Branche Mitarbeiter`
+    const wikiQuery = encodeURIComponent(companyName);
+    const wikiRes = await fetch(
+      `https://de.wikipedia.org/w/api.php?action=query&list=search&srsearch=${wikiQuery}&format=json&srlimit=1`,
+      {
+        headers: { "User-Agent": "FRIDAY-CRM-Enrichment/1.0" },
+        signal: AbortSignal.timeout(8000),
+      }
     );
-    const res = await fetch(`https://html.duckduckgo.com/html/?q=${query}`, {
-      headers: { "User-Agent": "Mozilla/5.0 (compatible; FRIDAY-CRM/1.0)" },
-      signal: AbortSignal.timeout(8000),
-    });
-    if (res.ok) {
-      const html = await res.text();
-      const matches = Array.from(
-        html.matchAll(/class="result__snippet"[^>]*>([\s\S]*?)<\/a>/g)
-      );
-      const snippets = matches
-        .slice(0, 5)
-        .map((m) => m[1].replace(/<[^>]+>/g, "").trim())
-        .join("\n");
-      if (snippets)
-        sources.push(
-          `=== DuckDuckGo-Suche (${companyName}) ===\n${snippets}`
+    if (wikiRes.ok) {
+      const wikiData = await wikiRes.json() as {
+        query?: { search?: Array<{ title: string; snippet: string }> }
+      };
+      const hits = wikiData?.query?.search ?? [];
+      if (hits.length > 0) {
+        const title = hits[0].title;
+        const snippet = hits[0].snippet.replace(/<[^>]+>/g, "");
+        // Vollständigen Wikipedia-Artikel abrufen
+        const articleRes = await fetch(
+          `https://de.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(title)}&prop=extracts&exintro=true&explaintext=true&format=json`,
+          {
+            headers: { "User-Agent": "FRIDAY-CRM-Enrichment/1.0" },
+            signal: AbortSignal.timeout(8000),
+          }
         );
+        if (articleRes.ok) {
+          const articleData = await articleRes.json() as {
+            query?: { pages?: Record<string, { extract?: string }> }
+          };
+          const pages = articleData?.query?.pages ?? {};
+          const extract = Object.values(pages)[0]?.extract ?? snippet;
+          sources.push(`=== Wikipedia (${title}) ===
+${extract.slice(0, 3000)}`);
+        } else {
+          sources.push(`=== Wikipedia-Snippet ===
+${snippet}`);
+        }
+      }
     }
   } catch {
-    // Überspringen
+    // Wikipedia nicht erreichbar – überspringen
   }
 
-  return (
-    sources.join("\n\n") ||
-    `Keine öffentlichen Quellen für "${companyName}" gefunden.`
-  );
+  // 3. DuckDuckGo als Fallback
+  if (sources.length === 0) {
+    try {
+      const query = encodeURIComponent(
+        `${companyName} Unternehmen Branche Mitarbeiter Standort`
+      );
+      const res = await fetch(`https://api.duckduckgo.com/?q=${query}&format=json&no_html=1`, {
+        headers: { "User-Agent": "Mozilla/5.0 (compatible; FRIDAY-CRM/1.0)" },
+        signal: AbortSignal.timeout(8000),
+      });
+      if (res.ok) {
+        const data = await res.json() as {
+          AbstractText?: string;
+          AbstractSource?: string;
+          RelatedTopics?: Array<{ Text?: string }>;
+        };
+        if (data.AbstractText) {
+          sources.push(`=== DuckDuckGo Abstract (${data.AbstractSource ?? "unbekannt"}) ===
+${data.AbstractText}`);
+        }
+        const related = (data.RelatedTopics ?? [])
+          .slice(0, 3)
+          .map((t) => t.Text ?? "")
+          .filter(Boolean)
+          .join("
+");
+        if (related) sources.push(`=== DuckDuckGo Related ===
+${related}`);
+      }
+    } catch {
+      // DuckDuckGo nicht erreichbar – überspringen
+    }
+  }
+
+  return sources.length > 0
+    ? sources.join("
+
+")
+    : `Keine öffentlichen Quellen gefunden für: ${companyName}`;
 }
 
-// ── Profil-Verzeichnis ───────────────────────────────────────────────────────
-
-const PROFILES_BASE =
-  process.env.COMPANY_PROFILES_PATH ??
-  "/home/manus02/friday-crm/company_profiles";
-
-function ensureProfileDir(companyId: string): string {
-  const dir = path.join(PROFILES_BASE, companyId);
-  fs.mkdirSync(dir, { recursive: true });
-  return dir;
-}
-
-// ── Kern-Logik (wiederverwendet von run und apply) ───────────────────────────
-
-interface EnrichInput {
-  entityId: string;
-  companyName?: string;
-}
 
 async function enrichCompany(
   input: EnrichInput
@@ -198,11 +234,13 @@ Analysiere die bereitgestellten öffentlichen Informationen über eine Firma und
 
 WICHTIGE REGELN:
 1. Nur Firmendaten – KEINE personenbezogenen Profile über Einzelpersonen.
-2. Nur belegbare Angaben. Wenn eine Information nicht in den Quellen steht, setze null.
+2. Nur belegbare Angaben aus den bereitgestellten Quellen. Wenn eine Information nicht belegbar ist, setze null.
 3. Keine erfundenen Werte, kein Score.
 4. Für jedes extrahierte Feld: Quelle angeben.
 5. employeeCount: nur als Zahl (z.B. 250), nicht als Bereich.
 6. country: ISO-2-Code (z.B. "DE", "AT", "CH").
+7. industry: Branchenbezeichnung auf Deutsch (z.B. "Holzwerkstoffhersteller", "Maschinenbau", "Softwareentwicklung").
+   Wenn die Branche aus dem Firmennamen, der Website oder den Quellen klar erkennbar ist, trage sie ein.
 
 Antworte ausschließlich als JSON:
 {

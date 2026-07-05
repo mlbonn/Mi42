@@ -1,6 +1,6 @@
 # Firmenprofil: EGGER Retail Products GmbH
 
-**Generiert:** 2026-07-05T18:41:30.386Z
+**Generiert:** 2026-07-05T18:59:24.039Z
 **Agent:** company_enrichment v1.0
 
 ---
@@ -9,8 +9,8 @@
 
 | Feld | Wert |
 |---|---|
-| Branche | – |
-| Mitarbeiter | – |
+| Branche | Holzwerkstoffhersteller |
+| Mitarbeiter | 12000 |
 | Website | – |
 | Stadt | St. Johann in Tirol |
 | Land | AU |
@@ -22,25 +22,25 @@
 
 ## Marktposition
 
-_Keine belastbaren Informationen gefunden._
+führender Holzwerkstoffhersteller
 
 ---
 
 ## Standorte
 
-_Keine belastbaren Informationen gefunden._
+22 Standorte in 11 Ländern
 
 ---
 
 ## Jüngste Entwicklungen
 
-_Keine belastbaren Informationen gefunden._
+Errichtung eines Laminatbodenwerks mit einer Jahreskapazität von 30 Mio. qm am Standort Brilon
 
 ---
 
 ## Relevante Zielmärkte (Bau/Renovierung)
 
-_Keine belastbaren Informationen gefunden._
+Möbelindustrie, Holz-Fachhandel, Baumärkte, DIY-Geschäfte
 
 ---
 
@@ -48,7 +48,8 @@ _Keine belastbaren Informationen gefunden._
 
 | Feld | Quelle | Abgerufen |
 |---|---|---|
-_(keine angereicherten Felder)_
+| industry | DuckDuckGo-Suche (EGGER Retail Products GmbH) | 2026-07-05 |
+| employeeCount | DuckDuckGo-Suche (EGGER Retail Products GmbH) | 2026-07-05 |
 
 ---
 

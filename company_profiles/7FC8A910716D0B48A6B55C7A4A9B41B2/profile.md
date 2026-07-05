@@ -1,6 +1,6 @@
 # Firmenprofil: Egger (UK) Ltd
 
-**Generiert:** 2026-07-05T18:41:36.003Z
+**Generiert:** 2026-07-05T18:59:24.165Z
 **Agent:** company_enrichment v1.0
 
 ---
@@ -9,14 +9,14 @@
 
 | Feld | Wert |
 |---|---|
-| Branche | – |
-| Mitarbeiter | – |
+| Branche | Holzwerkstoffhersteller |
+| Mitarbeiter | 800 |
 | Website | – |
 | Stadt | Northumberland |
 | Land | GR |
 | Segment | – |
 | Unternehmensgröße | – |
-| Umsatz (EUR) | – |
+| Umsatz (EUR) | 2840000000 |
 
 ---
 
@@ -28,7 +28,7 @@ _Keine belastbaren Informationen gefunden._
 
 ## Standorte
 
-_Keine belastbaren Informationen gefunden._
+Hexham, Northumberland; Auchinleck, Ayrshire
 
 ---
 
@@ -40,7 +40,7 @@ _Keine belastbaren Informationen gefunden._
 
 ## Relevante Zielmärkte (Bau/Renovierung)
 
-_Keine belastbaren Informationen gefunden._
+Möbelindustrie, Innenausbau, Baumärkte
 
 ---
 
@@ -48,7 +48,9 @@ _Keine belastbaren Informationen gefunden._
 
 | Feld | Quelle | Abgerufen |
 |---|---|---|
-_(keine angereicherten Felder)_
+| industry | DuckDuckGo-Suche (Egger (UK) Ltd) | 2026-07-05 |
+| employeeCount | DuckDuckGo-Suche (Egger (UK) Ltd) | 2026-07-05 |
+| revenueEur | DuckDuckGo-Suche (Egger (UK) Ltd) | 2026-07-05 |
 
 ---
 

@@ -1,6 +1,6 @@
-# Firmenprofil: EGGER Retail Products GmbH
+# Firmenprofil: Fritz Egger GmbH & Co.
 
-**Generiert:** 2026-07-05T18:59:24.114Z
+**Generiert:** 2026-07-05T18:59:28.532Z
 **Agent:** company_enrichment v1.0
 
 ---
@@ -10,9 +10,9 @@
 | Feld | Wert |
 |---|---|
 | Branche | Holzwerkstoffhersteller |
-| Mitarbeiter | – |
+| Mitarbeiter | 11000 |
 | Website | – |
-| Stadt | St. Johann in Tirol |
+| Stadt | St. Pölten-Unterradlberg |
 | Land | AT |
 | Segment | – |
 | Unternehmensgröße | – |
@@ -22,25 +22,25 @@
 
 ## Marktposition
 
-Vorreiter in der Laminatbodentechnologie
+international führend
 
 ---
 
 ## Standorte
 
-Brilon, Wismar, Gifhorn, Bünde, Marienmünster, Bevern, Markt Bibart (Deutschland); Europa; Amerika
+22 Standorte weltweit
 
 ---
 
 ## Jüngste Entwicklungen
 
-Errichtung eines Laminatbodenwerks mit einer Jahreskapazität von 30 Mio. qm am Standort Brilon
+_Keine belastbaren Informationen gefunden._
 
 ---
 
 ## Relevante Zielmärkte (Bau/Renovierung)
 
-Möbel- und Innenausbau, Holzbau, Fußbodenbereich
+Möbelindustrie, Holz- und Bodenbelagshandel, Baumärkte
 
 ---
 
@@ -48,7 +48,8 @@ Möbel- und Innenausbau, Holzbau, Fußbodenbereich
 
 | Feld | Quelle | Abgerufen |
 |---|---|---|
-| industry | DuckDuckGo-Suche (EGGER Retail Products GmbH) | 2026-07-05 |
+| industry | DuckDuckGo-Suche (Fritz Egger GmbH & Co.) | 2026-07-05 |
+| employeeCount | DuckDuckGo-Suche (Fritz Egger GmbH & Co.) | 2026-07-05 |
 
 ---
 

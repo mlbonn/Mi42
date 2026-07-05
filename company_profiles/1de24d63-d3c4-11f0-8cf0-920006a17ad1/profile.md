@@ -1,6 +1,6 @@
 # Firmenprofil: ROCKWOOL Rockfon GmbH
 
-**Generiert:** 2026-07-05T18:41:41.746Z
+**Generiert:** 2026-07-05T18:59:28.355Z
 **Agent:** company_enrichment v1.0
 
 ---
@@ -9,7 +9,7 @@
 
 | Feld | Wert |
 |---|---|
-| Branche | Herstellung von Dämmstoffen |
+| Branche | Hersteller von Dämmstoffen |
 | Mitarbeiter | – |
 | Website | https://www.rockwool.de |
 | Stadt | Gladbeck |
@@ -34,13 +34,13 @@ _Keine belastbaren Informationen gefunden._
 
 ## Jüngste Entwicklungen
 
-Teilnahme an der DACH+HOLZ Messe in Köln; 10 Jahre Kältedämmung mit Teclit; Einführung von Woodrock Protect für den Holzbau.
+Messeauftritt auf der DACH+HOLZ in Köln; 10 Jahre Kältedämmung mit Teclit; Vorstellung von Woodrock Protect für den Holzbau
 
 ---
 
 ## Relevante Zielmärkte (Bau/Renovierung)
 
-Gebäudehülle, Innenausbau, Gebäudetechnik, Holzbau
+_Keine belastbaren Informationen gefunden._
 
 ---
 
@@ -48,7 +48,7 @@ Gebäudehülle, Innenausbau, Gebäudetechnik, Holzbau
 
 | Feld | Quelle | Abgerufen |
 |---|---|---|
-| industry | Website (https://www.rockwool.de) | 2026-07-05 |
+| industry | https://www.rockwool.de | 2026-07-05 |
 
 ---
 

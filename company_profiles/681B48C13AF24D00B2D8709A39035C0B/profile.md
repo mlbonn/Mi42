@@ -1,6 +1,6 @@
 # Firmenprofil: FRITZ EGGER GmbH & Co. OG
 
-**Generiert:** 2026-07-05T18:41:30.408Z
+**Generiert:** 2026-07-05T18:59:31.940Z
 **Agent:** company_enrichment v1.0
 
 ---

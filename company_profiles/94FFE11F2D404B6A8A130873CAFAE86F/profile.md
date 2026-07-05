@@ -1,6 +1,6 @@
-# Firmenprofil: EGGER Retail Products GmbH
+# Firmenprofil: Egger
 
-**Generiert:** 2026-07-05T18:59:24.114Z
+**Generiert:** 2026-07-05T18:59:31.755Z
 **Agent:** company_enrichment v1.0
 
 ---
@@ -9,11 +9,11 @@
 
 | Feld | Wert |
 |---|---|
-| Branche | Holzwerkstoffhersteller |
+| Branche | – |
 | Mitarbeiter | – |
 | Website | – |
-| Stadt | St. Johann in Tirol |
-| Land | AT |
+| Stadt | – |
+| Land | DE |
 | Segment | – |
 | Unternehmensgröße | – |
 | Umsatz (EUR) | – |
@@ -22,25 +22,25 @@
 
 ## Marktposition
 
-Vorreiter in der Laminatbodentechnologie
+_Keine belastbaren Informationen gefunden._
 
 ---
 
 ## Standorte
 
-Brilon, Wismar, Gifhorn, Bünde, Marienmünster, Bevern, Markt Bibart (Deutschland); Europa; Amerika
+_Keine belastbaren Informationen gefunden._
 
 ---
 
 ## Jüngste Entwicklungen
 
-Errichtung eines Laminatbodenwerks mit einer Jahreskapazität von 30 Mio. qm am Standort Brilon
+_Keine belastbaren Informationen gefunden._
 
 ---
 
 ## Relevante Zielmärkte (Bau/Renovierung)
 
-Möbel- und Innenausbau, Holzbau, Fußbodenbereich
+_Keine belastbaren Informationen gefunden._
 
 ---
 
@@ -48,13 +48,12 @@ Möbel- und Innenausbau, Holzbau, Fußbodenbereich
 
 | Feld | Quelle | Abgerufen |
 |---|---|---|
-| industry | DuckDuckGo-Suche (EGGER Retail Products GmbH) | 2026-07-05 |
+_(keine angereicherten Felder)_
 
 ---
 
 ## Übersprungene Felder (manuell gesetzt, nicht überschrieben)
 
-- city
 - country
 
 ---
