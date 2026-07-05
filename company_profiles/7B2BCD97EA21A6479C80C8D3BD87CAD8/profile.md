@@ -1,6 +1,6 @@
 # Firmenprofil: Fritz Egger Spanplattenindustrie
 
-**Generiert:** 2026-07-05T18:42:59.505Z
+**Generiert:** 2026-07-05T18:44:03.432Z
 **Agent:** company_enrichment v1.0
 
 ---
@@ -9,7 +9,7 @@
 
 | Feld | Wert |
 |---|---|
-| Branche | Holzwerkstoffe |
+| Branche | Holzindustrie |
 | Mitarbeiter | 11100 |
 | Website | – |
 | Stadt | Brilon |

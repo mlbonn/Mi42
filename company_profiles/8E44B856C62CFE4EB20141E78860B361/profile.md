@@ -1,6 +1,6 @@
 # Firmenprofil: Egger Holzwerkstoffe Wismar GmbH & CO.KG
 
-**Generiert:** 2026-07-05T18:42:59.363Z
+**Generiert:** 2026-07-05T18:44:22.175Z
 **Agent:** company_enrichment v1.0
 
 ---
@@ -28,7 +28,7 @@ _Keine belastbaren Informationen gefunden._
 
 ## Standorte
 
-Brilon, Wismar, Gifhorn, Bünde, Marienmünster, Bevern, Markt Bibart
+_Keine belastbaren Informationen gefunden._
 
 ---
 
@@ -40,7 +40,7 @@ _Keine belastbaren Informationen gefunden._
 
 ## Relevante Zielmärkte (Bau/Renovierung)
 
-Möbel- und Innenausbau, Holzbau, Fußbodenbereich
+_Keine belastbaren Informationen gefunden._
 
 ---
 

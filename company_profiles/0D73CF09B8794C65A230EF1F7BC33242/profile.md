@@ -1,6 +1,6 @@
 # Firmenprofil: EGGER Sägewerk Brilon GmbH
 
-**Generiert:** 2026-07-05T18:41:40.740Z
+**Generiert:** 2026-07-05T18:44:03.872Z
 **Agent:** company_enrichment v1.0
 
 ---
@@ -14,7 +14,7 @@
 | Website | – |
 | Stadt | Brilon |
 | Land | DE |
-| Segment | – |
+| Segment | Holzverarbeitung |
 | Unternehmensgröße | – |
 | Umsatz (EUR) | – |
 
@@ -28,19 +28,19 @@ _Keine belastbaren Informationen gefunden._
 
 ## Standorte
 
-_Keine belastbaren Informationen gefunden._
+Brilon, Wismar, Gifhorn, Bünde, Marienmünster, Bevern, Markt Bibart
 
 ---
 
 ## Jüngste Entwicklungen
 
-_Keine belastbaren Informationen gefunden._
+Das Werk Brilon wurde 1990 auf „grüner Wiese" erbaut und ist heute ein vollintegrierter Standort mit Spanplatten- und MDF-Produktion, eigenem Sägewerk sowie Veredelung, PP-Kantenfertigung und Biomassekraftwerk.
 
 ---
 
 ## Relevante Zielmärkte (Bau/Renovierung)
 
-_Keine belastbaren Informationen gefunden._
+Möbel- und Innenausbau, Holzbau, Fußbodenbereich
 
 ---
 
@@ -48,7 +48,7 @@ _Keine belastbaren Informationen gefunden._
 
 | Feld | Quelle | Abgerufen |
 |---|---|---|
-_(keine angereicherten Felder)_
+| branch | DuckDuckGo-Suche (EGGER Sägewerk Brilon GmbH) | 2026-07-05 |
 
 ---
 

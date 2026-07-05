@@ -1,6 +1,6 @@
 # Firmenprofil: C+L GmbH
 
-**Generiert:** 2026-07-05T18:42:52.444Z
+**Generiert:** 2026-07-05T18:44:12.068Z
 **Agent:** company_enrichment v1.0
 
 ---
@@ -9,12 +9,12 @@
 
 | Feld | Wert |
 |---|---|
-| Branche | Medizintechnik |
+| Branche | – |
 | Mitarbeiter | – |
 | Website | – |
 | Stadt | Berlin |
 | Land | DE |
-| Segment | Röntgen- und Medizintechnik |
+| Segment | – |
 | Unternehmensgröße | – |
 | Umsatz (EUR) | – |
 
@@ -22,7 +22,7 @@
 
 ## Marktposition
 
-B2B Partner für Exzellenz
+_Keine belastbaren Informationen gefunden._
 
 ---
 
@@ -40,7 +40,7 @@ _Keine belastbaren Informationen gefunden._
 
 ## Relevante Zielmärkte (Bau/Renovierung)
 
-Healthcare Professionals
+_Keine belastbaren Informationen gefunden._
 
 ---
 
@@ -48,8 +48,7 @@ Healthcare Professionals
 
 | Feld | Quelle | Abgerufen |
 |---|---|---|
-| industry | DuckDuckGo-Suche (C+L GmbH) | 2026-07-05 |
-| branch | DuckDuckGo-Suche (C+L GmbH) | 2026-07-05 |
+_(keine angereicherten Felder)_
 
 ---
 

@@ -1,6 +1,6 @@
 # Firmenprofil: EGGER Holzwerkstoffe Brilon GmbH & Co. KG
 
-**Generiert:** 2026-07-05T18:43:00.362Z
+**Generiert:** 2026-07-05T18:44:27.244Z
 **Agent:** company_enrichment v1.0
 
 ---
@@ -9,26 +9,26 @@
 
 | Feld | Wert |
 |---|---|
-| Branche | Holzwerkstoffhersteller |
-| Mitarbeiter | 1300 |
+| Branche | – |
+| Mitarbeiter | – |
 | Website | – |
 | Stadt | Brilon |
 | Land | DE |
-| Segment | Produktion von Holzwerkstoffen |
-| Unternehmensgröße | Großunternehmen |
+| Segment | – |
+| Unternehmensgröße | – |
 | Umsatz (EUR) | – |
 
 ---
 
 ## Marktposition
 
-International führender Holzwerkstoffhersteller
+_Keine belastbaren Informationen gefunden._
 
 ---
 
 ## Standorte
 
-Brilon, Wismar, Gifhorn, Bünde, Marienmünster, Bevern, Markt Bibart (Deutschland); 22 Produktionsstandorte weltweit
+_Keine belastbaren Informationen gefunden._
 
 ---
 
@@ -40,7 +40,7 @@ _Keine belastbaren Informationen gefunden._
 
 ## Relevante Zielmärkte (Bau/Renovierung)
 
-Möbel- und Innenausbau, Holzbau, Fußbodenbereich
+_Keine belastbaren Informationen gefunden._
 
 ---
 
@@ -48,10 +48,7 @@ Möbel- und Innenausbau, Holzbau, Fußbodenbereich
 
 | Feld | Quelle | Abgerufen |
 |---|---|---|
-| industry | DuckDuckGo-Suche (EGGER Holzwerkstoffe Brilon GmbH & Co. KG) | 2026-07-05 |
-| employeeCount | DuckDuckGo-Suche (EGGER Holzwerkstoffe Brilon GmbH & Co. KG) | 2026-07-05 |
-| branch | DuckDuckGo-Suche (EGGER Holzwerkstoffe Brilon GmbH & Co. KG) | 2026-07-05 |
-| companySize | DuckDuckGo-Suche (EGGER Holzwerkstoffe Brilon GmbH & Co. KG) | 2026-07-05 |
+_(keine angereicherten Felder)_
 
 ---
 

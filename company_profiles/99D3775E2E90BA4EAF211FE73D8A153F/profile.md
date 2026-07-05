@@ -1,6 +1,6 @@
-# Firmenprofil: TechVision Consulting AG
+# Firmenprofil: EGGER Holzwerkstoffe Brilon GmbH & Co. KG
 
-**Generiert:** 2026-07-05T18:44:23.031Z
+**Generiert:** 2026-07-05T18:44:17.134Z
 **Agent:** company_enrichment v1.0
 
 ---
@@ -11,12 +11,12 @@
 |---|---|
 | Branche | – |
 | Mitarbeiter | – |
-| Website | https://consulting.techvision.de |
-| Stadt | Berlin |
+| Website | – |
+| Stadt | Brilon |
 | Land | DE |
 | Segment | – |
 | Unternehmensgröße | – |
-| Umsatz (EUR) | 80000000 |
+| Umsatz (EUR) | – |
 
 ---
 
@@ -54,10 +54,8 @@ _(keine angereicherten Felder)_
 
 ## Übersprungene Felder (manuell gesetzt, nicht überschrieben)
 
-- website
 - city
 - country
-- revenueEur
 
 ---
 

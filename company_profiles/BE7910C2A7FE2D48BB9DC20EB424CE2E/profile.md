@@ -1,6 +1,6 @@
 # Firmenprofil: EGGER Retail Products GmbH & Co. KG
 
-**Generiert:** 2026-07-05T18:42:52.666Z
+**Generiert:** 2026-07-05T18:44:04.147Z
 **Agent:** company_enrichment v1.0
 
 ---
@@ -34,13 +34,13 @@ Brilon, Wismar, Gifhorn, Bünde, Marienmünster, Bevern, Markt Bibart (alle Deut
 
 ## Jüngste Entwicklungen
 
-In elf Jahren zu einem der führenden europäischen Hersteller von Laminatfußböden gewachsen.
+In elf Jahren zu einem der führenden europäischen Hersteller von Laminatfußböden entwickelt.
 
 ---
 
 ## Relevante Zielmärkte (Bau/Renovierung)
 
-Möbel- und Innenausbau, Holzbau, Fußbodenbereich (weltweit, Europa und Amerika)
+Möbel- und Innenausbau, Holzbau, Fußbodenbereich (weltweit)
 
 ---
 

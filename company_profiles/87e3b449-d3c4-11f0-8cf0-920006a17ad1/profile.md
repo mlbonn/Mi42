@@ -1,6 +1,6 @@
 # Firmenprofil: ROCKWOOL Rockfon GmbH
 
-**Generiert:** 2026-07-05T18:42:48.509Z
+**Generiert:** 2026-07-05T18:44:04.938Z
 **Agent:** company_enrichment v1.0
 
 ---
@@ -9,13 +9,13 @@
 
 | Feld | Wert |
 |---|---|
-| Branche | Herstellung von Glas und Glaswaren, Keramik, Verarbeitung von Steinen und Erden |
+| Branche | Herstellung von Dämmstoffen |
 | Mitarbeiter | 1400 |
 | Website | https://www.rockwool.de |
 | Stadt | Gladbeck |
 | Land | DE |
-| Segment | – |
-| Unternehmensgröße | – |
+| Segment | Dämmstoffe aus Steinwolle |
+| Unternehmensgröße | Großunternehmen |
 | Umsatz (EUR) | – |
 
 ---
@@ -28,13 +28,13 @@ Weltmarktführer für Lösungen aus Steinwolle
 
 ## Standorte
 
-4 Werke in Deutschland
+Vier Werke in Deutschland
 
 ---
 
 ## Jüngste Entwicklungen
 
-Messeauftritt auf der DACH+HOLZ in Köln; 10 Jahre Kältedämmung mit Teclit; Einführung von Woodrock Protect für den Holzbau
+Erfolgreiche Teilnahme an der DACH+HOLZ Messe in Köln; Einführung von Woodrock Protect für den Holzbau; 10 Jahre Kältedämmung mit Teclit
 
 ---
 
@@ -48,8 +48,10 @@ Gebäudehülle, Innenausbau, Gebäudetechnik, Holzbau
 
 | Feld | Quelle | Abgerufen |
 |---|---|---|
-| industry | DuckDuckGo-Suche (ROCKWOOL Rockfon GmbH) | 2026-07-05 |
+| industry | Website (https://www.rockwool.de) | 2026-07-05 |
 | employeeCount | DuckDuckGo-Suche (ROCKWOOL Rockfon GmbH) | 2026-07-05 |
+| branch | Website (https://www.rockwool.de) | 2026-07-05 |
+| companySize | DuckDuckGo-Suche (ROCKWOOL Rockfon GmbH) | 2026-07-05 |
 
 ---
 
