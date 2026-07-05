@@ -107,3 +107,10 @@ temp/
 *.db
 *.sqlite
 *.sqlite3
+
+# Backup files (auto-added)
+*backup_*
+*.backup
+*.old
+*.orig
+*.tmp

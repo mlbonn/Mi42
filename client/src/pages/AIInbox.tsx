@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState } from "react";
 import { trpc } from "../lib/trpc";
 import { CheckCircle, XCircle, Clock, AlertTriangle, ChevronDown, ChevronRight } from "lucide-react";
@@ -104,7 +103,7 @@ function SuggestionRow({ suggestion, onApprove, onReject }: {
             <div>
               <span className="font-medium text-gray-700">Next Action: </span>
               <span>{String(nextAction.type ?? "—")}</span>
-              {nextAction.title && <span className="ml-2 text-gray-500">"{String(String(nextAction.title))}"</span>}
+              {(nextAction.title as any) && <span className="ml-2 text-gray-500">"{String(nextAction.title as any)}"</span>}
             </div>
           )}
           {riskFlags && riskFlags.length > 0 && (

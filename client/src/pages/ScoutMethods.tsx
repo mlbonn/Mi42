@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * FRIDAY CRM - Scout Discovery Methods Page
  * Konfiguration der Discovery-Methoden mit LLM-Integration
@@ -341,11 +340,11 @@ export default function ScoutMethods() {
                                 />
                               </div>
                             </div>
-                            {method.config && (
+                            {(method.config as any) && (
                               <div className="space-y-2">
                                 <Label>Konfiguration (JSON)</Label>
                                 <Textarea
-                                  value={typeof method.config === "string" ? method.config : JSON.stringify(method.config, null, 2)}
+                                  value={String(typeof (method.config as any) === "string" ? (method.config as string) : JSON.stringify((method.config as any) ?? {}, null, 2))}
                                   className="font-mono text-sm"
                                   rows={5}
                                   onChange={(e) => {

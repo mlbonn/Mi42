@@ -5,7 +5,9 @@
 
 import 'dotenv/config';
 import { processNextQueueJob } from "./scoutWorker.js";
+import { validateEnv } from './_core/validateEnv';
 
+validateEnv();
 const POLLING_INTERVAL_MS = 30000; // 30 seconds
 const MAX_CONCURRENT_JOBS = 1; // Process one job at a time
 

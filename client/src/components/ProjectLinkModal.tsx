@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import { trpc } from '@/lib/trpc';
 
@@ -61,7 +60,7 @@ export const ProjectLinkModal: React.FC<ProjectLinkModalProps> = ({
             <div className="space-y-2 text-xs">
               <div className="flex justify-between">
                 <span>E-Mails:</span>
-                <span className="font-semibold">{projectStats.emailCount}</span>
+                <span className="font-semibold">{String(projectStats.emailCount ?? "")}</span>
               </div>
               <div className="flex justify-between">
                 <span>Kosten:</span>

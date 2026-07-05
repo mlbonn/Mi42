@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -92,7 +91,7 @@ export default function CorporationDetailNew() {
   
   const updateCorporationMutation = (trpc.corporations.update as any).useMutation({
     onSuccess: () => {
-      utils.corporations.getById.invalidate({ id: id! });
+      (utils.corporations as any).getById ? (utils.corporations as any).getById.invalidate({ id: id! }) : utils.corporations.list.invalidate();
       setIsEditOpen(false);
     }
   });
@@ -188,9 +187,9 @@ export default function CorporationDetailNew() {
   const totalDeals = deals?.length || 0;
   const totalValue = deals?.reduce((sum: any, d: any) => sum + (d.value || 0), 0) || 0;
   const dealStats = {
-    won: { count: deals?.filter(d => d.stage === 'Won').length || 0, value: deals?.filter(d => d.stage === 'Won').reduce((s: any, d: any) => s + (d.value || 0), 0) || 0 },
-    lost: { count: deals?.filter(d => d.stage === 'Lost').length || 0, value: deals?.filter(d => d.stage === 'Lost').reduce((s: any, d: any) => s + (d.value || 0), 0) || 0 },
-    open: { count: deals?.filter(d => d.stage !== 'Won' && d.stage !== 'Lost').length || 0, value: deals?.filter(d => d.stage !== 'Won' && d.stage !== 'Lost').reduce((s: any, d: any) => s + (d.value || 0), 0) || 0 }
+    won: { count: deals?.filter((d: any) => d.stage === 'Won').length || 0, value: deals?.filter((d: any) => d.stage === 'Won').reduce((s: any, d: any) => s + (d.value || 0), 0) || 0 },
+    lost: { count: deals?.filter((d: any) => d.stage === 'Lost').length || 0, value: deals?.filter((d: any) => d.stage === 'Lost').reduce((s: any, d: any) => s + (d.value || 0), 0) || 0 },
+    open: { count: deals?.filter((d: any) => d.stage !== 'Won' && d.stage !== 'Lost').length || 0, value: deals?.filter((d: any) => d.stage !== 'Won' && d.stage !== 'Lost').reduce((s: any, d: any) => s + (d.value || 0), 0) || 0 }
   };
 
   // Helper-Funktionen

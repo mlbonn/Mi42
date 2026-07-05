@@ -1420,7 +1420,7 @@ export async function getHunterResultsStats() {
 // ============================================================================
 
 import crypto from "crypto";
-import { encryptCredential, decryptCredential } from './_core/credentialService';
+import { encryptCredential, decryptCredential } from './credentialService';
 
 /**
  * Authenticate user with email and password

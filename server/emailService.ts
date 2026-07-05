@@ -1,6 +1,6 @@
 import { ImapFlow } from 'imapflow';
 import { simpleParser } from 'mailparser';
-import { getDb } from './db';
+import { getDb, getCaldavCredentials } from './db';
 import { users } from '../drizzle/schema';
 import { eq } from 'drizzle-orm';
 
@@ -81,40 +81,24 @@ export async function getIMAPCredentialsForUser(
       console.log('[EmailService] Database not available');
       return null;
     }
-
-    // Find user by email
+    // Resolve userEmail -> userId
     const userList = await db
-      .select()
+      .select({ id: users.id })
       .from(users)
       .where(eq(users.email, userEmail));
-
     if (!userList || userList.length === 0) {
-      console.log(
-        `[EmailService] User ${userEmail} not found in database`
-      );
+      console.log(`[EmailService] User ${userEmail} not found in database`);
       return null;
     }
-
-    const user = userList[0];
-
-    if (!user.caldavEmail || !user.caldavPassword) {
-      console.log(
-        `[EmailService] No IMAP credentials found for user ${userEmail}`
-      );
+    const userId = userList[0].id;
+    // PR C: credentials are stored in email_accounts_new, not users.caldavPassword
+    const creds = await getCaldavCredentials(userId);
+    if (!creds) {
+      console.log(`[EmailService] No IMAP credentials found for user ${userEmail}`);
       return null;
     }
-
-    // Read password in plaintext (already stored plaintext in database)
-    const password = user.caldavPassword;
-
-    console.log(
-      `[EmailService] Using IMAP credentials for ${user.caldavEmail}`
-    );
-
-    return {
-      email: user.caldavEmail,
-      password: password,
-    };
+    console.log(`[EmailService] Using IMAP credentials for ${creds.email}`);
+    return creds;
   } catch (error) {
     console.error(
       `[EmailService] Error getting IMAP credentials for ${userEmail}:`,

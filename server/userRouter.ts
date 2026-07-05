@@ -211,6 +211,13 @@ export const userRouter = router({
       }
 
       // Delete user
+      // Auto-revoke all sessions for the deleted user
+      const _dbForRevoke = await getDb();
+      if (_dbForRevoke) {
+        await _dbForRevoke.execute(
+          sql`UPDATE sessions SET revokedAt = NOW() WHERE userId = ${input.id} AND revokedAt IS NULL`
+        );
+      }
       await db.deleteUser(input.id);
 
       return { message: 'User deleted successfully' };
@@ -299,7 +306,7 @@ export const userRouter = router({
         const { emailAccountsNew: eaNew } = await import('../drizzle/schema');
         const { eq: eqOp } = await import('drizzle-orm');
         await database.update(eaNew)
-          .set({ emailAddress: input.caldavEmail, passwordEncrypted, useForCaldav: input.caldavEnabled, updatedAt: new Date() })
+          .set({ emailAddress: input.caldavEmail, passwordEncrypted, updatedAt: new Date() })
           .where(eqOp(eaNew.id, primary.id));
       } else {
         await db.createEmailAccount({
@@ -354,24 +361,45 @@ export const userRouter = router({
       const database = await getDb();
       if (!database) throw new Error('Database not available');
       
-      // Update each user
+      // Update each user - upsert to avoid duplicate isPrimary accounts
+      const { emailAccountsNew: eaNew } = await import('../drizzle/schema');
+      const { eq: eqOp, and: andOp } = await import('drizzle-orm');
       for (const userUpdate of input.users) {
         // PR C: CalDAV via email_accounts_new
         const { encryptCredential } = await import('./credentialService');
         const passwordEncrypted = encryptCredential(userUpdate.caldavPassword);
-        await db.createEmailAccount({
-          userId: userUpdate.userId,
-          emailAddress: userUpdate.caldavEmail,
-          passwordEncrypted,
-          serverUrl: 'https://mail.bl2020.com',
-          isPrimary: true,
-        });
+        // Check if user already has a primary account
+        const existingAccounts = await database
+          .select()
+          .from(eaNew)
+          .where(andOp(eqOp(eaNew.userId, userUpdate.userId), eqOp(eaNew.isPrimary, true)))
+          .limit(1);
+        if (existingAccounts.length > 0) {
+          // Update existing primary account
+          await database.update(eaNew)
+            .set({
+              emailAddress: userUpdate.caldavEmail,
+              passwordEncrypted,
+              useForCaldav: userUpdate.caldavEnabled,
+              updatedAt: new Date(),
+            })
+            .where(eqOp(eaNew.id, existingAccounts[0].id));
+        } else {
+          // Create new primary account
+          await db.createEmailAccount({
+            userId: userUpdate.userId,
+            emailAddress: userUpdate.caldavEmail,
+            passwordEncrypted,
+            serverUrl: 'https://mail.bl2020.com',
+            isPrimary: true,
+          });
+        }
       }
       
       return { success: true, count: input.users.length };
     }),
 
-  // Revoke all sessions for current user
+  // Revoke all sessions for current user (self)
   revokeAllSessions: protectedProcedure.mutation(async ({ ctx }) => {
     const db = await getDb();
     if (!db) throw new Error("Database not available");
@@ -380,5 +408,18 @@ export const userRouter = router({
     );
     return { success: true };
   }),
+
+  // Admin: revoke all sessions for a specific user
+  revokeUserSessions: protectedProcedure
+    .input(z.object({ userId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      await requireAdminOrHigher(ctx.user.id);
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      await db.execute(
+        sql`UPDATE sessions SET revokedAt = NOW() WHERE userId = ${input.userId} AND revokedAt IS NULL`
+      );
+      return { success: true };
+    }),
 });
 

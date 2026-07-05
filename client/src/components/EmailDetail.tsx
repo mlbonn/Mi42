@@ -1,4 +1,3 @@
-// @ts-nocheck
 // client/components/EmailDetail.tsx
 // E-Mail-Detail-Ansicht mit Auto-Archivierung bei eindeutigem Email-Match
 
@@ -220,7 +219,7 @@ export function EmailDetail({ accountId, messageUid, onClose }: EmailDetailProps
 
   // Extract email addresses from message
   const fromAddress = message.from || '';
-  const ccAddresses = message.cc ? message.cc.split(',').map(e => e.trim()) : [];
+  const ccAddresses = message.cc ? message.cc.split(',').map((e: string) => e.trim()) : [];
 
   // Process HTML to block images if not allowed
   const processedHtmlBody = React.useMemo(() => {
@@ -383,42 +382,43 @@ export function EmailDetail({ accountId, messageUid, onClose }: EmailDetailProps
       </div>
 
       {/* Archive Modal - Only shown for manual archiving */}
-      {/* @ts-ignore */}
-      <ArchiveModal
-        isOpen={showArchiveDialog}
-        onClose={() => setShowArchiveDialog(false)}
-        emailId={messageUid}
-        fromAddress={fromAddress}
-        ccAddresses={ccAddresses}
-        onSuccess={() => {
-          setShowArchiveDialog(false);
-          setArchiveNotification({
-            type: 'success',
-            message: '✓ Email erfolgreich archiviert'
-          });
-          setTimeout(() => setArchiveNotification(null), 3000);
-        }}
-        email={{
-          from: message.from,
-          fromName: message.fromName,
-          to: message.to,
-          subject: message.subject,
-          body: message.textBody,
-          html: message.htmlBody,
-          date: message.receivedDate,
-          attachments: message.attachments
-        } as any}
-      />
+      {showArchiveDialog && (
+        <ArchiveModal
+          onClose={() => setShowArchiveDialog(false)}
+          onSuccess={() => {
+            setShowArchiveDialog(false);
+            setArchiveNotification({
+              type: 'success',
+              message: '✓ Email erfolgreich archiviert'
+            });
+            setTimeout(() => setArchiveNotification(null), 3000);
+          }}
+          email={{
+            id: typeof messageUid === 'number' ? messageUid : 0,
+            subject: message.subject || '',
+            fromName: message.fromName || '',
+            fromAddress: fromAddress,
+            toAddress: message.to || '',
+            ccAddress: Array.isArray(ccAddresses) ? ccAddresses.join(', ') : '',
+            body: message.textBody || '',
+          }}
+        />
+      )}
 
       {/* Reply Modal */}
-      {/* @ts-ignore */}
       <ReplyModal
         isOpen={showReplyModal}
         onClose={() => setShowReplyModal(false)}
-        originalEmail={message as any as any as any}
-        onSent={() => {
+        originalMessage={{
+          from: message.from || '',
+          subject: message.subject || '',
+          body: message.textBody || message.htmlBody || '',
+          messageId: (message as any).messageId,
+          references: (message as any).references,
+        }}
+        mode="reply"
+        onSuccess={() => {
           setShowReplyModal(false);
-          // Optional: Notification anzeigen
         }}
       />
     </div>

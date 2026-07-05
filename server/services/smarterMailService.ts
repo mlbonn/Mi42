@@ -6,7 +6,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { pipeline } from 'stream/promises';
 import { createWriteStream } from 'fs';
-import { encryptCredential, decryptCredential } from '../_core/credentialService';
+import { encryptCredential, decryptCredential } from '../credentialService';
 
 export interface SmarterMailMessage {
   uid: string;

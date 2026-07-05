@@ -5,7 +5,9 @@
 
 import "dotenv/config";
 import { processPendingJobs } from "./services/hunterService";
+import { validateEnv } from './_core/validateEnv';
 
+validateEnv();
 const POLL_INTERVAL_MS = 30000; // 30 seconds
 
 console.log("=".repeat(80));

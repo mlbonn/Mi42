@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { trpc } from '../lib/trpc';
 type EmailMessage = any;
@@ -91,7 +90,7 @@ export default function Emails() {
 
   // Update search filters when folder changes
   useEffect(() => {
-    setSearchFilters(prev => ({ ...prev, folder: currentFolder }));
+    setSearchFilters((prev: any) => ({ ...prev, folder: currentFolder }));
   }, [currentFolder]);
 
   // Update currentFolder when URL changes
@@ -141,7 +140,7 @@ export default function Emails() {
   // Flatten all emails from pages
   const allEmails = useMemo(() => {
     if (!data?.pages) return [];
-    return data.pages.flatMap(page => page.emails);
+    return data.pages.flatMap((page: any) => page.emails);
   }, [data?.pages]);
 
   // Total count from first page
@@ -454,7 +453,7 @@ export default function Emails() {
               <div className="p-4 text-center text-red-500">Error loading emails</div>
             ) : (allEmails as any).length === 0 ? (
               <div className="p-4 text-center text-gray-500">
-                {searchQuery ? 'No emails found' : 'No emails available'}
+                {searchFilters.query ? 'No emails found' : 'No emails available'}
               </div>
             ) : (
               <>
@@ -662,7 +661,7 @@ export default function Emails() {
                         {selectedEmail.html ? (
                           <iframe
                             key={`${selectedEmail.id}-${isImagesAllowed}`}
-                            srcDoc={processEmailBody(selectedEmail.html, isImagesAllowed)}
+                            srcDoc={processEmailBody(selectedEmail.html, isImagesAllowed === true)}
                             className="w-full h-full border-0"
                             sandbox="allow-same-origin allow-popups"
                             title="Email Content"
@@ -702,18 +701,15 @@ export default function Emails() {
       {/* Archive Modal */}
       {archiveOpen && selectedEmailId && (
         <ArchiveModal
-          emailId={selectedEmailId}
-          email={(selectedEmail ? { 
-            from: selectedEmail.from?.email || selectedEmail.from || '',
-            fromName: selectedEmail.from?.name || '',
-            to: selectedEmail.to || '',
-            subject: selectedEmail.subject || '',
-            body: selectedEmail.body || '',
-            html: selectedEmail.html || '',
-            date: selectedEmail.date || new Date().toISOString(),
-          } : undefined) as any}
-          fromAddress={selectedEmail?.from?.email || selectedEmail?.from || ""}
-          ccAddresses={Array.isArray(selectedEmail?.cc) ? (selectedEmail as any).cc.map((c: any) => typeof c === "object" ? c.email : c) : []}
+          email={{
+            id: typeof selectedEmailId === 'number' ? selectedEmailId : 0,
+            subject: selectedEmail?.subject || '',
+            fromName: selectedEmail?.from?.name || (typeof selectedEmail?.from === 'string' ? selectedEmail.from : '') || '',
+            fromAddress: selectedEmail?.from?.email || (typeof selectedEmail?.from === 'string' ? selectedEmail.from : '') || '',
+            toAddress: typeof selectedEmail?.to === 'string' ? selectedEmail.to : '',
+            ccAddress: Array.isArray(selectedEmail?.cc) ? (selectedEmail as any).cc.map((c: any) => typeof c === "object" ? c.email : c).join(', ') : '',
+            body: selectedEmail?.body || '',
+          }}
           onClose={() => setArchiveOpen(false)}
           onSuccess={() => {
             setArchiveOpen(false);

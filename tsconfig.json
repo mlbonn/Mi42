@@ -20,7 +20,8 @@
     "server/seed*.ts",
     "server/seedExtendedData.ts",
     "server/seedOutreach.ts",
-    "server/seed_backup.ts"
+    "server/seed_backup.ts",
+    "**/*backup_*"
   ],
   "compilerOptions": {
     "incremental": true,

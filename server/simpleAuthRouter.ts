@@ -12,20 +12,21 @@ const _loginAttempts = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
 const RATE_LIMIT_MAX = 10; // max 10 attempts per window per IP
 
-function _checkRateLimit(ip: string): boolean {
+function _checkRateLimit(ip: string, username?: string): boolean {
+  const key = username ? `${ip}:${username.toLowerCase()}` : ip;
   const now = Date.now();
-  const entry = _loginAttempts.get(ip);
+  const entry = _loginAttempts.get(key);
   if (!entry || now > entry.resetAt) {
-    _loginAttempts.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    _loginAttempts.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
     return true;
   }
   if (entry.count >= RATE_LIMIT_MAX) return false;
   entry.count++;
   return true;
 }
-
-function _clearRateLimit(ip: string) {
-  _loginAttempts.delete(ip);
+function _clearRateLimit(ip: string, username?: string) {
+  const key = username ? `${ip}:${username.toLowerCase()}` : ip;
+  _loginAttempts.delete(key);
 }
 
 const JWT_SECRET = new TextEncoder().encode(
@@ -48,7 +49,7 @@ export const simpleAuthRouter = router({
     .mutation(async ({ input, ctx }) => {
       // Rate limiting: max 10 attempts per IP per 15 minutes
       const clientIp = (ctx.req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || ctx.req.socket?.remoteAddress || 'unknown';
-      if (!_checkRateLimit(clientIp)) {
+      if (!_checkRateLimit(clientIp, input.username)) {
         throw new Error('Too many login attempts. Please try again in 15 minutes.');
       }
       const { username, password } = input;
@@ -115,7 +116,7 @@ export const simpleAuthRouter = router({
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 Tage
         path: "/",
       });
-      _clearRateLimit(clientIp);
+      _clearRateLimit(clientIp, input.username);
       return {
         success: true,
         user: {

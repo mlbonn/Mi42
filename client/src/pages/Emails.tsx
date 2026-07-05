@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect } from 'react';
 import { trpc } from '../lib/trpc';
 type EmailMessage = any;
@@ -84,7 +83,7 @@ export default function Emails() {
         {/* Folders List */}
         {foldersExpanded && (
           <div className="space-y-1">
-            {(FOLDERS as any).map((folder) => (
+            {(FOLDERS as any).map((folder: any) => (
               <button
                 key={folder}
                 onClick={() => {
@@ -123,7 +122,7 @@ export default function Emails() {
                     }}
                     className="lg:hidden px-3 py-2 border border-gray-300 rounded text-sm font-semibold text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
                   >
-                    {(FOLDERS as any).map((folder) => (
+                    {(FOLDERS as any).map((folder: any) => (
                       <option key={folder} value={folder}>
                         {getFolderIcon(folder)} {folder}
                       </option>
@@ -158,7 +157,7 @@ export default function Emails() {
                   <div className="p-4 text-center text-gray-500 text-sm">Laden...</div>
                 ) : error ? (
                   <div className="p-4 text-center text-red-500 text-sm">Fehler beim Laden der E-Mails</div>
-                ) : emails.length === 0 ? (
+                ) : (emails as any[]).length === 0 ? (
                   <div className="p-8 text-center text-gray-500">
                     <div className="text-3xl mb-2">📧</div>
                     <p className="font-semibold text-sm">Keine E-Mails in {selectedFolder}</p>
@@ -279,7 +278,7 @@ export default function Emails() {
                 }}
                 className="px-3 py-2 border border-gray-300 rounded text-sm font-semibold text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
               >
-                {(FOLDERS as any).map((folder) => (
+                {(FOLDERS as any).map((folder: any) => (
                   <option key={folder} value={folder}>
                     {getFolderIcon(folder)} {folder}
                   </option>
@@ -312,7 +311,7 @@ export default function Emails() {
               <div className="p-4 text-center text-gray-500 text-sm">Laden...</div>
             ) : error ? (
               <div className="p-4 text-center text-red-500 text-sm">Fehler beim Laden der E-Mails</div>
-            ) : emails.length === 0 ? (
+            ) : (emails as any[]).length === 0 ? (
               <div className="p-8 text-center text-gray-500">
                 <div className="text-3xl mb-2">📧</div>
                 <p className="font-semibold text-sm">Keine E-Mails in {selectedFolder}</p>
