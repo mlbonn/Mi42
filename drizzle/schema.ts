@@ -1164,10 +1164,13 @@ export const emailSendQueue = mysqlTable("email_send_queue", {
   scheduledAt: timestamp("scheduledAt").defaultNow().notNull(),
   sentAt: timestamp("sentAt"),
   errorMessage: text("errorMessage"),
+  lockedBy: varchar("lockedBy", { length: 128 }),
+  lockedAt: timestamp("lockedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 }, (table) => ({
   statusScheduledIdx: index("esq_status_scheduled_idx").on(table.status, table.scheduledAt),
   draftIdx: index("esq_draft_idx").on(table.draftId),
+  lockedByIdx: index("esq_locked_by_idx").on(table.lockedBy),
 }));
 export type EmailSendQueueJob = typeof emailSendQueue.$inferSelect;
 export type InsertEmailSendQueueJob = typeof emailSendQueue.$inferInsert;

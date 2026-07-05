@@ -1,7 +1,7 @@
 /**
  * FRIDAY CRM - Email Send Worker Daemon
  * Processes email_send_queue jobs via SmarterMail API
- * - Atomic claiming (UPDATE ... WHERE status='pending', affectedRows check)
+ * - Atomic claiming with lockedBy/lockedAt (no double-send)
  * - Throttle: max SEND_RATE_PER_MINUTE mails/min (default 20)
  * - Backoff on failure, max attempts before marking failed
  * - Stale-lock recovery for 'sending' jobs stuck > 5 min
@@ -11,20 +11,23 @@ import 'dotenv/config';
 import { validateEnv } from './_core/validateEnv';
 import { getDb } from './db';
 import { emailSendQueue } from '../drizzle/schema';
-import { eq, and, lte, sql as drizzleSql } from 'drizzle-orm';
+import { eq, and, lte, isNull, sql as drizzleSql } from 'drizzle-orm';
 import axios from 'axios';
 import https from 'https';
-import { decryptCredential } from './credentialService';
 import { getCaldavCredentials } from './db';
+import { randomUUID } from 'crypto';
 
 validateEnv();
 
-const POLLING_INTERVAL_MS = 5_000;          // poll every 5 s
+const POLLING_INTERVAL_MS = 5_000;
 const SEND_RATE_PER_MINUTE = parseInt(process.env.EMAIL_SEND_RATE_PER_MINUTE ?? '20', 10);
-const STALE_LOCK_MINUTES = 5;               // reclaim 'sending' jobs older than this
+const STALE_LOCK_MINUTES = 5;
 
 const httpsAgent = new https.Agent({ rejectUnauthorized: false });
 const SMARTERMAIL_BASE_URL = process.env.SMARTERMAIL_BASE_URL ?? 'https://mail.bl2020.com';
+
+// Unique worker ID for atomic claiming
+const WORKER_ID = `worker-${randomUUID()}`;
 
 // ── Rate-limit state ──────────────────────────────────────────────────────────
 let sentThisMinute = 0;
@@ -57,7 +60,6 @@ async function sendViaSmarterMail(params: {
   subject: string;
   body: string;
 }): Promise<void> {
-  // 1. Authenticate
   const authResp = await axios.post(
     `${SMARTERMAIL_BASE_URL}/api/v1/auth/authenticate-user`,
     { username: params.fromEmail, password: params.fromPassword },
@@ -66,14 +68,9 @@ async function sendViaSmarterMail(params: {
   const token: string = authResp.data?.accessToken ?? authResp.data?.token;
   if (!token) throw new Error('SmarterMail auth failed: no token returned');
 
-  // 2. Send
   const sendResp = await axios.post(
     `${SMARTERMAIL_BASE_URL}/api/v1/mail/send-message`,
-    {
-      to: params.toAddress,
-      subject: params.subject,
-      body: params.body,
-    },
+    { to: params.toAddress, subject: params.subject, body: params.body },
     {
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       httpsAgent,
@@ -90,23 +87,28 @@ async function processNextJob(): Promise<{ processed: boolean; error?: string }>
   const db = await getDb();
   if (!db) return { processed: false, error: 'DB not available' };
 
-  // Stale-lock recovery: reset 'sending' jobs stuck > STALE_LOCK_MINUTES
+  // Stale-lock recovery: reset 'sending' jobs whose lockedAt is too old
   const staleThreshold = new Date(Date.now() - STALE_LOCK_MINUTES * 60_000);
   await db
     .update(emailSendQueue)
-    .set({ status: 'pending' })
+    .set({ status: 'pending', lockedBy: null, lockedAt: null })
     .where(
       and(
         eq(emailSendQueue.status, 'sending'),
-        lte(emailSendQueue.scheduledAt, staleThreshold)
+        lte(emailSendQueue.lockedAt as any, staleThreshold)
       )
     );
 
-  // Atomic claim: UPDATE WHERE status='pending' AND scheduledAt <= now
+  // Atomic claim: stamp this worker's ID before reading the row
   const now = new Date();
   const claimResult = await db
     .update(emailSendQueue)
-    .set({ status: 'sending', attempts: drizzleSql`${emailSendQueue.attempts} + 1` })
+    .set({
+      status: 'sending',
+      lockedBy: WORKER_ID,
+      lockedAt: now,
+      attempts: drizzleSql`${emailSendQueue.attempts} + 1`,
+    })
     .where(
       and(
         eq(emailSendQueue.status, 'pending'),
@@ -115,73 +117,70 @@ async function processNextJob(): Promise<{ processed: boolean; error?: string }>
     )
     .limit(1);
 
-  // @ts-ignore affectedRows is available on mysql2 result
-  if (!claimResult || (claimResult as any).rowsAffected === 0) {
-    return { processed: false };
-  }
+  // mysql2 returns [ResultSetHeader, ...]; affectedRows is on the header object
+  const header = Array.isArray(claimResult) ? claimResult[0] : claimResult;
+  const affected = (header as any)?.affectedRows ?? 0;
+  if (affected === 0) return { processed: false };
 
-  // Fetch the claimed job
+  // Fetch EXACTLY the row this worker claimed
   const jobs = await db
     .select()
     .from(emailSendQueue)
-    .where(eq(emailSendQueue.status, 'sending'))
+    .where(
+      and(
+        eq(emailSendQueue.lockedBy, WORKER_ID),
+        eq(emailSendQueue.status, 'sending')
+      )
+    )
     .limit(1);
 
   if (!jobs.length) return { processed: false };
   const job = jobs[0];
 
   try {
-    // Load sender credentials
     const creds = await getCaldavCredentials(job.userId);
     if (!creds) throw new Error(`No email credentials for userId=${job.userId}`);
 
-    const fromEmail = creds.email;
-    const fromPassword = creds.password; // getCaldavCredentials already decrypts
-
-    // Send
     await sendViaSmarterMail({
-      fromEmail,
-      fromPassword,
+      fromEmail: creds.email,
+      fromPassword: creds.password,
       toAddress: job.toAddress,
       subject: job.subject ?? '(no subject)',
       body: job.body ?? '',
     });
 
-    // Mark sent
     await db
       .update(emailSendQueue)
-      .set({ status: 'sent', sentAt: new Date(), errorMessage: null })
+      .set({ status: 'sent', sentAt: new Date(), errorMessage: null, lockedBy: null })
       .where(eq(emailSendQueue.id, job.id));
 
     recordSent();
     sentCount++;
-    console.log(`[EmailSendWorker] ✅ Sent job ${job.id} to ${job.toAddress}`);
+    console.log(`[EmailSendWorker] Sent job ${job.id} to ${job.toAddress}`);
     return { processed: true };
 
-  } catch (err: any) {
-    const errMsg = String(err?.message ?? err).slice(0, 500);
-    // No password in logs
+  } catch (err: unknown) {
+    const errMsg = String((err as any)?.message ?? err).slice(0, 500);
     const safeMsg = errMsg.replace(/password[^,}]*/gi, 'password=[REDACTED]');
 
-    const newAttempts = (job.attempts ?? 1);
+    const newAttempts = job.attempts ?? 1;
     const maxAttempts = job.maxAttempts ?? 3;
 
     if (newAttempts >= maxAttempts) {
       await db
         .update(emailSendQueue)
-        .set({ status: 'failed', errorMessage: safeMsg })
+        .set({ status: 'failed', errorMessage: safeMsg, lockedBy: null })
         .where(eq(emailSendQueue.id, job.id));
       failCount++;
-      console.error(`[EmailSendWorker] ❌ Job ${job.id} permanently failed: ${safeMsg}`);
+      console.error(`[EmailSendWorker] Job ${job.id} permanently failed: ${safeMsg}`);
     } else {
-      // Exponential backoff: 2^attempts minutes
       const backoffMs = Math.pow(2, newAttempts) * 60_000;
       const nextScheduled = new Date(Date.now() + backoffMs);
       await db
         .update(emailSendQueue)
-        .set({ status: 'pending', scheduledAt: nextScheduled, errorMessage: safeMsg })
+        .set({ status: 'pending', scheduledAt: nextScheduled, errorMessage: safeMsg, lockedBy: null, lockedAt: null })
         .where(eq(emailSendQueue.id, job.id));
-      console.warn(`[EmailSendWorker] ⚠️ Job ${job.id} failed (attempt ${newAttempts}/${maxAttempts}), retry at ${nextScheduled.toISOString()}`);
+      console.warn(`[EmailSendWorker] Job ${job.id} failed (attempt ${newAttempts}/${maxAttempts}), retry at ${nextScheduled.toISOString()}`);
     }
     return { processed: true, error: safeMsg };
   }
@@ -196,12 +195,9 @@ async function workerLoop() {
       console.log(`[EmailSendWorker] Rate limit reached (${sentThisMinute}/${SEND_RATE_PER_MINUTE}/min), waiting`);
       return;
     }
-    const result = await processNextJob();
-    if (!result.processed && !result.error) {
-      // No pending jobs – silent
-    }
-  } catch (err: any) {
-    console.error('[EmailSendWorker] Unexpected error:', err.message);
+    await processNextJob();
+  } catch (err: unknown) {
+    console.error('[EmailSendWorker] Unexpected error:', (err as any).message);
   } finally {
     isProcessing = false;
   }
@@ -209,22 +205,16 @@ async function workerLoop() {
 
 // ── Startup ───────────────────────────────────────────────────────────────────
 export function startWorker() {
-  console.log('='.repeat(60));
-  console.log('FRIDAY CRM - Email Send Worker');
-  console.log('='.repeat(60));
-  console.log(`Polling interval: ${POLLING_INTERVAL_MS / 1000}s`);
-  console.log(`Rate limit: ${SEND_RATE_PER_MINUTE} mails/min`);
-  console.log(`SmarterMail: ${SMARTERMAIL_BASE_URL}`);
-  console.log('='.repeat(60));
+  console.log(`FRIDAY CRM - Email Send Worker [${WORKER_ID}]`);
+  console.log(`Rate limit: ${SEND_RATE_PER_MINUTE} mails/min | SmarterMail: ${SMARTERMAIL_BASE_URL}`);
 
   workerLoop();
   const intervalId = setInterval(workerLoop, POLLING_INTERVAL_MS);
 
   const shutdown = (signal: string) => {
-    console.log(`\n[EmailSendWorker] ${signal} received, shutting down gracefully...`);
+    console.log(`[EmailSendWorker] ${signal} received, shutting down...`);
     isShuttingDown = true;
     clearInterval(intervalId);
-    // Wait for current job to finish (max 30 s)
     const deadline = Date.now() + 30_000;
     const check = setInterval(() => {
       if (!isProcessing || Date.now() > deadline) {
@@ -240,7 +230,7 @@ export function startWorker() {
 }
 
 export function getWorkerStats() {
-  return { sentCount, failCount, isProcessing, uptime: process.uptime() };
+  return { sentCount, failCount, isProcessing, workerId: WORKER_ID, uptime: process.uptime() };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

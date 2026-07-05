@@ -2004,7 +2004,7 @@ export async function matchContactsForEmail(
   let relRowsRaw: any[] = [];
   try {
     const [r] = await (dbInstance as any).$client.execute(
-      `SELECT DISTINCT contact_id AS id FROM contact_company_relations
+      `SELECT DISTINCT contactId AS id FROM contact_company_relations
        WHERE LOWER(TRIM(email))  IN (${ph})
           OR LOWER(TRIM(email2)) IN (${ph})
           OR LOWER(TRIM(email3)) IN (${ph})
@@ -2013,8 +2013,8 @@ export async function matchContactsForEmail(
       args5
     ) as any;
     relRowsRaw = Array.isArray(r) ? r : [];
-  } catch (_relErr) {
-    // contact_company_relations may not have expected columns – skip silently
+  } catch (relErr: any) {
+    console.error('[matchContactsForEmail] contact_company_relations query failed:', relErr.message);
   }
 
   const ids = new Set<string>();
