@@ -11,6 +11,8 @@ import {
   addContactToCompany,
   getDb,
 } from "./db";
+import { archivedEmails } from "../drizzle/schema";
+import { eq, desc } from "drizzle-orm";
 
 export const contactsRouter = router({
   // List all contacts with pagination
@@ -242,46 +244,38 @@ export const contactsRouter = router({
 
   // Get archived emails for contact
   getArchivedEmails: publicProcedure
-    .input(
-      z.object({
-        contactId: z.string(),
-      })
-    )
+    .input(z.object({ contactId: z.string() }))
     .query(async ({ input }) => {
-      console.log("🔍 getArchivedEmails INPUT:", input);
-      console.log("🔍 contactId:", input.contactId, "Type:", typeof input.contactId);
       const db = await getDb();
-      if (!db) {
-        throw new Error('Database not available');
-      }
-      
-      const result = await db.execute(
-        sql`SELECT 
-          id, email_id, from_address, from_name, to_address, 
-          subject, email_date, notes, archived_at
-        FROM archived_emails 
-        WHERE contact_id = ${input.contactId} 
-        ORDER BY email_date DESC`
-      );
-      
-      console.log("🔍 Full result object:", JSON.stringify(result, null, 2));
-      console.log("📧 Query result rows:", result?.length || 0, "emails");
-      console.log("🔍 result type:", Array.isArray(result) ? "array" : typeof result);
-      console.log("🔍 result keys:", Object.keys(result));
-      console.log("🔍 result[0]:", result[0]);
-      // Map database fields to frontend expected format
-      const rows = result || result[0] || result;
-      const mappedResult = (Array.isArray(rows) ? rows : []).map((email: any) => ({
-        id: email.email_id,
-        from_address: email.from_address,
-        from_name: email.from_name,
-        to_address: email.to_address,
-        subject: email.subject,
-        email_date: email.email_date,
-        timestamp: email.email_date,
-        notes: email.notes,
-        archived_at: email.archived_at,
+      if (!db) return [];
+      const rows = await db
+        .select({
+          id: archivedEmails.id,
+          emailId: archivedEmails.emailId,
+          fromAddress: archivedEmails.fromAddress,
+          fromName: archivedEmails.fromName,
+          toAddress: archivedEmails.toAddress,
+          subject: archivedEmails.subject,
+          emailDate: archivedEmails.emailDate,
+          body: archivedEmails.body,
+          htmlBody: archivedEmails.htmlBody,
+          notes: archivedEmails.notes,
+          archivedAt: archivedEmails.archivedAt,
+        })
+        .from(archivedEmails)
+        .where(eq(archivedEmails.contactId, input.contactId))
+        .orderBy(desc(archivedEmails.emailDate));
+      return rows.map(r => ({
+        id: r.emailId || r.id,
+        from_address: r.fromAddress,
+        from_name: r.fromName,
+        to_address: r.toAddress,
+        subject: r.subject,
+        email_date: r.emailDate ? r.emailDate.toISOString() : null,
+        body: r.body,
+        html_body: r.htmlBody,
+        notes: r.notes,
+        archived_at: r.archivedAt ? r.archivedAt.toISOString() : null,
       }));
-      return (result as any[]) || [];
     }),
 });
