@@ -560,6 +560,35 @@ export const emailClientRouter = router({
           console.log(`✅ Successfully saved ${successCount}/${input.attachments.length} attachments`);
         }
         
+        // ── Auto-Link: Kontakte anhand E-Mail-Adressen verknüpfen ──────────────
+        try {
+          const fromAddr = fromAddress || '';
+          const toAddrs = toAddressString ? toAddressString.split(',').map((a: string) => a.trim()).filter(Boolean) : [];
+          const ccAddrs = ccAddressString ? ccAddressString.split(',').map((a: string) => a.trim()).filter(Boolean) : [];
+          const contactIds = await matchContactsForEmail(fromAddr, toAddrs, ccAddrs);
+          if (Array.isArray(contactIds) && contactIds.length > 0) {
+            for (const contactId of contactIds) {
+              // Nicht doppelt verknüpfen wenn contactId bereits explizit gesetzt
+              if (contactId !== input.contactId) {
+                await linkEmailToContactDb({
+                  emailId: input.emailId,
+                  contactId,
+                  userId,
+                  fromAddress: fromAddr,
+                  toAddress: toAddressString,
+                  subject: input.subject || '',
+                  emailDate: input.emailDate ? new Date(input.emailDate) : new Date(),
+                  body: input.body,
+                  htmlBody: input.htmlBody,
+                });
+              }
+            }
+            console.log(`[emailClientRouter] Auto-linked ${contactIds.length} contact(s) to archived email ${input.emailId}`);
+          }
+        } catch (linkErr: any) {
+          console.warn('[emailClientRouter] Auto-link failed (non-fatal):', linkErr.message);
+        }
+
         console.log(`✅ Email ${input.emailId} fully archived for contact ${input.contactId}`);
         
         return { 

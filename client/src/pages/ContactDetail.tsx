@@ -42,25 +42,22 @@ function fmtShort(val: unknown): string {
   return d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' });
 }
 
-function extractAddr(raw: string | null | undefined): string {
-  if (!raw) return '';
-  const m = raw.match(/<([^>]+)>/);
-  return m ? m[1] : raw.trim();
-}
-
 function displayAddr(raw: string | null | undefined): string {
   if (!raw) return '';
-  // Handle JSON objects from SmarterMail
   if (raw.startsWith('{')) {
     try {
-      const obj = JSON.parse(raw);
-      return obj.name ? `${obj.name} <${obj.email}>` : obj.email || raw;
+      const obj = JSON.parse(raw) as { name?: string; email?: string };
+      return obj.name ? `${obj.name} <${obj.email ?? ''}>` : (obj.email ?? raw);
     } catch { /* ignore */ }
   }
   return raw;
 }
 
 // ─── Types ───────────────────────────────────────────────────────────────────
+
+type ContactStatus = 'cold' | 'warm' | 'hot' | 'active' | 'inactive';
+type ContactType = 'partner' | 'supplier' | 'customer' | 'staff' | 'staff_plus' | 'prospect';
+type FeedFilter = 'all' | 'email' | 'call' | 'note' | 'file';
 
 interface FeedItem {
   id: string;
@@ -74,7 +71,123 @@ interface FeedItem {
   htmlBody?: string;
   activityType?: string;
   isArchived?: boolean;
-  attachments?: any[];
+  attachments?: Array<{ filename: string; size_bytes?: number; content_type?: string }>;
+}
+
+interface EditFormState {
+  firstName: string;
+  lastName: string;
+  email: string;
+  email2: string;
+  email3: string;
+  email4: string;
+  email5: string;
+  phone: string;
+  jobTitle: string;
+  contactStatus: ContactStatus;
+  contactType: ContactType;
+  notes: string;
+}
+
+// Typen aus tRPC-Inferenz (Drizzle schema.ts Contact)
+interface ContactRow {
+  id: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  email?: string | null;
+  email2?: string | null;
+  email3?: string | null;
+  email4?: string | null;
+  email5?: string | null;
+  phone?: string | null;
+  mobile?: string | null;
+  jobTitle?: string | null;
+  contactStatus?: string | null;
+  contactType?: string | null;
+  notes?: string | null;
+  street?: string | null;
+  postalCode?: string | null;
+  city?: string | null;
+  country?: string | null;
+}
+
+interface CompanyRow {
+  id: string;
+  name?: string | null;
+}
+
+interface ListRow {
+  id: string;
+  listId?: string;
+  listName?: string;
+  name?: string;
+}
+
+interface ArchivedEmailRow {
+  id: string;
+  from_address?: string | null;
+  from_name?: string | null;
+  to_address?: string | null;
+  subject?: string | null;
+  email_date?: string | null;
+  body?: string | null;
+  html_body?: string | null;
+  notes?: string | null;
+  archived_at?: string | null;
+}
+
+interface EmailRow {
+  id: string;
+  fromAddress?: string | null;
+  toAddress?: string | null;
+  subject?: string | null;
+  timestamp?: string | Date | null;
+  createdAt?: string | Date | null;
+  direction?: string | null;
+  body?: string | null;
+  htmlBody?: string | null;
+  attachments?: Array<{ id: string; name?: string | null; size?: number | null }>;
+}
+
+interface ActivityRow {
+  id: string;
+  activityType?: string | null;
+  subject?: string | null;
+  content?: string | null;
+  activityDate?: string | Date | null;
+  createdAt?: string | Date | null;
+  createdBy?: string | null;
+  direction?: string | null;
+}
+
+// ─── Status-Badge ─────────────────────────────────────────────────────────────
+
+const STATUS_LABEL: Record<string, string> = {
+  cold: 'Cold', warm: 'Warm', hot: 'Hot', active: 'Active', inactive: 'Inactive',
+};
+
+function statusBadgeClass(status: string | null | undefined): string {
+  if (status === 'hot') return 'bg-[#E48F00]/10 text-[#E48F00]';
+  return 'bg-gray-100 text-gray-600';
+}
+
+// ─── Filter-Chips ─────────────────────────────────────────────────────────────
+
+const FILTER_OPTIONS: Array<{ key: FeedFilter; label: string }> = [
+  { key: 'all',   label: 'Alle' },
+  { key: 'email', label: 'E-Mails' },
+  { key: 'call',  label: 'Anrufe' },
+  { key: 'note',  label: 'Notizen' },
+  { key: 'file',  label: 'Dateien' },
+];
+
+function matchesFilter(item: FeedItem, filter: FeedFilter): boolean {
+  if (filter === 'all') return true;
+  if (filter === 'email') return item.type === 'email';
+  if (filter === 'file') return item.activityType === 'Document' || item.activityType === 'file_upload' || item.activityType === 'File Upload';
+  if (filter === 'call') return item.activityType === 'Call' || item.activityType === 'call';
+  if (filter === 'note') return item.activityType === 'Note' || item.activityType === 'note';
+  return true;
 }
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -90,35 +203,49 @@ export default function ContactDetail() {
   const [newListDescription, setNewListDescription] = useState('');
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [emailPage, setEmailPage] = useState(1);
+  const [feedFilter, setFeedFilter] = useState<FeedFilter>('all');
 
-  const [editForm, setEditForm] = useState({
+  const [editForm, setEditForm] = useState<EditFormState>({
     firstName: '', lastName: '', email: '', email2: '', email3: '',
     email4: '', email5: '', phone: '', jobTitle: '',
-    contactStatus: 'cold' as 'cold' | 'warm' | 'hot' | 'active' | 'inactive',
-    contactType: 'prospect' as 'partner' | 'supplier' | 'customer' | 'staff' | 'staff_plus' | 'prospect',
+    contactStatus: 'cold',
+    contactType: 'prospect',
     notes: ''
   });
 
   // ── Queries ────────────────────────────────────────────────────────────────
-  const { data: contact, isLoading, refetch: refetchContact } = trpc.contacts.get.useQuery(
+  const { data: contactRaw, isLoading, refetch: refetchContact } = trpc.contacts.get.useQuery(
     { id: id! }, { enabled: !!id }
   );
-  const { data: emails = [], refetch: refetchEmails } = trpc.emails.listByContact.useQuery(
+  const contact = contactRaw as ContactRow | undefined;
+
+  const { data: emailsRaw = [], refetch: refetchEmails } = trpc.emails.listByContact.useQuery(
     { contactId: id! }, { enabled: !!id }
   );
-  const { data: activities = [], refetch: refetchActivities } = trpc.activities.listByContact.useQuery(
+  const emails = emailsRaw as EmailRow[];
+
+  const { data: activitiesRaw = [], refetch: refetchActivities } = trpc.activities.listByContact.useQuery(
     { contactId: id! }, { enabled: !!id }
   );
+  const activities = activitiesRaw as ActivityRow[];
+
   const { data: archivedEmailsRaw = [] } = trpc.contacts.getArchivedEmails.useQuery(
     { contactId: id! }, { enabled: !!id }
   );
-  const { data: companies = [] } = trpc.contacts.getCompanies.useQuery(
+  const archivedEmails = archivedEmailsRaw as ArchivedEmailRow[];
+
+  const { data: companiesRaw = [] } = trpc.contacts.getCompanies.useQuery(
     { contactId: id! }, { enabled: !!id }
   );
-  const { data: contactLists = [], refetch: refetchContactLists } = trpc.distributionLists.getByContactId.useQuery(
+  const companies = companiesRaw as CompanyRow[];
+
+  const { data: contactListsRaw = [], refetch: refetchContactLists } = trpc.distributionLists.getByContactId.useQuery(
     { contactId: id! }, { enabled: !!id }
   );
-  const { data: allLists = [] } = trpc.distributionLists.list.useQuery();
+  const contactLists = contactListsRaw as ListRow[];
+
+  const { data: allListsRaw = [] } = trpc.distributionLists.list.useQuery();
+  const allLists = allListsRaw as ListRow[];
 
   // ── Mutations ──────────────────────────────────────────────────────────────
   const updateContact = trpc.contacts.update.useMutation({
@@ -132,7 +259,8 @@ export default function ContactDetail() {
   });
   const createList = trpc.distributionLists.create.useMutation({
     onSuccess: (newList) => {
-      if (newList && id) addToList.mutate({ distributionListId: newList.id, contactId: id });
+      const nl = newList as { id: string } | undefined;
+      if (nl && id) addToList.mutate({ distributionListId: nl.id, contactId: id });
       setShowListDialog(false); setNewListName(''); setNewListDescription('');
     }
   });
@@ -140,95 +268,93 @@ export default function ContactDetail() {
   useEffect(() => {
     if (contact) {
       setEditForm({
-        firstName: contact.firstName || '', lastName: contact.lastName || '',
-        email: contact.email || '', email2: (contact as any).email2 || '',
-        email3: (contact as any).email3 || '', email4: (contact as any).email4 || '',
-        email5: (contact as any).email5 || '', phone: contact.phone || '',
-        jobTitle: contact.jobTitle || '',
-        contactStatus: (contact.contactStatus as any) || 'cold',
-        contactType: ((contact as any).contactType as any) || 'prospect',
-        notes: contact.notes || ''
+        firstName: contact.firstName ?? '',
+        lastName: contact.lastName ?? '',
+        email: contact.email ?? '',
+        email2: contact.email2 ?? '',
+        email3: contact.email3 ?? '',
+        email4: contact.email4 ?? '',
+        email5: contact.email5 ?? '',
+        phone: contact.phone ?? '',
+        jobTitle: contact.jobTitle ?? '',
+        contactStatus: (contact.contactStatus as ContactStatus) ?? 'cold',
+        contactType: (contact.contactType as ContactType) ?? 'prospect',
+        notes: contact.notes ?? ''
       });
     }
   }, [contact]);
 
   // ── Feed aufbauen ──────────────────────────────────────────────────────────
 
-  // E-Mails aus emails-Tabelle (via listByContact, nur direkt verknüpfte)
-  const emailFeedItems: FeedItem[] = (emails as any[]).map((e: any) => ({
+  const emailFeedItems: FeedItem[] = emails.map((e) => ({
     id: `email-${e.id}`,
     type: 'email',
     date: parseDate(e.timestamp ?? e.createdAt),
-    subject: e.subject || '(Kein Betreff)',
+    subject: e.subject ?? '(Kein Betreff)',
     from: displayAddr(e.fromAddress),
     to: displayAddr(e.toAddress),
-    direction: e.direction || 'inbound',
-    body: e.body,
-    htmlBody: e.htmlBody,
-    attachments: e.attachments || [],
+    direction: e.direction ?? 'inbound',
+    body: e.body ?? undefined,
+    htmlBody: e.htmlBody ?? undefined,
+    attachments: (e.attachments ?? []).map(a => ({ filename: a.name ?? '', size_bytes: a.size ?? undefined })),
     isArchived: false,
   }));
 
-  // Archivierte E-Mails aus archived_emails (via getArchivedEmails)
-  const archivedFeedItems: FeedItem[] = (archivedEmailsRaw as any[]).map((e: any) => ({
+  const archivedFeedItems: FeedItem[] = archivedEmails.map((e) => ({
     id: `archived-${e.id}`,
     type: 'email',
-    date: parseDate(e.email_date ?? e.timestamp),
-    subject: e.subject || '(Kein Betreff)',
-    from: e.from_name ? `${e.from_name} <${e.from_address}>` : (e.from_address || ''),
-    to: e.to_address || '',
+    date: parseDate(e.email_date ?? e.archived_at),
+    subject: e.subject ?? '(Kein Betreff)',
+    from: e.from_name ? `${e.from_name} <${e.from_address ?? ''}>` : (e.from_address ?? ''),
+    to: e.to_address ?? '',
     direction: 'inbound',
-    body: e.body,
-    htmlBody: e.html_body,
+    body: e.body ?? undefined,
+    htmlBody: e.html_body ?? undefined,
+    // archived_email_attachments: werden über getArchivedEmails nicht mitgeliefert
+    // (separate Query nötig – Tabelle existiert, Router-Endpunkt folgt in Aufgabe 1.5)
     attachments: [],
     isArchived: true,
   }));
 
-  // Aktivitäten (Dateien, Notizen, etc.) — keine E-Mails
-  const activityFeedItems: FeedItem[] = (activities as any[])
-    .filter((a: any) =>
+  const activityFeedItems: FeedItem[] = activities
+    .filter((a) =>
       a.activityType !== 'Email Archive' &&
       a.activityType !== 'email' &&
-      !a.subject?.startsWith('📧')
+      !(a.subject ?? '').startsWith('📧')
     )
-    .map((a: any) => ({
+    .map((a) => ({
       id: `activity-${a.id}`,
       type: 'activity',
       date: parseDate(a.activityDate ?? a.createdAt),
-      subject: a.subject || '(Keine Beschreibung)',
-      from: a.createdBy || '',
+      subject: a.subject ?? '(Keine Beschreibung)',
+      from: a.createdBy ?? '',
       to: '',
-      direction: a.direction || '',
-      activityType: a.activityType,
-      body: a.content,
+      direction: a.direction ?? '',
+      activityType: a.activityType ?? undefined,
+      body: a.content ?? undefined,
     }));
 
   // Deduplizieren: archived_emails und emails können sich überschneiden
-  // Bevorzuge archived_emails (haben email_date), entferne Duplikate aus emails
   const archivedEmailIds = new Set(
-    (archivedEmailsRaw as any[]).map((e: any) => e.id).filter(Boolean)
+    archivedEmails.map((e) => e.id).filter(Boolean)
   );
   const deduplicatedEmailItems = emailFeedItems.filter(
     (item) => !archivedEmailIds.has(item.id.replace('email-', ''))
   );
 
-  // Alle Feed-Items zusammenführen und nach Datum sortieren
   const allFeedItems: FeedItem[] = [
     ...archivedFeedItems,
     ...deduplicatedEmailItems,
     ...activityFeedItems,
-  ].sort((a, b) => {
-    const ta = a.date?.getTime() ?? 0;
-    const tb = b.date?.getTime() ?? 0;
-    return tb - ta;
-  });
+  ].sort((a, b) => (b.date?.getTime() ?? 0) - (a.date?.getTime() ?? 0));
 
-  const paginatedFeed = allFeedItems.slice(0, emailPage * EMAILS_PER_PAGE);
-  const hasMore = allFeedItems.length > emailPage * EMAILS_PER_PAGE;
+  const filteredFeedItems = allFeedItems.filter((item) => matchesFilter(item, feedFilter));
+  const paginatedFeed = filteredFeedItems.slice(0, emailPage * EMAILS_PER_PAGE);
+  const hasMore = filteredFeedItems.length > emailPage * EMAILS_PER_PAGE;
 
-  const toggleExpand = (id: string) => {
+  const toggleExpand = (itemId: string) => {
     const s = new Set(expandedItems);
-    s.has(id) ? s.delete(id) : s.add(id);
+    s.has(itemId) ? s.delete(itemId) : s.add(itemId);
     setExpandedItems(s);
   };
 
@@ -244,8 +370,8 @@ export default function ContactDetail() {
     </div>
   );
 
-  const fullName = `${contact.firstName || ''} ${contact.lastName || ''}`.trim();
-  const companyNames = (companies as any[]).map((c: any) => c.name).join(', ') || '—';
+  const fullName = `${contact.firstName ?? ''} ${contact.lastName ?? ''}`.trim();
+  const companyNames = companies.map((c) => c.name ?? '').filter(Boolean).join(', ') || '—';
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
@@ -267,15 +393,8 @@ export default function ContactDetail() {
             <div className="flex items-center gap-3 flex-wrap mb-2">
               <h1 className="text-2xl font-bold text-gray-900">{fullName || 'Unbenannt'}</h1>
               {contact.jobTitle && <span className="text-gray-500 text-sm">{contact.jobTitle}</span>}
-              <span className={`px-2 py-0.5 rounded text-xs font-medium ${
-                contact.contactStatus === 'active' ? 'bg-green-100 text-green-800' :
-                contact.contactStatus === 'hot'    ? 'bg-red-100 text-red-800' :
-                contact.contactStatus === 'warm'   ? 'bg-orange-100 text-orange-800' :
-                'bg-gray-100 text-gray-600'
-              }`}>
-                {contact.contactStatus
-                  ? contact.contactStatus.charAt(0).toUpperCase() + contact.contactStatus.slice(1)
-                  : 'Cold'}
+              <span className={`px-2 py-0.5 rounded text-xs font-medium ${statusBadgeClass(contact.contactStatus)}`}>
+                {STATUS_LABEL[contact.contactStatus ?? ''] ?? (contact.contactStatus ?? 'Cold')}
               </span>
             </div>
 
@@ -293,16 +412,15 @@ export default function ContactDetail() {
 
             {/* E-Mail addresses */}
             <div className="flex items-center gap-3 flex-wrap text-sm mt-2">
-              {[contact.email, (contact as any).email2, (contact as any).email3,
-                (contact as any).email4, (contact as any).email5]
-                .filter(Boolean)
-                .map((addr: string, i: number) => (
+              {([contact.email, contact.email2, contact.email3, contact.email4, contact.email5] as (string | null | undefined)[])
+                .filter((addr): addr is string => !!addr)
+                .map((addr, i) => (
                   <a key={i} href={`mailto:${addr}`}
                     className="flex items-center gap-1 text-orange-600 hover:text-gray-800">
                     <Mail className="h-3.5 w-3.5" />{addr}
                   </a>
                 ))}
-              {!contact.email && !(contact as any).email2 && (
+              {!contact.email && !contact.email2 && (
                 <span className="flex items-center gap-1 text-gray-400">
                   <Mail className="h-3.5 w-3.5" />Keine E-Mail-Adresse
                 </span>
@@ -310,13 +428,13 @@ export default function ContactDetail() {
             </div>
 
             {/* Address */}
-            {((contact as any).street || (contact as any).city) && (
+            {(contact.street || contact.city) && (
               <div className="flex items-start gap-1.5 text-sm text-gray-500 mt-2">
                 <Building2 className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
                 <span>
-                  {[(contact as any).street,
-                    [(contact as any).postalCode, (contact as any).city].filter(Boolean).join(' '),
-                    (contact as any).country
+                  {[contact.street,
+                    [contact.postalCode, contact.city].filter(Boolean).join(' '),
+                    contact.country
                   ].filter(Boolean).join(', ')}
                 </span>
               </div>
@@ -343,14 +461,15 @@ export default function ContactDetail() {
                 <Plus className="h-3.5 w-3.5" />
               </Button>
             </div>
-            {(contactLists as any[]).length > 0 ? (
+            {contactLists.length > 0 ? (
               <div className="space-y-1">
-                {(contactLists as any[]).map((list: any) => (
+                {contactLists.map((list) => (
                   <div key={list.id} className="flex items-center justify-between py-1 text-sm">
                     <span className="flex items-center gap-1.5 text-gray-700">
-                      <Users className="h-3 w-3 text-gray-400" />{list.listName}
+                      <Users className="h-3 w-3 text-gray-400" />{list.listName ?? list.name ?? '—'}
                     </span>
-                    <button onClick={() => removeFromList.mutate({ contactId: id!, distributionListId: list.listId })}
+                    <button
+                      onClick={() => removeFromList.mutate({ contactId: id!, distributionListId: list.listId ?? list.id })}
                       className="text-gray-300 hover:text-red-500 transition-colors">
                       <X className="h-3 w-3" />
                     </button>
@@ -442,11 +561,38 @@ export default function ContactDetail() {
               </button>
             </div>
 
+            {/* Filter-Chips */}
+            <div className="flex items-center gap-1.5 px-4 py-2 border-b overflow-x-auto">
+              {FILTER_OPTIONS.map(({ key, label }) => {
+                const count = key === 'all'
+                  ? allFeedItems.length
+                  : allFeedItems.filter(i => matchesFilter(i, key)).length;
+                return (
+                  <button
+                    key={key}
+                    onClick={() => { setFeedFilter(key); setEmailPage(1); }}
+                    className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                      feedFilter === key
+                        ? 'bg-gray-900 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    {label}
+                    {count > 0 && (
+                      <span className={`ml-1 ${feedFilter === key ? 'text-gray-300' : 'text-gray-400'}`}>
+                        {count}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
             {/* Feed Items */}
             {paginatedFeed.length === 0 ? (
               <div className="text-center py-12 text-gray-400">
                 <Mail className="h-8 w-8 mx-auto mb-2 text-gray-200" />
-                <p className="text-sm">Keine E-Mail-Historie</p>
+                <p className="text-sm">Keine Einträge</p>
               </div>
             ) : (
               <div className="divide-y divide-gray-50">
@@ -466,7 +612,7 @@ export default function ContactDetail() {
                           {!isEmail ? (
                             <FileText className="h-4 w-4 text-gray-300" />
                           ) : item.direction === 'outbound' ? (
-                            <ArrowUpRight className="h-4 w-4 text-orange-400" />
+                            <ArrowUpRight className="h-4 w-4 text-[#E48F00]" />
                           ) : (
                             <ArrowDownLeft className="h-4 w-4 text-gray-400" />
                           )}
@@ -533,6 +679,20 @@ export default function ContactDetail() {
                             ) : (
                               <p className="text-gray-400 text-xs border-t pt-2 mt-2">Kein Inhalt</p>
                             )}
+                            {/* Attachments */}
+                            {(item.attachments?.length ?? 0) > 0 && (
+                              <div className="border-t pt-2 mt-2 space-y-1">
+                                {item.attachments!.map((att, i) => (
+                                  <div key={i} className="flex items-center gap-1.5 text-xs text-gray-500">
+                                    <Paperclip className="h-3 w-3 text-gray-400" />
+                                    <span>{att.filename}</span>
+                                    {att.size_bytes != null && (
+                                      <span className="text-gray-400">({Math.round(att.size_bytes / 1024)} KB)</span>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         </div>
                       )}
@@ -549,7 +709,7 @@ export default function ContactDetail() {
                   onClick={() => setEmailPage(p => p + 1)}
                   className="text-sm text-orange-600 hover:text-gray-800"
                 >
-                  Weitere {Math.min(EMAILS_PER_PAGE, allFeedItems.length - emailPage * EMAILS_PER_PAGE)} laden
+                  Weitere {Math.min(EMAILS_PER_PAGE, filteredFeedItems.length - emailPage * EMAILS_PER_PAGE)} laden
                 </button>
               </div>
             )}
@@ -564,17 +724,17 @@ export default function ContactDetail() {
           <div className="space-y-4 py-4">
             <div className="grid grid-cols-2 gap-4">
               <div><Label>First Name</Label>
-                <Input value={editForm.firstName} onChange={(e: any) => setEditForm({ ...editForm, firstName: e.target.value })} />
+                <Input value={editForm.firstName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditForm({ ...editForm, firstName: e.target.value })} />
               </div>
               <div><Label>Last Name</Label>
-                <Input value={editForm.lastName} onChange={(e: any) => setEditForm({ ...editForm, lastName: e.target.value })} />
+                <Input value={editForm.lastName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditForm({ ...editForm, lastName: e.target.value })} />
               </div>
             </div>
             <div><Label>Phone</Label>
-              <Input value={editForm.phone} onChange={(e: any) => setEditForm({ ...editForm, phone: e.target.value })} />
+              <Input value={editForm.phone} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditForm({ ...editForm, phone: e.target.value })} />
             </div>
             <div><Label>Job Title</Label>
-              <Input value={editForm.jobTitle} onChange={(e: any) => setEditForm({ ...editForm, jobTitle: e.target.value })} />
+              <Input value={editForm.jobTitle} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditForm({ ...editForm, jobTitle: e.target.value })} />
             </div>
             <div className="border-t pt-4">
               <h4 className="font-medium mb-3 text-sm">E-Mail Addresses</h4>
@@ -582,28 +742,28 @@ export default function ContactDetail() {
                 {(['email', 'email2', 'email3', 'email4', 'email5'] as const).map((field, i) => (
                   <div key={field}>
                     <Label className="text-xs text-gray-500">E-Mail {i + 1}{i === 0 ? ' (primary)' : ''}</Label>
-                    <Input value={(editForm as any)[field]} type="email"
-                      onChange={(e: any) => setEditForm({ ...editForm, [field]: e.target.value })} />
+                    <Input value={editForm[field]} type="email"
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditForm({ ...editForm, [field]: e.target.value })} />
                   </div>
                 ))}
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div><Label>Status</Label>
-                <Select value={editForm.contactStatus} onValueChange={(v: any) => setEditForm({ ...editForm, contactStatus: v })}>
+                <Select value={editForm.contactStatus} onValueChange={(v: ContactStatus) => setEditForm({ ...editForm, contactStatus: v })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {['cold', 'warm', 'hot', 'active', 'inactive'].map(s => (
-                      <SelectItem key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</SelectItem>
+                    {(['cold', 'warm', 'hot', 'active', 'inactive'] as ContactStatus[]).map(s => (
+                      <SelectItem key={s} value={s}>{STATUS_LABEL[s]}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               <div><Label>Type</Label>
-                <Select value={(editForm as any).contactType} onValueChange={(v: any) => setEditForm({ ...editForm, contactType: v })}>
+                <Select value={editForm.contactType} onValueChange={(v: ContactType) => setEditForm({ ...editForm, contactType: v })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {['prospect', 'customer', 'partner', 'supplier', 'staff', 'staff_plus'].map(t => (
+                    {(['prospect', 'customer', 'partner', 'supplier', 'staff', 'staff_plus'] as ContactType[]).map(t => (
                       <SelectItem key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1).replace('_', ' ')}</SelectItem>
                     ))}
                   </SelectContent>
@@ -611,21 +771,26 @@ export default function ContactDetail() {
               </div>
             </div>
             <div><Label>Notes</Label>
-              <Textarea value={editForm.notes} onChange={(e: any) => setEditForm({ ...editForm, notes: e.target.value })} className="min-h-[100px]" />
+              <Textarea value={editForm.notes} onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setEditForm({ ...editForm, notes: e.target.value })} className="min-h-[100px]" />
             </div>
             <div className="flex justify-end gap-2 pt-4">
               <Button variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
               <Button onClick={() => {
                 if (!id) return;
                 updateContact.mutate({
-                  id, firstName: editForm.firstName, lastName: editForm.lastName,
+                  id,
+                  firstName: editForm.firstName,
+                  lastName: editForm.lastName,
                   email: editForm.email || undefined,
-                  email2: editForm.email2 || null, email3: editForm.email3 || null,
-                  email4: editForm.email4 || null, email5: editForm.email5 || null,
-                  phone: editForm.phone || undefined, jobTitle: editForm.jobTitle || undefined,
+                  email2: editForm.email2 || null,
+                  email3: editForm.email3 || null,
+                  email4: editForm.email4 || null,
+                  email5: editForm.email5 || null,
+                  phone: editForm.phone || undefined,
+                  jobTitle: editForm.jobTitle || undefined,
                   contactStatus: editForm.contactStatus,
-                  contactType: (editForm as any).contactType,
-                  notes: editForm.notes || undefined
+                  contactType: editForm.contactType,
+                  notes: editForm.notes || undefined,
                 });
               }} disabled={updateContact.isPending}>
                 {updateContact.isPending ? 'Saving…' : 'Save'}
@@ -650,18 +815,18 @@ export default function ContactDetail() {
         <DialogContent>
           <DialogHeader><DialogTitle>Add to Distribution List</DialogTitle></DialogHeader>
           <div className="space-y-4 py-4">
-            {(allLists as any[]).length > 0 && (
+            {allLists.length > 0 && (
               <div>
                 <Label className="mb-2 block text-sm">Existing Lists</Label>
                 <div className="space-y-1 max-h-40 overflow-y-auto">
-                  {(allLists as any[]).map((list: any) => {
-                    const isIn = (contactLists as any[]).some((cl: any) => cl.listId === list.id);
+                  {allLists.map((list) => {
+                    const isIn = contactLists.some((cl) => (cl.listId ?? cl.id) === list.id);
                     return (
                       <div key={list.id}
-                        className={`flex items-center justify-between p-2 rounded cursor-pointer text-sm ${isIn ? 'bg-green-50' : 'hover:bg-gray-50'}`}
+                        className={`flex items-center justify-between p-2 rounded cursor-pointer text-sm ${isIn ? 'bg-gray-50' : 'hover:bg-gray-50'}`}
                         onClick={() => { if (!isIn) addToList.mutate({ distributionListId: list.id, contactId: id! }); }}>
-                        <span>{list.name}</span>
-                        {isIn && <CheckCircle className="h-4 w-4 text-green-500" />}
+                        <span>{list.name ?? list.listName ?? '—'}</span>
+                        {isIn && <CheckCircle className="h-4 w-4 text-[#E48F00]" />}
                       </div>
                     );
                   })}
@@ -670,8 +835,8 @@ export default function ContactDetail() {
             )}
             <div className="border-t pt-4">
               <Label className="mb-2 block text-sm">Create New List</Label>
-              <Input placeholder="List name" value={newListName} onChange={(e: any) => setNewListName(e.target.value)} className="mb-2" />
-              <Input placeholder="Description (optional)" value={newListDescription} onChange={(e: any) => setNewListDescription(e.target.value)} className="mb-3" />
+              <Input placeholder="List name" value={newListName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewListName(e.target.value)} className="mb-2" />
+              <Input placeholder="Description (optional)" value={newListDescription} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewListDescription(e.target.value)} className="mb-3" />
               <Button onClick={() => {
                 if (newListName.trim()) createList.mutate({ name: newListName.trim(), description: newListDescription });
               }} disabled={!newListName.trim()} className="w-full">

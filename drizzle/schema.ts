@@ -1174,3 +1174,21 @@ export const emailSendQueue = mysqlTable("email_send_queue", {
 }));
 export type EmailSendQueueJob = typeof emailSendQueue.$inferSelect;
 export type InsertEmailSendQueueJob = typeof emailSendQueue.$inferInsert;
+
+// ── Archived Email Attachments ────────────────────────────────────────────────
+export const archivedEmailAttachments = mysqlTable(
+  "archived_email_attachments",
+  {
+    id:              int("id").autoincrement().primaryKey(),
+    archivedEmailId: int("archived_email_id").notNull(),
+    filename:        varchar("filename", { length: 512 }).notNull(),
+    contentType:     varchar("content_type", { length: 128 }),
+    sizeBytes:       int("size_bytes"),
+    filePath:        varchar("file_path", { length: 1024 }),
+    createdAt:       timestamp("created_at").defaultNow(),
+  },
+  (t) => ({
+    archivedEmailIdx: index("idx_archived_email_id").on(t.archivedEmailId),
+  })
+);
+

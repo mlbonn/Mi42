@@ -278,4 +278,19 @@ export const contactsRouter = router({
         archived_at: r.archivedAt ? r.archivedAt.toISOString() : null,
       }));
     }),
+
+  // Anhänge einer archivierten E-Mail abrufen
+  getArchivedEmailAttachments: publicProcedure
+    .input(z.object({ archivedEmailId: z.number() }))
+    .query(async ({ input }) => {
+      const db = getDb();
+      if (!db) throw new Error("DB not available");
+      const rows = await db
+        .select()
+        .from(archivedEmailAttachments)
+        .where(eq(archivedEmailAttachments.archivedEmailId, input.archivedEmailId))
+        .orderBy(archivedEmailAttachments.createdAt);
+      return rows;
+    }),
+
 });

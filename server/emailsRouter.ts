@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { router, publicProcedure } from "./_core/trpc";
+import { router, publicProcedure, protectedProcedure } from "./_core/trpc";
 import { getDb, matchContactsForEmail, linkEmailToContactDb } from "./db";
 import { sql, eq, desc, like, or, and, isNull } from "drizzle-orm";
 import { mysqlTable, varchar, text, datetime, boolean, int } from "drizzle-orm/mysql-core";
@@ -94,7 +94,8 @@ Antworte im folgenden JSON-Format:
 
 export const emailsRouter = router({
   // E-Mail speichern (Hauptfunktion für Outlook Add-in)
-  save: publicProcedure
+  // Hinweis: protectedProcedure – Outlook Add-in muss mit JWT-Token authentifiziert sein
+  save: protectedProcedure
     .input(
       z.object({
         contactId: z.string().optional(),
@@ -220,7 +221,7 @@ export const emailsRouter = router({
     }),
 
   // E-Mail archivieren (Legacy-Alias für save)
-  archive: publicProcedure
+  archive: protectedProcedure
     .input(
       z.object({
         contactId: z.string().optional(),
