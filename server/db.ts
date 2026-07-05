@@ -1,4 +1,4 @@
-import { eq, and, desc, sql, inArray } from "drizzle-orm";
+import { eq, and, or, desc, sql, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { 
   InsertUser, users,
@@ -1983,50 +1983,54 @@ export async function matchContactsForEmail(
   if (!dbInstance) return [];
 
   const allAddresses = [fromAddress, ...toAddresses, ...ccAddresses]
-    .map(a => a.toLowerCase().trim())
+    .map((a) => a.toLowerCase().trim())
     .filter(Boolean);
-
   if (allAddresses.length === 0) return [];
 
-  const ph = allAddresses.map(() => '?').join(', ');
-  const args5 = [...allAddresses, ...allAddresses, ...allAddresses, ...allAddresses, ...allAddresses];
+  const ids = new Set<string>();
 
-  const [contactRows] = await (dbInstance as any).$client.execute(
-    `SELECT DISTINCT id FROM contacts
-     WHERE LOWER(TRIM(email))  IN (${ph})
-        OR LOWER(TRIM(email2)) IN (${ph})
-        OR LOWER(TRIM(email3)) IN (${ph})
-        OR LOWER(TRIM(email4)) IN (${ph})
-        OR LOWER(TRIM(email5)) IN (${ph})`,
-    args5
-  ) as any;
-
-  let relRowsRaw: any[] = [];
   try {
-    const [r] = await (dbInstance as any).$client.execute(
-      `SELECT DISTINCT contactId AS id FROM contact_company_relations
-       WHERE LOWER(TRIM(email))  IN (${ph})
-          OR LOWER(TRIM(email2)) IN (${ph})
-          OR LOWER(TRIM(email3)) IN (${ph})
-          OR LOWER(TRIM(email4)) IN (${ph})
-          OR LOWER(TRIM(email5)) IN (${ph})`,
-      args5
-    ) as any;
-    relRowsRaw = Array.isArray(r) ? r : [];
-  } catch (relErr: any) {
-    console.error('[matchContactsForEmail] contact_company_relations query failed:', relErr.message);
+    // Match via contacts.email / email2-5
+    const contactRows = await dbInstance
+      .select({ id: contacts.id })
+      .from(contacts)
+      .where(
+        or(
+          inArray(sql`LOWER(TRIM(${contacts.email}))`, allAddresses),
+          inArray(sql`LOWER(TRIM(${contacts.email2}))`, allAddresses),
+          inArray(sql`LOWER(TRIM(${contacts.email3}))`, allAddresses),
+          inArray(sql`LOWER(TRIM(${contacts.email4}))`, allAddresses),
+          inArray(sql`LOWER(TRIM(${contacts.email5}))`, allAddresses)
+        )
+      );
+    for (const row of contactRows) ids.add(row.id);
+  } catch (err: any) {
+    console.error('[matchContactsForEmail] contacts query failed:', err.message);
   }
 
-  const ids = new Set<string>();
-  for (const row of (contactRows as any[])) ids.add(row.id);
-  for (const row of relRowsRaw) ids.add(row.id);
+  try {
+    // Match via contact_company_relations
+    const relRows = await dbInstance
+      .select({ id: contactCompanyRelations.contactId })
+      .from(contactCompanyRelations)
+      .where(
+        or(
+          inArray(sql`LOWER(TRIM(${contactCompanyRelations.email}))`, allAddresses),
+          inArray(sql`LOWER(TRIM(${contactCompanyRelations.email2}))`, allAddresses),
+          inArray(sql`LOWER(TRIM(${contactCompanyRelations.email3}))`, allAddresses),
+          inArray(sql`LOWER(TRIM(${contactCompanyRelations.email4}))`, allAddresses),
+          inArray(sql`LOWER(TRIM(${contactCompanyRelations.email5}))`, allAddresses)
+        )
+      );
+    for (const row of relRows) ids.add(row.id);
+  } catch (err: any) {
+    console.error('[matchContactsForEmail] contact_company_relations query failed:', err.message);
+  }
+
   return Array.from(ids);
 }
 
-/**
- * Verknüpft eine E-Mail mit einem Kontakt in archived_emails.
- * Idempotent: doppelte (email_id, contact_id) werden via INSERT IGNORE ignoriert.
- */
+
 export async function linkEmailToContactDb(params: {
   emailId: string;
   contactId: string;
