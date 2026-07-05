@@ -114,3 +114,6 @@ temp/
 *.old
 *.orig
 *.tmp
+
+# Backup archives
+dist.backup*
