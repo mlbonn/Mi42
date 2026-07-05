@@ -205,9 +205,7 @@ ${related}`);
   }
 
   return sources.length > 0
-    ? sources.join("
-
-")
+    ? sources.join("\n")
     : `Keine öffentlichen Quellen gefunden für: ${companyName}`;
 }
 
