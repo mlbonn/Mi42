@@ -147,7 +147,7 @@ export const companiesRouter = router({
       const newCompany = await createCompany(input as any);
       // Enrichment-Job einreihen
       try {
-        const db = getDb();
+        const db = await getDb();
         if (db && newCompany?.id) {
           await db.insert(agentJobs).values({
             id: crypto.randomUUID(),
