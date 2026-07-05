@@ -11,7 +11,7 @@ import {
   addContactToCompany,
   getDb,
 } from "./db";
-import { archivedEmails   archivedEmailAttachments,
+import { archivedEmails, archivedEmailAttachments   archivedEmailAttachments,
 } from "../drizzle/schema";
 import { eq, desc } from "drizzle-orm";
 
