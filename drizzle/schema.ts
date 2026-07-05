@@ -1,4 +1,4 @@
-import { mysqlEnum, mysqlTable, text, timestamp, varchar, bigint, boolean, int, decimal, index, json } from "drizzle-orm/mysql-core";
+import { mysqlEnum, mysqlTable, text, timestamp, varchar, bigint, boolean, int, decimal, index, json, datetime } from "drizzle-orm/mysql-core";
 import { relations } from "drizzle-orm";
 
 /**
@@ -187,6 +187,13 @@ export const contacts = mysqlTable("contacts", {
   state: varchar("state", { length: 100 }),
   country: varchar("country", { length: 100 }),
   faxOffice: varchar("faxOffice", { length: 50 }),
+  // Kontaktverlauf
+  // TODO: lastContact-Felder können künftig automatisch aus dem Activity Feed (Aufgabe 1.4) abgeleitet werden
+  firstContact: varchar("firstContact", { length: 30 }),       // Art des Erstkontakts
+  firstContactDate: datetime("firstContactDate"),               // Datum Erstkontakt
+  lastContactDate: datetime("lastContactDate"),                 // Datum letzter Kontakt
+  lastContactUser: varchar("lastContactUser", { length: 30 }), // Wer hatte zuletzt Kontakt
+  lastContactMedium: varchar("lastContactMedium", { length: 30 }), // Kanal des letzten Kontakts
   createdAt: timestamp("createdAt").defaultNow(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow(),
 }, (table) => ({
