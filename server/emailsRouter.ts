@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { router, publicProcedure } from "./_core/trpc";
-import { getDb } from "./db";
+import { getDb, matchContactsForEmail, linkEmailToContactDb } from "./db";
 import { sql, eq, desc, like, or, and, isNull } from "drizzle-orm";
 import { mysqlTable, varchar, text, datetime, boolean, int } from "drizzle-orm/mysql-core";
 import crypto from "crypto";
@@ -188,6 +188,34 @@ export const emailsRouter = router({
         }
       });
 
+
+      // Auto-Link: Kontakte zu dieser Mail verknüpfen (direkt nach dem Speichern)
+      try {
+        const fromAddr = input.from.match(/<([^>]+)>/)?.[1] ?? input.from;
+        const toAddrs = (input.to ?? '').split(/[,;]/).map((a: string) => {
+          const m = a.match(/<([^>]+)>/); return m ? m[1] : a.trim();
+        }).filter(Boolean);
+        const ccAddrs = (input.cc ?? '').split(/[,;]/).map((a: string) => {
+          const m = a.match(/<([^>]+)>/); return m ? m[1] : a.trim();
+        }).filter(Boolean);
+        const contactIds = await matchContactsForEmail(fromAddr, toAddrs, ccAddrs);
+        const userId = (ctx as any).user?.id ?? 'system';
+        for (const contactId of contactIds) {
+          await linkEmailToContactDb({
+            emailId,
+            contactId,
+            userId,
+            fromAddress: fromAddr,
+            toAddress: toAddrs[0] ?? undefined,
+          });
+        }
+        if (contactIds.length > 0) {
+          console.log(`[emailsRouter] Auto-linked ${contactIds.length} contact(s) to email ${emailId}`);
+        }
+      } catch (linkErr: any) {
+        console.warn('[emailsRouter] Auto-link failed (non-fatal):', linkErr.message);
+      }
+
       return { id: emailId, success: true };
     }),
 
@@ -237,6 +265,34 @@ export const emailsRouter = router({
         replyStatus: "open",
         threadId: threadId,
       });
+
+
+      // Auto-Link: Kontakte zu dieser Mail verknüpfen (direkt nach dem Speichern)
+      try {
+        const fromAddr = input.from.match(/<([^>]+)>/)?.[1] ?? input.from;
+        const toAddrs = (input.to ?? '').split(/[,;]/).map((a: string) => {
+          const m = a.match(/<([^>]+)>/); return m ? m[1] : a.trim();
+        }).filter(Boolean);
+        const ccAddrs = (input.cc ?? '').split(/[,;]/).map((a: string) => {
+          const m = a.match(/<([^>]+)>/); return m ? m[1] : a.trim();
+        }).filter(Boolean);
+        const contactIds = await matchContactsForEmail(fromAddr, toAddrs, ccAddrs);
+        const userId = (ctx as any).user?.id ?? 'system';
+        for (const contactId of contactIds) {
+          await linkEmailToContactDb({
+            emailId,
+            contactId,
+            userId,
+            fromAddress: fromAddr,
+            toAddress: toAddrs[0] ?? undefined,
+          });
+        }
+        if (contactIds.length > 0) {
+          console.log(`[emailsRouter] Auto-linked ${contactIds.length} contact(s) to email ${emailId}`);
+        }
+      } catch (linkErr: any) {
+        console.warn('[emailsRouter] Auto-link failed (non-fatal):', linkErr.message);
+      }
 
       return { id: emailId, success: true };
     }),
