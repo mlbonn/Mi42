@@ -2001,19 +2001,25 @@ export async function matchContactsForEmail(
     args5
   ) as any;
 
-  const [relRows] = await (dbInstance as any).$client.execute(
-    `SELECT DISTINCT contact_id AS id FROM contact_company_relations
-     WHERE LOWER(TRIM(email))  IN (${ph})
-        OR LOWER(TRIM(email2)) IN (${ph})
-        OR LOWER(TRIM(email3)) IN (${ph})
-        OR LOWER(TRIM(email4)) IN (${ph})
-        OR LOWER(TRIM(email5)) IN (${ph})`,
-    args5
-  ) as any;
+  let relRowsRaw: any[] = [];
+  try {
+    const [r] = await (dbInstance as any).$client.execute(
+      `SELECT DISTINCT contact_id AS id FROM contact_company_relations
+       WHERE LOWER(TRIM(email))  IN (${ph})
+          OR LOWER(TRIM(email2)) IN (${ph})
+          OR LOWER(TRIM(email3)) IN (${ph})
+          OR LOWER(TRIM(email4)) IN (${ph})
+          OR LOWER(TRIM(email5)) IN (${ph})`,
+      args5
+    ) as any;
+    relRowsRaw = Array.isArray(r) ? r : [];
+  } catch (_relErr) {
+    // contact_company_relations may not have expected columns – skip silently
+  }
 
   const ids = new Set<string>();
   for (const row of (contactRows as any[])) ids.add(row.id);
-  for (const row of (relRows as any[])) ids.add(row.id);
+  for (const row of relRowsRaw) ids.add(row.id);
   return Array.from(ids);
 }
 
