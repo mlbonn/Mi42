@@ -96,6 +96,10 @@ export async function runAgentJob(job: {
     );
 
     await completeAgentRun(runId, output);
+    // apply() ist optional – nur wenn der Agent eine apply-Methode hat
+    if (typeof (agent as any).apply === "function") {
+      await (agent as any).apply({ jobId: job.id, runId: runId!, output });
+    }
     await completeAgentJob(job.id);
     console.log(`[AgentRunner] Job ${job.id} completed successfully`);
   } catch (err) {

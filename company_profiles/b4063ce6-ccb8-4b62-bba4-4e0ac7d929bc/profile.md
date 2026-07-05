@@ -1,6 +1,6 @@
 # Firmenprofil: C+L GmbH
 
-**Generiert:** 2026-07-05T18:48:30.510Z
+**Generiert:** 2026-07-05T18:52:59.351Z
 **Agent:** company_enrichment v1.0
 
 ---

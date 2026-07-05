@@ -1,6 +1,6 @@
 # Firmenprofil: EGGER-Rol
 
-**Generiert:** 2026-07-05T18:48:40.229Z
+**Generiert:** 2026-07-05T18:53:02.392Z
 **Agent:** company_enrichment v1.0
 
 ---

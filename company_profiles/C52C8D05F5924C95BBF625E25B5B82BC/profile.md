@@ -1,6 +1,6 @@
 # Firmenprofil: Egger
 
-**Generiert:** 2026-07-05T18:48:31.022Z
+**Generiert:** 2026-07-05T18:52:59.330Z
 **Agent:** company_enrichment v1.0
 
 ---

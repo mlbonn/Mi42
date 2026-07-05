@@ -1,6 +1,6 @@
 # Firmenprofil: Fritz Egger Spanplattenindustrie
 
-**Generiert:** 2026-07-05T18:48:30.549Z
+**Generiert:** 2026-07-05T18:53:07.400Z
 **Agent:** company_enrichment v1.0
 
 ---

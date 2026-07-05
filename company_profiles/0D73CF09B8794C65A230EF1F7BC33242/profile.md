@@ -1,6 +1,6 @@
 # Firmenprofil: EGGER Sägewerk Brilon GmbH
 
-**Generiert:** 2026-07-05T18:48:35.647Z
+**Generiert:** 2026-07-05T18:53:02.486Z
 **Agent:** company_enrichment v1.0
 
 ---

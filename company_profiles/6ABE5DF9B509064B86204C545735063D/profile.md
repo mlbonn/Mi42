@@ -1,6 +1,6 @@
 # Firmenprofil: Egger Benelux GCV
 
-**Generiert:** 2026-07-05T18:48:50.940Z
+**Generiert:** 2026-07-05T18:52:54.956Z
 **Agent:** company_enrichment v1.0
 
 ---

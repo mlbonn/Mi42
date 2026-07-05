@@ -1,6 +1,6 @@
 # Firmenprofil: Egger (UK) Ltd
 
-**Generiert:** 2026-07-05T18:48:35.458Z
+**Generiert:** 2026-07-05T18:53:12.366Z
 **Agent:** company_enrichment v1.0
 
 ---

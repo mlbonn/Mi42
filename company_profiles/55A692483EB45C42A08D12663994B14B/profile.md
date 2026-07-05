@@ -1,6 +1,6 @@
 # Firmenprofil: Egger Building Products GmbH
 
-**Generiert:** 2026-07-05T18:48:24.880Z
+**Generiert:** 2026-07-05T18:53:02.458Z
 **Agent:** company_enrichment v1.0
 
 ---

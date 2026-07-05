@@ -1,6 +1,6 @@
 # Firmenprofil: Fritz Egger GmbH & Co.
 
-**Generiert:** 2026-07-05T18:48:40.232Z
+**Generiert:** 2026-07-05T18:52:54.898Z
 **Agent:** company_enrichment v1.0
 
 ---

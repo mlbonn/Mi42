@@ -1,6 +1,6 @@
 # Firmenprofil: EGGER Holzwerkstoffe GmbH
 
-**Generiert:** 2026-07-05T18:48:35.341Z
+**Generiert:** 2026-07-05T18:53:12.685Z
 **Agent:** company_enrichment v1.0
 
 ---

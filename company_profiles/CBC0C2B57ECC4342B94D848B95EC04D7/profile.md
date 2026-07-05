@@ -1,6 +1,6 @@
 # Firmenprofil: EGGER Panneaux & Décors S.A.S.
 
-**Generiert:** 2026-07-05T18:48:25.124Z
+**Generiert:** 2026-07-05T18:52:59.433Z
 **Agent:** company_enrichment v1.0
 
 ---

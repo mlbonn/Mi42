@@ -431,6 +431,7 @@ export const companyEnrichmentAgent = {
     if (!current) return;
 
     const { enrichedFields } = output;
+    console.log(`[companyEnrichmentAgent] enrichedFields:`, JSON.stringify(enrichedFields));
     const updateData: Partial<typeof companies.$inferInsert> = {};
 
     if (!current.industry && enrichedFields.industry)

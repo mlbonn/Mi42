@@ -1,6 +1,6 @@
 # Firmenprofil: Egger Skandinavia
 
-**Generiert:** 2026-07-05T18:48:45.604Z
+**Generiert:** 2026-07-05T18:52:55.277Z
 **Agent:** company_enrichment v1.0
 
 ---
