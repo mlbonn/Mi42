@@ -9,6 +9,7 @@ import { eq } from 'drizzle-orm';
 import { decryptCredential } from './credentialService.js';
 import { getCaldavCredentials } from './db.js';
 import {
+import { getDb } from './db.js';
   createCampaign,
   getCampaign,
   getAllCampaigns,
@@ -231,7 +232,7 @@ export const outreachRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const db = ctx.db;
+      const db = await getDb();
 
       // Load drafts with contact email
       const { getEmailDraft } = await import('./outreachDb.js');
