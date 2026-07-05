@@ -18,6 +18,15 @@ module.exports = {
       },
     },
     {
+      name: 'email-send-worker',
+      script: './server/emailSendWorkerDaemon.ts',
+      cwd: '/home/manus02/friday-crm',
+      interpreter: './node_modules/.bin/tsx',
+      env: {
+        NODE_ENV: 'production',
+      },
+    },
+    {
       name: 'hunter-worker',
       script: './server/hunterWorkerDaemon.ts',
       cwd: '/home/manus02/friday-crm',
@@ -28,4 +37,3 @@ module.exports = {
     },
   ],
 };
-

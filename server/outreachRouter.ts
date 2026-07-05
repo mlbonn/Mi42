@@ -4,6 +4,10 @@
 
 import { z } from "zod";
 import { router, protectedProcedure } from "./_core/trpc";
+import { emailSendQueue } from '../drizzle/schema.js';
+import { eq } from 'drizzle-orm';
+import { decryptCredential } from './credentialService.js';
+import { getCaldavCredentials } from './db.js';
 import {
   createCampaign,
   getCampaign,
@@ -220,23 +224,58 @@ export const outreachRouter = router({
       return { success: true };
     }),
 
-  bulkSend: protectedProcedure
+    bulkSend: protectedProcedure
     .input(
       z.object({
         draftIds: z.array(z.string()),
       })
     )
     .mutation(async ({ input, ctx }) => {
-      // In production, integrate with email service
-      console.log(`[OutreachRouter] Sending ${input.draftIds.length} emails`);
+      const db = ctx.db;
 
+      // Load drafts with contact email
+      const { getEmailDraft } = await import('./outreachDb.js');
+      const queueJobs: { id: string; draftId: string; userId: string; toAddress: string; subject: string; body: string }[] = [];
+
+      for (const draftId of input.draftIds) {
+        const draft = await getEmailDraft(draftId);
+        if (!draft) continue;
+
+        // Resolve toAddress from contactId
+        let toAddress: string | null = null;
+        if (draft.contactId) {
+          const contacts = await db.query?.contacts?.findFirst
+            ? await (db as any).query.contacts.findFirst({ where: (c: any, { eq: eqFn }: any) => eqFn(c.id, draft.contactId) })
+            : null;
+          toAddress = contacts?.email ?? null;
+        }
+        if (!toAddress) {
+          console.warn(`[bulkSend] No email for draft ${draftId}, skipping`);
+          continue;
+        }
+
+        queueJobs.push({
+          id: crypto.randomUUID(),
+          draftId,
+          userId: ctx.user.id,
+          toAddress,
+          subject: draft.subject ?? '',
+          body: draft.body ?? '',
+        });
+      }
+
+      if (queueJobs.length > 0) {
+        await db.insert(emailSendQueue).values(queueJobs);
+      }
+
+      // Mark drafts as queued
       await bulkUpdateEmailDrafts(input.draftIds, {
-        reviewStatus: "sent",
-        sentAt: new Date(),
+        reviewStatus: "queued" as any,
         sentBy: ctx.user.id,
       });
 
-      return { success: true };
+      console.log(`[OutreachRouter] Queued ${queueJobs.length} emails for sending`);
+      return { success: true, queued: queueJobs.length };
     }),
 
   // ============================================================================

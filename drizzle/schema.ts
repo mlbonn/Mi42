@@ -670,7 +670,7 @@ export const emailDrafts = mysqlTable("email_drafts", {
   personalizationData: json("personalizationData"), // News, LinkedIn posts, etc.
   
   // Review
-  reviewStatus: mysqlEnum("reviewStatus", ["pending", "approved", "rejected", "sent"]).default("pending").notNull(),
+  reviewStatus: mysqlEnum("reviewStatus", ["pending", "approved", "rejected", "queued", "sent"]).default("pending").notNull(),
   reviewedBy: varchar("reviewedBy", { length: 64 }),
   reviewedAt: timestamp("reviewedAt"),
   
@@ -1147,3 +1147,27 @@ export const sessions = mysqlTable("sessions", {
 
 export type Session = typeof sessions.$inferSelect;
 export type InsertSession = typeof sessions.$inferInsert;
+
+// ============================================================================
+// EMAIL SEND QUEUE - Serien-E-Mail-Warteschlange
+// ============================================================================
+export const emailSendQueue = mysqlTable("email_send_queue", {
+  id: varchar("id", { length: 64 }).primaryKey().$defaultFn(() => crypto.randomUUID()),
+  draftId: varchar("draftId", { length: 64 }),
+  userId: varchar("userId", { length: 64 }).notNull(),
+  toAddress: varchar("toAddress", { length: 255 }).notNull(),
+  subject: varchar("subject", { length: 500 }),
+  body: text("body"),
+  status: mysqlEnum("status", ["pending", "sending", "sent", "failed"]).default("pending").notNull(),
+  attempts: int("attempts").default(0).notNull(),
+  maxAttempts: int("maxAttempts").default(3).notNull(),
+  scheduledAt: timestamp("scheduledAt").defaultNow().notNull(),
+  sentAt: timestamp("sentAt"),
+  errorMessage: text("errorMessage"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  statusScheduledIdx: index("esq_status_scheduled_idx").on(table.status, table.scheduledAt),
+  draftIdx: index("esq_draft_idx").on(table.draftId),
+}));
+export type EmailSendQueueJob = typeof emailSendQueue.$inferSelect;
+export type InsertEmailSendQueueJob = typeof emailSendQueue.$inferInsert;
