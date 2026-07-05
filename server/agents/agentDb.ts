@@ -1,11 +1,35 @@
-import { and, eq, lt } from 'drizzle-orm';
 import { getDb } from '../db';
-import {
-  agentJobs,
-  agentRuns,
-  agentSuggestions,
-  agentToolCalls,
-} from '../../../../..//';
+import { agentJobs, agentRuns, agentToolCalls, agentSuggestions } from '../../drizzle/schema';
+import { eq, and, lt } from 'drizzle-orm';
+
+// ─── Job Enqueue ─────────────────────────────────────────────────────────────
+
+export async function enqueueAgentJob(params: {
+  type: string;
+  entityType?: string;
+  entityId?: string;
+  payload?: Record<string, unknown>;
+  priority?: number;
+  createdBy?: string;
+}) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const id = crypto.randomUUID();
+  await db.insert(agentJobs).values({
+    id,
+    type: params.type,
+    entityType: params.entityType,
+    entityId: params.entityId,
+    payload: params.payload ?? {},
+    priority: params.priority ?? 5,
+    status: 'pending',
+    createdBy: params.createdBy,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+  return id;
+}
 
 // ─── Atomic Job Claiming ─────────────────────────────────────────────────────
 
@@ -205,36 +229,6 @@ export async function saveAgentSuggestion(params: {
     confidence: params.confidence ? String(params.confidence) : null,
     status: 'pending',
     createdAt: new Date(),
-  });
-  return id;
-}
-
-// ─── Job Enqueueing ──────────────────────────────────────────────────────────
-
-export async function enqueueAgentJob(params: {
-  id?: string;
-  type: string;
-  entityType?: string;
-  entityId?: string;
-  payload?: unknown;
-  priority?: number;
-  scheduledAt?: Date;
-}) {
-  const db = await getDb();
-  if (!db) return null;
-
-  const id = params.id ?? crypto.randomUUID();
-  await db.insert(agentJobs).values({
-    id,
-    type: params.type,
-    entityType: params.entityType,
-    entityId: params.entityId,
-    payload: params.payload as Record<string, unknown>,
-    priority: params.priority ?? 5,
-    status: 'pending',
-    scheduledAt: params.scheduledAt ?? new Date(),
-    createdAt: new Date(),
-    updatedAt: new Date(),
   });
   return id;
 }
