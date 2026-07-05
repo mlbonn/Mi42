@@ -1,6 +1,6 @@
-# Firmenprofil: Egger Building Products GmbH
+# Firmenprofil: Egger Holzwerkstoffe Wismar GmbH & CO.KG
 
-**Generiert:** 2026-07-05T18:42:59.475Z
+**Generiert:** 2026-07-05T18:42:59.363Z
 **Agent:** company_enrichment v1.0
 
 ---
@@ -9,26 +9,26 @@
 
 | Feld | Wert |
 |---|---|
-| Branche | Holzwerkstoffhersteller |
-| Mitarbeiter | 12000 |
+| Branche | – |
+| Mitarbeiter | – |
 | Website | – |
-| Stadt | St. Johann in Tirol |
-| Land | AT |
+| Stadt | Wismar |
+| Land | DE |
 | Segment | – |
-| Unternehmensgröße | Großunternehmen |
+| Unternehmensgröße | – |
 | Umsatz (EUR) | – |
 
 ---
 
 ## Marktposition
 
-führender Holzwerkstoffhersteller
+_Keine belastbaren Informationen gefunden._
 
 ---
 
 ## Standorte
 
-22 Standorte in 11 Ländern
+Brilon, Wismar, Gifhorn, Bünde, Marienmünster, Bevern, Markt Bibart
 
 ---
 
@@ -40,7 +40,7 @@ _Keine belastbaren Informationen gefunden._
 
 ## Relevante Zielmärkte (Bau/Renovierung)
 
-Möbelindustrie, Holz-Fachhandel, Baumärkte, DIY-Geschäfte
+Möbel- und Innenausbau, Holzbau, Fußbodenbereich
 
 ---
 
@@ -48,9 +48,7 @@ Möbelindustrie, Holz-Fachhandel, Baumärkte, DIY-Geschäfte
 
 | Feld | Quelle | Abgerufen |
 |---|---|---|
-| industry | DuckDuckGo-Suche (Egger Building Products GmbH) | 2026-07-05 |
-| employeeCount | DuckDuckGo-Suche (Egger Building Products GmbH) | 2026-07-05 |
-| companySize | DuckDuckGo-Suche (Egger Building Products GmbH) | 2026-07-05 |
+_(keine angereicherten Felder)_
 
 ---
 

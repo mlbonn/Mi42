@@ -1,6 +1,6 @@
 # Firmenprofil: Fritz Egger GmbH & Co.
 
-**Generiert:** 2026-07-05T18:41:35.388Z
+**Generiert:** 2026-07-05T18:42:52.110Z
 **Agent:** company_enrichment v1.0
 
 ---
@@ -9,8 +9,8 @@
 
 | Feld | Wert |
 |---|---|
-| Branche | – |
-| Mitarbeiter | – |
+| Branche | Holzverarbeitung |
+| Mitarbeiter | 11000 |
 | Website | – |
 | Stadt | Wörgl |
 | Land | AT |
@@ -22,13 +22,13 @@
 
 ## Marktposition
 
-_Keine belastbaren Informationen gefunden._
+international führend
 
 ---
 
 ## Standorte
 
-_Keine belastbaren Informationen gefunden._
+22 Standorte weltweit
 
 ---
 
@@ -40,7 +40,7 @@ _Keine belastbaren Informationen gefunden._
 
 ## Relevante Zielmärkte (Bau/Renovierung)
 
-_Keine belastbaren Informationen gefunden._
+Möbelindustrie, Holz- und Bodenbelagshandel, Baumärkte
 
 ---
 
@@ -48,7 +48,8 @@ _Keine belastbaren Informationen gefunden._
 
 | Feld | Quelle | Abgerufen |
 |---|---|---|
-_(keine angereicherten Felder)_
+| industry | DuckDuckGo-Suche (Fritz Egger GmbH & Co.) | 2026-07-05 |
+| employeeCount | DuckDuckGo-Suche (Fritz Egger GmbH & Co.) | 2026-07-05 |
 
 ---
 

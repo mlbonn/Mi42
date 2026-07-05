@@ -1,6 +1,6 @@
 # Firmenprofil: EGGER Retail Products GmbH & Co. KG
 
-**Generiert:** 2026-07-05T18:41:15.340Z
+**Generiert:** 2026-07-05T18:42:52.666Z
 **Agent:** company_enrichment v1.0
 
 ---
@@ -9,11 +9,11 @@
 
 | Feld | Wert |
 |---|---|
-| Branche | – |
+| Branche | Herstellung von Laminatfußböden |
 | Mitarbeiter | – |
 | Website | – |
-| Stadt | – |
-| Land | – |
+| Stadt | Brilon |
+| Land | DE |
 | Segment | – |
 | Unternehmensgröße | – |
 | Umsatz (EUR) | – |
@@ -22,25 +22,25 @@
 
 ## Marktposition
 
-_Keine belastbaren Informationen gefunden._
+Einer der führenden europäischen Hersteller von Laminatfußböden mit einem Marktanteil von etwa 12%
 
 ---
 
 ## Standorte
 
-_Keine belastbaren Informationen gefunden._
+Brilon, Wismar, Gifhorn, Bünde, Marienmünster, Bevern, Markt Bibart (alle Deutschland)
 
 ---
 
 ## Jüngste Entwicklungen
 
-_Keine belastbaren Informationen gefunden._
+In elf Jahren zu einem der führenden europäischen Hersteller von Laminatfußböden gewachsen.
 
 ---
 
 ## Relevante Zielmärkte (Bau/Renovierung)
 
-_Keine belastbaren Informationen gefunden._
+Möbel- und Innenausbau, Holzbau, Fußbodenbereich (weltweit, Europa und Amerika)
 
 ---
 
@@ -48,7 +48,9 @@ _Keine belastbaren Informationen gefunden._
 
 | Feld | Quelle | Abgerufen |
 |---|---|---|
-_(keine angereicherten Felder)_
+| industry | DuckDuckGo-Suche (EGGER Retail Products GmbH & Co. KG) | 2026-07-05 |
+| city | DuckDuckGo-Suche (EGGER Retail Products GmbH & Co. KG) | 2026-07-05 |
+| country | DuckDuckGo-Suche (EGGER Retail Products GmbH & Co. KG) | 2026-07-05 |
 
 ---
 

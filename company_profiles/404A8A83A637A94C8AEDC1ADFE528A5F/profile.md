@@ -1,6 +1,6 @@
 # Firmenprofil: Fritz Egger GmbH & Co. OG
 
-**Generiert:** 2026-07-05T18:41:40.257Z
+**Generiert:** 2026-07-05T18:42:47.928Z
 **Agent:** company_enrichment v1.0
 
 ---
@@ -9,8 +9,8 @@
 
 | Feld | Wert |
 |---|---|
-| Branche | – |
-| Mitarbeiter | – |
+| Branche | Holzverarbeitung |
+| Mitarbeiter | 12000 |
 | Website | – |
 | Stadt | St. Johann in Tirol |
 | Land | AT |
@@ -22,13 +22,13 @@
 
 ## Marktposition
 
-_Keine belastbaren Informationen gefunden._
+international führend
 
 ---
 
 ## Standorte
 
-_Keine belastbaren Informationen gefunden._
+22 Produktionsstandorte weltweit
 
 ---
 
@@ -48,7 +48,8 @@ _Keine belastbaren Informationen gefunden._
 
 | Feld | Quelle | Abgerufen |
 |---|---|---|
-_(keine angereicherten Felder)_
+| industry | DuckDuckGo-Suche (Fritz Egger GmbH & Co. OG) | 2026-07-05 |
+| employeeCount | DuckDuckGo-Suche (Fritz Egger GmbH & Co. OG) | 2026-07-05 |
 
 ---
 

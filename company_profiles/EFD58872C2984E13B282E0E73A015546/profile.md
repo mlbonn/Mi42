@@ -1,6 +1,6 @@
 # Firmenprofil: Egger
 
-**Generiert:** 2026-07-05T18:41:41.145Z
+**Generiert:** 2026-07-05T18:42:59.856Z
 **Agent:** company_enrichment v1.0
 
 ---
@@ -9,10 +9,10 @@
 
 | Feld | Wert |
 |---|---|
-| Branche | – |
-| Mitarbeiter | – |
+| Branche | Holzwerkstoffe |
+| Mitarbeiter | 12000 |
 | Website | – |
-| Stadt | – |
+| Stadt | St. Johann in Tirol |
 | Land | RU |
 | Segment | – |
 | Unternehmensgröße | – |
@@ -22,13 +22,13 @@
 
 ## Marktposition
 
-_Keine belastbaren Informationen gefunden._
+führenden Holzwerkstoffherstellern
 
 ---
 
 ## Standorte
 
-_Keine belastbaren Informationen gefunden._
+22 Standorte in 11 Ländern
 
 ---
 
@@ -40,7 +40,7 @@ _Keine belastbaren Informationen gefunden._
 
 ## Relevante Zielmärkte (Bau/Renovierung)
 
-_Keine belastbaren Informationen gefunden._
+Möbelindustrie, Holz-Fachhandel, Baumärkte, DIY-Geschäfte, konstruktiver Holzbau, Bodenbelagshandel
 
 ---
 
@@ -48,7 +48,9 @@ _Keine belastbaren Informationen gefunden._
 
 | Feld | Quelle | Abgerufen |
 |---|---|---|
-_(keine angereicherten Felder)_
+| industry | DuckDuckGo-Suche (Egger) | 2026-07-05 |
+| employeeCount | DuckDuckGo-Suche (Egger) | 2026-07-05 |
+| city | DuckDuckGo-Suche (Egger) | 2026-07-05 |
 
 ---
 

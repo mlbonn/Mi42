@@ -1,6 +1,6 @@
 # Firmenprofil: EGGER Osteuropa Beteiligungsverwaltung GmbH
 
-**Generiert:** 2026-07-05T18:41:25.673Z
+**Generiert:** 2026-07-05T18:42:51.608Z
 **Agent:** company_enrichment v1.0
 
 ---
@@ -28,7 +28,7 @@ _Keine belastbaren Informationen gefunden._
 
 ## Standorte
 
-_Keine belastbaren Informationen gefunden._
+St. Johann in Tirol
 
 ---
 

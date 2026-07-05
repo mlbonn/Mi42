@@ -1,6 +1,6 @@
 # Firmenprofil: TechVision Consulting AG
 
-**Generiert:** 2026-07-05T18:41:35.446Z
+**Generiert:** 2026-07-05T18:42:47.029Z
 **Agent:** company_enrichment v1.0
 
 ---
@@ -9,12 +9,12 @@
 
 | Feld | Wert |
 |---|---|
-| Branche | – |
+| Branche | IT-Beratung |
 | Mitarbeiter | – |
 | Website | https://consulting.techvision.de |
 | Stadt | Berlin |
 | Land | DE |
-| Segment | – |
+| Segment | Softwareentwicklung, Technologieberatung, KI-Beratung, SAP-Beratung |
 | Unternehmensgröße | – |
 | Umsatz (EUR) | 80000000 |
 
@@ -48,7 +48,8 @@ _Keine belastbaren Informationen gefunden._
 
 | Feld | Quelle | Abgerufen |
 |---|---|---|
-_(keine angereicherten Felder)_
+| industry | DuckDuckGo-Suche (TechVision Consulting AG) | 2026-07-05 |
+| branch | DuckDuckGo-Suche (TechVision Consulting AG) | 2026-07-05 |
 
 ---
 
