@@ -1,6 +1,6 @@
 import { eq, and, or, desc, sql, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { createPool } from "mysql2/promise";
+import { createPool } from "mysql2";
 import { 
   InsertUser, users,
   corporations, companies, contacts, contactCompanyRelations, contactEmails,
