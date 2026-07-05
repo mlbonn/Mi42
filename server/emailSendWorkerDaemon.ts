@@ -136,7 +136,7 @@ async function processNextJob(): Promise<{ processed: boolean; error?: string }>
     if (!creds) throw new Error(`No email credentials for userId=${job.userId}`);
 
     const fromEmail = creds.email;
-    const fromPassword = decryptCredential(creds.passwordEncrypted);
+    const fromPassword = creds.password; // getCaldavCredentials already decrypts
 
     // Send
     await sendViaSmarterMail({

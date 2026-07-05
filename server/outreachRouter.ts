@@ -4,7 +4,7 @@
 
 import { z } from "zod";
 import { router, protectedProcedure } from "./_core/trpc";
-import { emailSendQueue } from '../drizzle/schema.js';
+import { emailSendQueue, contacts } from '../drizzle/schema.js';
 import { eq } from 'drizzle-orm';
 import { decryptCredential } from './credentialService.js';
 import { getCaldavCredentials, getDb } from './db.js';
@@ -243,11 +243,13 @@ export const outreachRouter = router({
 
         // Resolve toAddress from contactId
         let toAddress: string | null = null;
-        if (draft.contactId) {
-          const contacts = await db.query?.contacts?.findFirst
-            ? await (db as any).query.contacts.findFirst({ where: (c: any, { eq: eqFn }: any) => eqFn(c.id, draft.contactId) })
-            : null;
-          toAddress = contacts?.email ?? null;
+        if (draft.contactId && db) {
+          const rows = await db
+            .select({ email: contacts.email })
+            .from(contacts)
+            .where(eq(contacts.id, draft.contactId!))
+            .limit(1);
+          toAddress = rows[0]?.email ?? null;
         }
         if (!toAddress) {
           console.warn(`[bulkSend] No email for draft ${draftId}, skipping`);
@@ -265,6 +267,7 @@ export const outreachRouter = router({
       }
 
       if (queueJobs.length > 0) {
+        if (!db) throw new Error('Database not available');
         await db.insert(emailSendQueue).values(queueJobs);
       }
 
