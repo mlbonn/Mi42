@@ -1,4 +1,5 @@
 import { router, publicProcedure } from "./_core/trpc";
+import { agentJobs } from "../drizzle/schema";
 import { z } from "zod";
 import {
   getAllCompanies,
@@ -6,6 +7,7 @@ import {
   getCompaniesByCorporation,
   createCompany,
   updateCompany,
+  getDb,
 } from "./db";
 
 // Zod Schema für alle Company-Felder
@@ -142,7 +144,26 @@ export const companiesRouter = router({
       }).merge(companySchema.partial())
     )
     .mutation(async ({ input }) => {
-      return await createCompany(input as any);
+      const newCompany = await createCompany(input as any);
+      // Enrichment-Job einreihen
+      try {
+        const db = getDb();
+        if (db && newCompany?.id) {
+          await db.insert(agentJobs).values({
+            id: crypto.randomUUID(),
+            type: "company_enrichment",
+            entityType: "company",
+            entityId: newCompany.id,
+            payload: { companyName: newCompany.name },
+            priority: 5,
+            status: "pending",
+            scheduledAt: new Date(),
+          });
+        }
+      } catch (e) {
+        console.error("[companiesRouter] Failed to queue enrichment job:", e);
+      }
+      return newCompany;
     }),
 
   // Update company

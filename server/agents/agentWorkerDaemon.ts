@@ -123,3 +123,59 @@ setTimeout(() => {
   cleanupExpiredSessions();
   setInterval(cleanupExpiredSessions, SESSION_CLEANUP_INTERVAL_MS);
 }, 60 * 60 * 1000);
+
+// ── Periodischer Enrichment-Cron (alle 24h) ──────────────────────────────────
+async function scheduleStaleEnrichmentJobs(): Promise<void> {
+  try {
+    const { getDb } = await import('../db');
+    const { companies: companiesTable, agentJobs: agentJobsTable } = await import('../../drizzle/schema');
+    const { sql: sqlTag, and: andOp, inArray: inArrayOp, eq: eqOp } = await import('drizzle-orm');
+    const db = await getDb();
+    if (!db) return;
+    const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const stale = await db
+      .select({ id: companiesTable.id, name: companiesTable.name })
+      .from(companiesTable)
+      .where(
+        sqlTag`(${companiesTable.enrichedAt} IS NULL OR ${companiesTable.enrichedAt} < ${cutoff})
+            AND ${companiesTable.deactivated} = 0`
+      )
+      .limit(50);
+
+    for (const c of stale) {
+      const existing = await db
+        .select({ id: agentJobsTable.id })
+        .from(agentJobsTable)
+        .where(
+          andOp(
+            eqOp(agentJobsTable.entityId, c.id),
+            eqOp(agentJobsTable.type, 'company_enrichment'),
+            inArrayOp(agentJobsTable.status, ['pending', 'processing'])
+          )
+        )
+        .limit(1);
+      if (existing.length === 0) {
+        await db.insert(agentJobsTable).values({
+          id: crypto.randomUUID(),
+          type: 'company_enrichment',
+          entityType: 'company',
+          entityId: c.id,
+          payload: { entityId: c.id, companyName: c.name },
+          priority: 3,
+          status: 'pending',
+          scheduledAt: new Date(),
+        });
+      }
+    }
+    if (stale.length > 0) {
+      console.log(`[agentWorkerDaemon] Queued ${stale.length} stale enrichment jobs`);
+    }
+  } catch (e) {
+    console.error('[agentWorkerDaemon] scheduleStaleEnrichmentJobs error:', e);
+  }
+}
+
+// Stale enrichment jobs alle 24h einreihen
+setInterval(scheduleStaleEnrichmentJobs, 24 * 60 * 60 * 1000);
+// Sofort beim Start (mit 10s Verzögerung damit DB bereit ist)
+setTimeout(scheduleStaleEnrichmentJobs, 10_000);

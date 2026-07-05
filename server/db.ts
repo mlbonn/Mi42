@@ -271,8 +271,10 @@ export async function createCompany(data: Omit<Company, 'id' | 'createdAt' | 'up
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const result = await db.insert(companies).values(data);
-  return result;
+  const id = (data as Record<string, unknown>).id as string | undefined ?? crypto.randomUUID();
+  const dataWithId = { ...data, id };
+  await db.insert(companies).values(dataWithId as typeof data);
+  return { id, name: dataWithId.name };
 }
 
 export async function updateCompany(id: string, data: Partial<Omit<Company, 'id' | 'createdAt' | 'updatedAt'>>) {

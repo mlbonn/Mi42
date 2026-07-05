@@ -74,7 +74,7 @@ export async function runAgentJob(job: {
   let runId: string | undefined;
 
   try {
-    const input = await agent.buildInput(job.payload as never);
+    const input = await (agent as any).buildInput(job.payload as never);
 
     runId = await createAgentRun({
       jobId: job.id,
@@ -86,7 +86,7 @@ export async function runAgentJob(job: {
     // LLM-Aufruf mit Timeout + Retry
     const output = await runWithRetry(
       () => withTimeout(
-        agent.run({ jobId: job.id, runId: runId!, input }),
+        (agent as any).run({ jobId: job.id, runId: runId!, input }),
         LLM_TIMEOUT_MS,
         `${agent.name}.run`
       ),

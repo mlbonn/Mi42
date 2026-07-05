@@ -11,7 +11,8 @@ import {
   addContactToCompany,
   getDb,
 } from "./db";
-import { archivedEmails } from "../drizzle/schema";
+import { archivedEmails   archivedEmailAttachments,
+} from "../drizzle/schema";
 import { eq, desc } from "drizzle-orm";
 
 export const contactsRouter = router({
@@ -283,7 +284,7 @@ export const contactsRouter = router({
   getArchivedEmailAttachments: publicProcedure
     .input(z.object({ archivedEmailId: z.number() }))
     .query(async ({ input }) => {
-      const db = getDb();
+      const db = await getDb();
       if (!db) throw new Error("DB not available");
       const rows = await db
         .select()

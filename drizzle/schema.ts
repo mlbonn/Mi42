@@ -120,6 +120,8 @@ export const companies = mysqlTable("companies", {
   domain: varchar("domain", { length: 255 }),
   addressFormat: varchar("addressFormat", { length: 10 }),
   branch: varchar("branch", { length: 100 }),
+  industry: varchar("industry", { length: 100 }),
+  employeeCount: int("employeeCount"),
   city2: varchar("city2", { length: 100 }),
   companySize: varchar("companySize", { length: 100 }),
   deactivated: boolean("deactivated").default(false),
@@ -138,6 +140,8 @@ export const companies = mysqlTable("companies", {
   taxId: varchar("taxId", { length: 30 }),
   website2: varchar("website2", { length: 255 }),
   zip2: varchar("zip2", { length: 20 }),
+  profilePath: varchar("profilePath", { length: 500 }),
+  enrichedAt: timestamp("enrichedAt"),
 }, (table) => ({
   corporationIdx: index("companies_corporation_idx").on(table.corporationId),
   nameIdx: index("companies_name_idx").on(table.name),

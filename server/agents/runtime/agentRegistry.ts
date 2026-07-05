@@ -1,7 +1,9 @@
 import { replyClassifierAgent } from "../agents/replyClassifierAgent";
+import { companyEnrichmentAgent } from "../agents/companyEnrichmentAgent";
 
 export const agentRegistry = {
   [replyClassifierAgent.jobType]: replyClassifierAgent,
+  [companyEnrichmentAgent.jobType]: companyEnrichmentAgent,
 };
 
 export function getAgentByJobType(jobType: string) {
