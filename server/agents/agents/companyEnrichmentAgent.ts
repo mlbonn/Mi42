@@ -43,6 +43,27 @@ export const CompanyEnrichmentOutput = z.object({
 
 export type CompanyEnrichmentOutput = z.infer<typeof CompanyEnrichmentOutput>;
 
+// ── Eingabe-Typ ───────────────────────────────────────────────────────────────
+
+type EnrichInput = {
+  entityId: string;
+  entityType: string;
+  companyName?: string;
+  payload?: Record<string, unknown>;
+};
+
+// ── Hilfsfunktionen ───────────────────────────────────────────────────────────
+
+const PROFILES_BASE = process.env.PROFILES_DIR ?? process.cwd();
+
+function ensureProfileDir(companyId: string): string {
+  const dir = path.join(PROFILES_BASE, "company_profiles", companyId);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+  return dir;
+}
+
 // ── LLM-Client ───────────────────────────────────────────────────────────────
 
 const LLM_URL =
@@ -194,8 +215,7 @@ ${data.AbstractText}`);
           .slice(0, 3)
           .map((t) => t.Text ?? "")
           .filter(Boolean)
-          .join("
-");
+          .join("\n");
         if (related) sources.push(`=== DuckDuckGo Related ===
 ${related}`);
       }
@@ -434,6 +454,7 @@ export const companyEnrichmentAgent = {
     }
     return {
       entityId: p.entityId,
+      entityType: "company",
       companyName: typeof p.companyName === "string" ? p.companyName : undefined,
     };
   },
