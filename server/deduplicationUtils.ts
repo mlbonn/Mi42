@@ -1,7 +1,7 @@
 // Deduplication Utilities for FRIDAY CRM
 // Provides domain and email-based duplicate detection
 
-import { db } from './db';
+import { getDb } from './db';
 
 /**
  * Extract domain from URL or email
@@ -51,7 +51,7 @@ export async function findDuplicateCorporationsByDomain(
   
   const params = excludeId ? [domain, excludeId] : [domain];
   
-  return await db.query(query, params);
+  return await ((await getDb())!.$client as any).query(query, params);
 }
 
 /**
@@ -69,7 +69,7 @@ export async function findDuplicateCompaniesByDomain(
   
   const params = excludeId ? [domain, excludeId] : [domain];
   
-  return await db.query(query, params);
+  return await ((await getDb())!.$client as any).query(query, params);
 }
 
 /**
@@ -96,14 +96,14 @@ export async function findDuplicateContactsByEmail(
     ? [emailLower, emailLower, emailLower, emailLower, emailLower, excludeId]
     : [emailLower, emailLower, emailLower, emailLower, emailLower];
   
-  return await db.query(query, params);
+  return await ((await getDb())!.$client as any).query(query, params);
 }
 
 /**
  * Get all child corporations
  */
 export async function getChildCorporations(parentId: string): Promise<any[]> {
-  return await db.query(
+  return await ((await getDb())!.$client as any).query(
     `SELECT id, name, status, priority, country, totalRevenueEur 
      FROM corporations 
      WHERE parent_corporation_id = ?
@@ -116,7 +116,7 @@ export async function getChildCorporations(parentId: string): Promise<any[]> {
  * Get all child companies
  */
 export async function getChildCompanies(parentId: string): Promise<any[]> {
-  return await db.query(
+  return await ((await getDb())!.$client as any).query(
     `SELECT id, name, city, country, revenueEur 
      FROM companies 
      WHERE parent_company_id = ?
@@ -129,7 +129,7 @@ export async function getChildCompanies(parentId: string): Promise<any[]> {
  * Get parent corporation
  */
 export async function getParentCorporation(childId: string): Promise<any | null> {
-  const results = await db.query(
+  const results = await ((await getDb())!.$client as any).query(
     `SELECT c2.id, c2.name, c2.status, c2.priority 
      FROM corporations c1
      JOIN corporations c2 ON c1.parent_corporation_id = c2.id
@@ -144,7 +144,7 @@ export async function getParentCorporation(childId: string): Promise<any | null>
  * Get parent company
  */
 export async function getParentCompany(childId: string): Promise<any | null> {
-  const results = await db.query(
+  const results = await ((await getDb())!.$client as any).query(
     `SELECT c2.id, c2.name, c2.city, c2.country 
      FROM companies c1
      JOIN companies c2 ON c1.parent_company_id = c2.id
@@ -163,7 +163,7 @@ export async function getCorporationHierarchy(corporationId: string): Promise<{
   current: any;
   children: any[];
 }> {
-  const current = await db.query(
+  const current = await ((await getDb())!.$client as any).query(
     `SELECT * FROM corporations WHERE id = ?`,
     [corporationId]
   );
@@ -190,7 +190,7 @@ export async function getCompanyHierarchy(companyId: string): Promise<{
   current: any;
   children: any[];
 }> {
-  const current = await db.query(
+  const current = await ((await getDb())!.$client as any).query(
     `SELECT * FROM companies WHERE id = ?`,
     [companyId]
   );
@@ -230,7 +230,7 @@ export async function validateNoCircularReference(
   const maxDepth = 10; // Prevent infinite loops
   
   while (currentId && depth < maxDepth) {
-    const result = await db.query(
+    const result = await ((await getDb())!.$client as any).query(
       `SELECT ${parentField} FROM ${table} WHERE id = ?`,
       [currentId]
     );

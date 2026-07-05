@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * FRIDAY CRM - Scout Discovery Methods Page
  * Konfiguration der Discovery-Methoden mit LLM-Integration

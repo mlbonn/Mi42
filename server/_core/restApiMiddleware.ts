@@ -134,7 +134,6 @@ router.post("/contacts", async (req, res) => {
     // Create contact
     const contactId = crypto.randomUUID();
     const newContact = {
-      id: contactId,
       firstName,
       lastName,
       jobTitle: position || null,
@@ -153,7 +152,6 @@ router.post("/contacts", async (req, res) => {
     }
 
     res.status(201).json({
-      id: contactId,
       ...newContact,
     });
   } catch (error) {
@@ -198,8 +196,8 @@ router.post("/activities", async (req, res) => {
     const newActivity = {
       id: activityId,
       contactId,
-      companyId: contact.companyId || null,
-      corporationId: null, // Will be set if company has corporation
+      companyId: (contact as any).companyId || null,
+      corporationId: null as any, // Will be set if company has corporation
       subject: subject || "",
       content: content || "",
       activityType: type || "email",
@@ -210,14 +208,14 @@ router.post("/activities", async (req, res) => {
     };
 
     // If contact has company, get corporation
-    if (contact.companyId) {
-      const company = await getCompany(contact.companyId);
+    if ((contact as any).companyId) {
+      const company = await getCompany((contact as any).companyId);
       if (company && company.corporationId) {
         newActivity.corporationId = company.corporationId;
       }
     }
 
-    await dbCreateActivity(newActivity);
+    await dbCreateActivity(newActivity as any);
 
     res.status(201).json({
       id: activityId,

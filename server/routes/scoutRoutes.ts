@@ -44,8 +44,8 @@ router.get("/queue", async (req, res) => {
 
     // Sort in JavaScript instead
     jobs.sort((a, b) => {
-      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      const dateA = a.scheduledAt ? new Date(a.scheduledAt).getTime() : 0;
+      const dateB = b.scheduledAt ? new Date(b.scheduledAt).getTime() : 0;
       return dateB - dateA; // DESC order
     });
 
@@ -73,7 +73,6 @@ router.post("/queue/:id/retry", async (req, res) => {
       .set({
         status: "pending",
         errorMessage: null,
-        updatedAt: new Date(),
       })
       .where(eq(scoutQueue.id, id));
 

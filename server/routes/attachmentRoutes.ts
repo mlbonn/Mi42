@@ -56,6 +56,7 @@ router.post("/upload", upload.single("file"), async (req, res) => {
 
     // Insert into database
     const db = await getDb();
+    if (!db) return res.status(500).json({ error: "Database not available" });
     const attachmentId = crypto.randomUUID();
     await db.insert(attachments).values({
       id: attachmentId,
@@ -103,6 +104,7 @@ router.get("/:id/download", async (req, res) => {
     const { id } = req.params;
 
     const db = await getDb();
+    if (!db) throw new Error("Database not available");
     const results = await db
       .select()
       .from(attachments)

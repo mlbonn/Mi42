@@ -6,6 +6,28 @@ import { SignJWT, jwtVerify } from "jose";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 
+
+// Simple in-memory rate limiter for login endpoint
+const _loginAttempts = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
+const RATE_LIMIT_MAX = 10; // max 10 attempts per window per IP
+
+function _checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const entry = _loginAttempts.get(ip);
+  if (!entry || now > entry.resetAt) {
+    _loginAttempts.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return true;
+  }
+  if (entry.count >= RATE_LIMIT_MAX) return false;
+  entry.count++;
+  return true;
+}
+
+function _clearRateLimit(ip: string) {
+  _loginAttempts.delete(ip);
+}
+
 const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET!
 );
@@ -24,6 +46,11 @@ export const simpleAuthRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
+      // Rate limiting: max 10 attempts per IP per 15 minutes
+      const clientIp = (ctx.req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || ctx.req.socket?.remoteAddress || 'unknown';
+      if (!_checkRateLimit(clientIp)) {
+        throw new Error('Too many login attempts. Please try again in 15 minutes.');
+      }
       const { username, password } = input;
       const db = await getDb();
       if (!db) {
@@ -33,7 +60,7 @@ export const simpleAuthRouter = router({
       const result = await db.execute(
         sql`SELECT id, username, password, passwordHash, name, email, role FROM users WHERE username = ${username} OR email = ${username} LIMIT 1`
       );
-      const users = result[0] as any[];
+      const users = (result as unknown as any[][])[0];
       if (!users || users.length === 0) {
         throw new Error("Invalid username or password");
       }
@@ -88,6 +115,7 @@ export const simpleAuthRouter = router({
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 Tage
         path: "/",
       });
+      _clearRateLimit(clientIp);
       return {
         success: true,
         user: {
@@ -115,7 +143,7 @@ export const simpleAuthRouter = router({
       const sessionResult = await db.execute(
         sql`SELECT id, revokedAt, expiresAt FROM sessions WHERE tokenHash = ${tokenHash} LIMIT 1`
       );
-      const sessions = sessionResult[0] as any[];
+      const sessions = (sessionResult as unknown as any[][])[0];
       if (!sessions || sessions.length === 0) {
         // Kein Session-Row – Token noch gültig (Legacy-Kompatibilität)
         // Wird nach vollständiger Migration entfernt
@@ -142,7 +170,7 @@ export const simpleAuthRouter = router({
       const result = await db.execute(
         sql`SELECT id, username, name, email, role FROM users WHERE id = ${payload.userId as string} LIMIT 1`
       );
-      const users = result[0] as any[];
+      const users = (result as unknown as any[][])[0];
       if (!users || users.length === 0) {
         return null;
       }

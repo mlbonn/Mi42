@@ -16,7 +16,7 @@ export const hunterResultsRouter = router({
       }).optional()
     )
     .query(async ({ ctx, input }) => {
-      await requireStaffOrHigher(ctx);
+      await requireStaffOrHigher(ctx.user?.id || '');
       return db.listHunterResults(input || {});
     }),
 
@@ -24,7 +24,7 @@ export const hunterResultsRouter = router({
   getById: publicProcedure
     .input(z.string())
     .query(async ({ ctx, input }) => {
-      await requireStaffOrHigher(ctx);
+      await requireStaffOrHigher(ctx.user?.id || '');
       return db.getHunterResultById(input);
     }),
 
@@ -37,7 +37,7 @@ export const hunterResultsRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const user = await requireStaffOrHigher(ctx);
+      const user = await requireStaffOrHigher(ctx.user?.id || '');
       return db.updateHunterResultReviewStatus(
         input.id,
         input.reviewStatus,
@@ -49,13 +49,13 @@ export const hunterResultsRouter = router({
   addToCRM: publicProcedure
     .input(z.string())
     .mutation(async ({ ctx, input }) => {
-      const user = await requireStaffOrHigher(ctx);
+      const user = await requireStaffOrHigher(ctx.user?.id || '');
       return db.createContactFromHunterResult(input, user.id);
     }),
 
   // Get stats
   stats: publicProcedure.query(async ({ ctx }) => {
-    await requireStaffOrHigher(ctx);
+    await requireStaffOrHigher(ctx.user?.id || '');
     return db.getHunterResultsStats();
   }),
 });

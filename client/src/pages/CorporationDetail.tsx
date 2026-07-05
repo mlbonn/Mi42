@@ -21,7 +21,7 @@ export default function CorporationDetail() {
     { corporationId: id! },
     { enabled: !!id }
   );
-  const { data: contacts } = trpc.contacts.listByCorporation.useQuery(
+  const { data: contacts } = (trpc.contacts as any).listByCorporation.useQuery(
     { corporationId: id! },
     { enabled: !!id }
   );
@@ -45,38 +45,38 @@ export default function CorporationDetail() {
   const [newDeal, setNewDeal] = useState({ dealName: "", dealValueEur: "", stage: "Qualification", probability: "25" });
 
   // Mutations
-  const createCompany = trpc.companies.create.useMutation({
+  const createCompany = (trpc.companies.create as any).useMutation({
     onSuccess: () => {
       utils.companies.listByCorporation.invalidate({ corporationId: id! });
       setShowAddCompany(false);
       setNewCompany({ name: "", country: "", city: "", website: "" });
       toast.success("Firma erfolgreich hinzugefügt");
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error("Fehler beim Hinzufügen der Firma: " + error.message);
     }
   });
 
-  const createContact = trpc.contacts.create.useMutation({
+  const createContact = (trpc.contacts.create as any).useMutation({
     onSuccess: () => {
-      utils.contacts.listByCorporation.invalidate({ corporationId: id! });
+      (utils.contacts as any).listByCorporation.invalidate({ corporationId: id! });
       setShowAddContact(false);
       setNewContact({ firstName: "", lastName: "", email: "", position: "" });
       toast.success("Kontakt erfolgreich hinzugefügt");
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error("Fehler beim Hinzufügen des Kontakts: " + error.message);
     }
   });
 
-  const createDeal = trpc.deals.create.useMutation({
+  const createDeal = (trpc.deals.create as any).useMutation({
     onSuccess: () => {
       utils.deals.listByCorporation.invalidate({ corporationId: id! });
       setShowAddDeal(false);
       setNewDeal({ dealName: "", dealValueEur: "", stage: "Qualification", probability: "25" });
       toast.success("Deal erfolgreich hinzugefügt");
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error("Fehler beim Hinzufügen des Deals: " + error.message);
     }
   });
@@ -310,7 +310,7 @@ export default function CorporationDetail() {
             </div>
             {contacts && contacts.length > 0 ? (
               <div className="space-y-4">
-                {contacts.map((contact) => (
+                {contacts.map((contact: any) => (
                   <Card key={contact.id} className="border-2 border-gray-300">
                     <CardHeader>
                       <CardTitle className="text-black">{contact.firstName} {contact.lastName}</CardTitle>
@@ -354,7 +354,7 @@ export default function CorporationDetail() {
             </div>
             {deals && deals.length > 0 ? (
               <div className="space-y-4">
-                {deals.map((deal) => (
+                {deals.map((deal: any) => (
                   <Card key={deal.id} className="border-2 border-gray-300">
                     <CardHeader>
                       <CardTitle className="text-black">{deal.dealName}</CardTitle>
@@ -469,7 +469,7 @@ export default function CorporationDetail() {
               <Input
                 id="company-name"
                 value={newCompany.name}
-                onChange={(e) => setNewCompany({ ...newCompany, name: e.target.value })}
+                onChange={(e: any) => setNewCompany({ ...newCompany, name: e.target.value })}
                 placeholder="z.B. Wilo SE"
                 className="border-gray-300"
               />
@@ -479,7 +479,7 @@ export default function CorporationDetail() {
               <Input
                 id="company-country"
                 value={newCompany.country}
-                onChange={(e) => setNewCompany({ ...newCompany, country: e.target.value })}
+                onChange={(e: any) => setNewCompany({ ...newCompany, country: e.target.value })}
                 placeholder="z.B. DE"
                 className="border-gray-300"
               />
@@ -489,7 +489,7 @@ export default function CorporationDetail() {
               <Input
                 id="company-city"
                 value={newCompany.city}
-                onChange={(e) => setNewCompany({ ...newCompany, city: e.target.value })}
+                onChange={(e: any) => setNewCompany({ ...newCompany, city: e.target.value })}
                 placeholder="z.B. Dortmund"
                 className="border-gray-300"
               />
@@ -499,7 +499,7 @@ export default function CorporationDetail() {
               <Input
                 id="company-website"
                 value={newCompany.website}
-                onChange={(e) => setNewCompany({ ...newCompany, website: e.target.value })}
+                onChange={(e: any) => setNewCompany({ ...newCompany, website: e.target.value })}
                 placeholder="z.B. https://wilo.com"
                 className="border-gray-300"
               />
@@ -536,7 +536,7 @@ export default function CorporationDetail() {
               <Input
                 id="contact-firstname"
                 value={newContact.firstName}
-                onChange={(e) => setNewContact({ ...newContact, firstName: e.target.value })}
+                onChange={(e: any) => setNewContact({ ...newContact, firstName: e.target.value })}
                 placeholder="z.B. Max"
                 className="border-gray-300"
               />
@@ -546,7 +546,7 @@ export default function CorporationDetail() {
               <Input
                 id="contact-lastname"
                 value={newContact.lastName}
-                onChange={(e) => setNewContact({ ...newContact, lastName: e.target.value })}
+                onChange={(e: any) => setNewContact({ ...newContact, lastName: e.target.value })}
                 placeholder="z.B. Mustermann"
                 className="border-gray-300"
               />
@@ -557,7 +557,7 @@ export default function CorporationDetail() {
                 id="contact-email"
                 type="email"
                 value={newContact.email}
-                onChange={(e) => setNewContact({ ...newContact, email: e.target.value })}
+                onChange={(e: any) => setNewContact({ ...newContact, email: e.target.value })}
                 placeholder="z.B. max.mustermann@firma.de"
                 className="border-gray-300"
               />
@@ -567,7 +567,7 @@ export default function CorporationDetail() {
               <Input
                 id="contact-position"
                 value={newContact.position}
-                onChange={(e) => setNewContact({ ...newContact, position: e.target.value })}
+                onChange={(e: any) => setNewContact({ ...newContact, position: e.target.value })}
                 placeholder="z.B. Geschäftsführer"
                 className="border-gray-300"
               />
@@ -604,7 +604,7 @@ export default function CorporationDetail() {
               <Input
                 id="deal-name"
                 value={newDeal.dealName}
-                onChange={(e) => setNewDeal({ ...newDeal, dealName: e.target.value })}
+                onChange={(e: any) => setNewDeal({ ...newDeal, dealName: e.target.value })}
                 placeholder="z.B. Pumpen-Projekt Q1 2025"
                 className="border-gray-300"
               />
@@ -615,7 +615,7 @@ export default function CorporationDetail() {
                 id="deal-value"
                 type="number"
                 value={newDeal.dealValueEur}
-                onChange={(e) => setNewDeal({ ...newDeal, dealValueEur: e.target.value })}
+                onChange={(e: any) => setNewDeal({ ...newDeal, dealValueEur: e.target.value })}
                 placeholder="z.B. 50000"
                 className="border-gray-300"
               />
@@ -625,7 +625,7 @@ export default function CorporationDetail() {
               <select
                 id="deal-stage"
                 value={newDeal.stage}
-                onChange={(e) => setNewDeal({ ...newDeal, stage: e.target.value })}
+                onChange={(e: any) => setNewDeal({ ...newDeal, stage: e.target.value })}
                 className="w-full border border-gray-300 rounded-md px-3 py-2"
               >
                 <option value="Qualification">Qualification</option>
@@ -643,7 +643,7 @@ export default function CorporationDetail() {
                 min="0"
                 max="100"
                 value={newDeal.probability}
-                onChange={(e) => setNewDeal({ ...newDeal, probability: e.target.value })}
+                onChange={(e: any) => setNewDeal({ ...newDeal, probability: e.target.value })}
                 placeholder="z.B. 50"
                 className="border-gray-300"
               />

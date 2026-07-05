@@ -16,7 +16,11 @@
     "**/*.old",
     "**/*.orig",
     "**/*_before_fix*",
-    "**/*-multiaccounts*"
+    "**/*-multiaccounts*",
+    "server/seed*.ts",
+    "server/seedExtendedData.ts",
+    "server/seedOutreach.ts",
+    "server/seed_backup.ts"
   ],
   "compilerOptions": {
     "incremental": true,

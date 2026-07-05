@@ -12,7 +12,7 @@ import {
 import { getDb } from './db';
 import { users } from '../drizzle/schema';
 import { eq } from 'drizzle-orm';
-import { decryptPassword } from './encryption';
+import * as db from './db';
 
 // Single color for all users (monochrome Apollo/Notion style)
 const USER_COLOR = '#6b7280'; // gray-500
@@ -78,35 +78,21 @@ async function getAllCalendarConfigs(): Promise<Array<{
   if (!db) return configs;
 
   // Get all FRIDAY users (use their email + password for CalDAV)
+  // Get all FRIDAY users
   const allUsers = await db.select({
     id: users.id,
     email: users.email,
-    passwordHash: users.passwordHash,
-    caldavPassword: users.caldavPassword,
   }).from(users);
-  
   console.log("[CALENDAR] Found", allUsers.length, "users in database");
-
-  // Build configs for each user (use FRIDAY email + decrypted password)
+  // Build configs for each user using getCaldavCredentials
   for (const user of allUsers) {
     if (!user.email) continue;
-    if (!user.passwordHash && !user.caldavPassword) continue;
-
-    // Credential-Entkopplung (PR4): CalDAV-Passwort aus caldavPassword Feld
-    // Legacy-Fallback: passwordHash.split('|') für Altdaten
-    let password: string | null = null;
-    if (user.caldavPassword) {
-      try {
-        password = decryptPassword(user.caldavPassword);
-      } catch (e) {
-        console.warn("[CALENDAR] Failed to decrypt caldavPassword for", user.email, e);
-      }
-    }
-    // Legacy-Fallback (passwordHash.split) wurde entfernt (PR4 Migration abgeschlossen)
-    if (!password) {
-      console.log("[CALENDAR] Skipping user", user.email, "- no CalDAV password available");
+    const creds = await (db as any).getCaldavCredentials(user.id);
+    if (!creds) {
+      console.log("[CALENDAR] Skipping user", user.email, "- no CalDAV credentials in email_accounts_new");
       continue;
     }
+    const password = creds.password;
 
     try {
 
@@ -139,7 +125,7 @@ async function getAllCalendarConfigs(): Promise<Array<{
             password,
           },
           color: USER_COLOR,
-          displayName: calendar.displayName || 'Calendar',
+          displayName: (calendar.displayName as string) || 'Calendar',
           calendarUrl: calendar.url,
           owner: user.email,
         });
@@ -194,7 +180,7 @@ export const calendarRouter = router({
         const userPrefix = owner.split('@')[0].toUpperCase();
         return events.map(event => ({
           ...event,
-          title: `${userPrefix}: ${event.title}`, // Add user prefix to title
+          title: `${userPrefix}: ${(event as any).title}`, // Add user prefix to title
           calendar: type,
           color,
         }));

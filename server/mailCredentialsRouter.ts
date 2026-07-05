@@ -19,7 +19,7 @@ export const mailCredentialsRouter = router({
   saveCredentials: publicProcedure
     .input(mailCredentialsSchema)
     .mutation(async ({ input, ctx }) => {
-      if (!ctx.userId) throw new Error('Unauthorized');
+      if (!ctx.user?.id) throw new Error('Unauthorized');
       
       try {
         const encryptedPassword = encryptPassword(input.mailServerPassword);
@@ -27,7 +27,7 @@ export const mailCredentialsRouter = router({
         
         // In echtem Code würde hier die DB Query sein
         // Für jetzt nur Mock
-        console.log('Saving credentials for user:', ctx.userId);
+        console.log('Saving credentials for user:', ctx.user?.id);
         
         return {
           success: true,
@@ -45,7 +45,7 @@ export const mailCredentialsRouter = router({
    */
   getCredentials: publicProcedure
     .query(async ({ ctx }) => {
-      if (!ctx.userId) throw new Error('Unauthorized');
+      if (!ctx.user?.id) throw new Error('Unauthorized');
       
       try {
         // In echtem Code würde hier die DB Query sein
@@ -69,7 +69,7 @@ export const mailCredentialsRouter = router({
   testConnection: publicProcedure
     .input(mailCredentialsSchema)
     .mutation(async ({ input, ctx }) => {
-      if (!ctx.userId) throw new Error('Unauthorized');
+      if (!ctx.user?.id) throw new Error('Unauthorized');
       
       try {
         // Hier würde die echte IMAP Verbindung getestet
@@ -94,11 +94,11 @@ export const mailCredentialsRouter = router({
    */
   deleteCredentials: publicProcedure
     .mutation(async ({ ctx }) => {
-      if (!ctx.userId) throw new Error('Unauthorized');
+      if (!ctx.user?.id) throw new Error('Unauthorized');
       
       try {
         // In echtem Code würde hier die DB Query sein
-        console.log('Deleting credentials for user:', ctx.userId);
+        console.log('Deleting credentials for user:', ctx.user?.id);
         
         return {
           success: true,

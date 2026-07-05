@@ -94,7 +94,7 @@ export const corporationsRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-      return await createCorporation(input);
+      return await createCorporation(input as any);
     }),
 
   // Update corporation

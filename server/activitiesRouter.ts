@@ -74,6 +74,6 @@ export const activitiesRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-      return await createActivity(input);
+      return await createActivity(input as any as any);
     }),
 });

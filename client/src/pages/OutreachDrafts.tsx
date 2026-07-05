@@ -20,28 +20,28 @@ export default function OutreachDrafts() {
   const [editingDraft, setEditingDraft] = useState<any>(null);
   const [previewDraft, setPreviewDraft] = useState<any>(null);
 
-  const { data: allDrafts, isLoading, refetch } = trpc.drafts.list.useQuery();
+  const { data: allDrafts, isLoading, refetch } = (trpc as any).drafts.list.useQuery();
   
-  const updateMutation = trpc.drafts.update.useMutation({
+  const updateMutation = ((trpc as any).drafts.update as any).useMutation({
     onSuccess: () => {
       refetch();
       setEditingDraft(null);
     },
   });
 
-  const approveMutation = trpc.drafts.approve.useMutation({
+  const approveMutation = ((trpc as any).drafts.approve as any).useMutation({
     onSuccess: () => refetch(),
   });
 
-  const rejectMutation = trpc.drafts.reject.useMutation({
+  const rejectMutation = ((trpc as any).drafts.reject as any).useMutation({
     onSuccess: () => refetch(),
   });
 
-  const sendMutation = trpc.drafts.send.useMutation({
+  const sendMutation = ((trpc as any).drafts.send as any).useMutation({
     onSuccess: () => refetch(),
   });
 
-  const deleteMutation = trpc.drafts.delete.useMutation({
+  const deleteMutation = ((trpc as any).drafts.delete as any).useMutation({
     onSuccess: () => refetch(),
   });
 

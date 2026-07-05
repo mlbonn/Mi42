@@ -68,7 +68,7 @@ async function poll() {
 
     // Job asynchron ausführen (nicht awaiten, damit nächster Job sofort starten kann)
     runAgentJob(job)
-      .catch(err => {
+      .catch((err: any) => {
         console.error(`[AgentWorker] Unhandled error in job ${job.id}:`, err);
       })
       .finally(() => {

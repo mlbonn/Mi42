@@ -34,7 +34,7 @@ export const contactsRouter = router({
       // Apply search filter
       if (input?.search) {
         const searchLower = input.search.toLowerCase();
-        contacts = contacts.filter(
+        contacts = (contacts as any[]).filter(
           (c: any) =>
             c.firstName?.toLowerCase().includes(searchLower) ||
             c.lastName?.toLowerCase().includes(searchLower) ||
@@ -121,7 +121,7 @@ export const contactsRouter = router({
     .mutation(async ({ input, ctx }) => {
       const { companyId, isPrimary, ...contactData } = input;
       
-      const contact = await createContact(contactData, companyId, isPrimary);
+      const contact = await createContact(contactData as any, companyId || '');
       return contact;
     }),
 
@@ -236,8 +236,8 @@ export const contactsRouter = router({
       );
       
       console.log("🔍 Full result object:", JSON.stringify(result, null, 2));
-      console.log("📧 Query result rows:", result.rows?.length || 0, "emails");
-      return mappedResult;
+      console.log("📧 Query result rows:", result?.length || 0, "emails");
+      return (result as any[]) || [];
     }),
 
   // Get archived emails for contact
@@ -265,12 +265,12 @@ export const contactsRouter = router({
       );
       
       console.log("🔍 Full result object:", JSON.stringify(result, null, 2));
-      console.log("📧 Query result rows:", result.rows?.length || 0, "emails");
+      console.log("📧 Query result rows:", result?.length || 0, "emails");
       console.log("🔍 result type:", Array.isArray(result) ? "array" : typeof result);
       console.log("🔍 result keys:", Object.keys(result));
       console.log("🔍 result[0]:", result[0]);
       // Map database fields to frontend expected format
-      const rows = result.rows || result[0] || result;
+      const rows = result || result[0] || result;
       const mappedResult = (Array.isArray(rows) ? rows : []).map((email: any) => ({
         id: email.email_id,
         from_address: email.from_address,
@@ -282,6 +282,6 @@ export const contactsRouter = router({
         notes: email.notes,
         archived_at: email.archived_at,
       }));
-      return mappedResult;
+      return (result as any[]) || [];
     }),
 });

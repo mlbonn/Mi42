@@ -6,20 +6,20 @@ export default function OutreachTemplates() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<any>(null);
 
-  const { data: templates, isLoading, refetch } = trpc.templates.list.useQuery();
-  const createMutation = trpc.templates.create.useMutation({
+  const { data: templates, isLoading, refetch } = (trpc as any).templates.list.useQuery();
+  const createMutation = (trpc as any).templates.create.useMutation({
     onSuccess: () => {
       refetch();
       setShowCreateModal(false);
     },
   });
-  const updateMutation = trpc.templates.update.useMutation({
+  const updateMutation = (trpc as any).templates.update.useMutation({
     onSuccess: () => {
       refetch();
       setEditingTemplate(null);
     },
   });
-  const deleteMutation = trpc.templates.delete.useMutation({
+  const deleteMutation = (trpc as any).templates.delete.useMutation({
     onSuccess: () => refetch(),
   });
 

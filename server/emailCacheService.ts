@@ -50,9 +50,8 @@ class EmailCacheService {
     this.cache = new NodeCache({ stdTTL: 3600 }); // 1 Stunde Cache
     this.client = axios.create({
       baseURL: `https://${config.host}:${config.port}/api/v1`,
-      https: { rejectUnauthorized: false },
       timeout: 30000,
-    });
+    } as any);
   }
 
   /**

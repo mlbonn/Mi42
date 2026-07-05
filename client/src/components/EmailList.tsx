@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import type { SmarterMailMessage } from '../../server/services/smarterMailService';
+type SmarterMailMessage = any;
 
 interface EmailListProps {
   messages: SmarterMailMessage[];
@@ -69,7 +69,7 @@ export function EmailList({
           position: 'relative',
         }}
       >
-        {virtualizer.getVirtualItems().map((virtualItem) => {
+        {virtualizer.getVirtualItems().map((virtualItem: any) => {
           const message = messages[virtualItem.index];
           const isSelected = message.uid === selectedMessageUid;
 

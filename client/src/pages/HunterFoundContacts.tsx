@@ -114,7 +114,7 @@ export default function HunterFoundContacts() {
         </Card>
       ) : (
         <div className="space-y-4">
-          {results.map((result) => (
+          {results.map((result: any) => (
             <Card key={result.id} className="p-6">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">

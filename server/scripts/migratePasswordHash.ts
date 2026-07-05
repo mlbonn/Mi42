@@ -23,7 +23,7 @@ async function migrate() {
   const result = await db.execute(
     sql`SELECT id, email, passwordHash, caldavPassword FROM users WHERE passwordHash LIKE '%|%'`
   );
-  const users = result[0] as any[];
+  const users = result[0] as unknown as any[];
   console.log(`[Migration] Found ${users.length} user(s) with combined passwordHash`);
 
   let migrated = 0;

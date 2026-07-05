@@ -1,6 +1,6 @@
-import { Bot, useState } from "react";
-import { Bot, Link, useLocation } from "wouter";
-import { Bot, trpc } from "../lib/trpc";
+import { useState } from "react";
+import { Link, useLocation } from "wouter";
+import { trpc } from "../lib/trpc";
 
 import { Bot,
   Home,
@@ -207,7 +207,7 @@ export default function Sidebar({ onCollapseChange, isMobileOpen = false, onMobi
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto p-3">
           <ul className="space-y-1">
-            {dynamicNavItems.map((item) => {
+            {dynamicNavItems.map((item: any) => {
               const Icon = item.icon;
               const active = isActive(item.path);
               const hasChildren = item.children && item.children.length > 0;
@@ -249,7 +249,7 @@ export default function Sidebar({ onCollapseChange, isMobileOpen = false, onMobi
                       {/* Submenu */}
                       {isExpanded && !isCollapsed && (
                         <ul className="mt-1 ml-4 space-y-1 border-l-2 border-gray-200 pl-4">
-                          {item.children?.map((child) => {
+                          {item.children?.map((child: any) => {
                             const ChildIcon = child.icon;
                             const childActive = isActive(child.path);
 

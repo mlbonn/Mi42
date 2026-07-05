@@ -5,7 +5,7 @@ import * as db from "./db";
 import { ENV } from "./_core/env";
 
 const router = Router();
-const JWT_SECRET = ENV.jwtSecret!;
+const JWT_SECRET = process.env.JWT_SECRET || '';
 const JWT_EXPIRY = "7d";
 
 interface JwtPayload {
@@ -137,13 +137,8 @@ router.post("/contacts", async (req, res) => {
       return res.status(400).json({ error: "firstName and lastName required" });
     }
 
-    const contact = await db.createContact({
-      firstName,
-      lastName,
-      email: email || null,
-      phone: phone || null,
-      position: position || null,
-    });
+    const contactData: any = { firstName, lastName, email: email || null, phone: phone || null };
+    const contact = await db.createContact(contactData, '');
     
     res.json({ data: contact });
   } catch (error) {
@@ -167,12 +162,12 @@ router.post("/activities", async (req, res) => {
     const activity = await db.createActivity({
       contactId: contactId || null,
       companyId: companyId || null,
-      type,
+      activityType: type,
       subject,
       content: content || null,
       direction: direction || null,
       activityDate: activityDate ? new Date(activityDate) : new Date(),
-    });
+    } as any);
     
     res.json({ data: activity });
   } catch (error) {

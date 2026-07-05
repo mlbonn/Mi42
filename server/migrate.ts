@@ -10,7 +10,7 @@ async function columnExists(db: any, tableName: string, columnName: string): Pro
           AND TABLE_NAME = ${tableName} 
           AND COLUMN_NAME = ${columnName}`
     );
-    const rows = result[0] as any[];
+    const rows = result[0] as unknown as any[];
     return rows && rows.length > 0;
   } catch (error) {
     return false;
@@ -52,7 +52,7 @@ export async function runMigrations() {
     // Check if admin user exists
     console.log("[MIGRATION] Checking for admin user...");
     const result = await db.execute(sql`SELECT id FROM users WHERE id = "admin-001" LIMIT 1`);
-    const users = result[0] as any[];
+    const users = result[0] as unknown as any[];
 
     if (!users || users.length === 0) {
       // Create admin user

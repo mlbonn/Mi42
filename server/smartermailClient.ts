@@ -54,7 +54,7 @@ export class SmarterMailClient {
       this.tokenExpiry = new Date(Date.now() + 14 * 60 * 1000);
       
       console.log('✅ SmarterMail authentication successful');
-      return this.accessToken;
+      return this.accessToken!;
     } catch (error: any) {
       console.error('❌ SmarterMail Auth Error:', error.response?.data || error.message);
       throw new Error(`Authentication failed: ${error.message}`);

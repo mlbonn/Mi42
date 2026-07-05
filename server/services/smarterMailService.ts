@@ -44,7 +44,7 @@ export interface SmarterMailFolder {
 
 export class SmarterMailService {
   private baseUrl: string;
-  private authToken?: string;
+  private authToken: string | null = null;
   private client: AxiosInstance;
 
   constructor(serverUrl: string = 'https://mail.bl2020.com') {
@@ -66,8 +66,8 @@ export class SmarterMailService {
       });
 
       if (response.data.success && response.data.accessToken) {
-        this.authToken = response.data.accessToken;
-        return this.authToken;
+        (this as any).authToken = response.data.accessToken;
+        return (this as any).authToken as string;
       }
 
       throw new Error('Authentication failed: No access token received');
@@ -76,8 +76,8 @@ export class SmarterMailService {
     }
   }
 
-  private ensureAuthenticated() {
-    if (!this.authToken) {
+  private ensureAuthenticated(): asserts this is this & { authToken: string } {
+    if (!(this as any).authToken) {
       throw new Error('Not authenticated. Call authenticate() first.');
     }
   }
@@ -85,7 +85,7 @@ export class SmarterMailService {
   private getAuthHeaders() {
     this.ensureAuthenticated();
     return {
-      Authorization: `Bearer ${this.authToken}`,
+      Authorization: `Bearer ${(this as any).authToken}`,
     };
   }
 

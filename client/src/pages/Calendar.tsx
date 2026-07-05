@@ -101,21 +101,21 @@ export default function Calendar() {
   }, [events]);
 
   // Mutations
-  const createMutation = trpc.calendar.createEvent.useMutation({
+  const createMutation = (trpc.calendar.createEvent as any).useMutation({
     onSuccess: () => {
       refetch();
       resetCreateForm();
     },
   });
 
-  const createMeetingMutation = trpc.calendar.createMeetingInvitation.useMutation({
+  const createMeetingMutation = ((trpc.calendar as any).createMeetingInvitation as any).useMutation({
     onSuccess: () => {
       refetch();
       resetCreateForm();
     },
   });
 
-  const updateMutation = trpc.calendar.updateEvent.useMutation({
+  const updateMutation = (trpc.calendar.updateEvent as any).useMutation({
     onSuccess: () => {
       refetch();
       setIsEditDialogOpen(false);
@@ -123,7 +123,7 @@ export default function Calendar() {
     },
   });
 
-  const deleteMutation = trpc.calendar.deleteEvent.useMutation({
+  const deleteMutation = (trpc.calendar.deleteEvent as any).useMutation({
     onSuccess: () => {
       refetch();
       setIsEditDialogOpen(false);

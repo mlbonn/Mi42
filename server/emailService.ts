@@ -195,12 +195,12 @@ export async function fetchEmailsViaIMAP(
 
             const email: Email = {
               id: message.uid.toString(),
-              from: parsed.from?.text || 'Unknown',
-              to: parsed.to?.text || credentials.email,
+              from: (Array.isArray(parsed.from) ? parsed.from[0]?.name : (parsed.from as any)?.text) || 'Unknown',
+              to: (Array.isArray(parsed.to) ? (parsed.to[0] as any)?.value?.[0]?.address : (parsed.to as any)?.text) || credentials.email,
               subject: parsed.subject || '(no subject)',
-              preview: (parsed.text || parsed.html || '').substring(0, 100),
+              preview: ((parsed as any).text || parsed.html || '').substring(0, 100),
               date: (parsed.date || new Date()).toISOString(),
-              body: parsed.html || parsed.text || '',
+              body: parsed.html || (parsed as any).text || '',
               html: !!parsed.html,
             };
 

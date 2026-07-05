@@ -25,31 +25,31 @@ router.get("/contacts", async (req, res) => {
       .select({
         id: hunterResults.id,
         corporationId: hunterResults.corporationId,
-        companyId: hunterResults.companyId,
+        companyId: hunterResults.corporationId,
         firstName: hunterResults.firstName,
         lastName: hunterResults.lastName,
         email: hunterResults.email,
         emailStatus: hunterResults.emailStatus,
-        phone: hunterResults.phone,
+        phone: hunterResults.phoneNumber,
         linkedinUrl: hunterResults.linkedinUrl,
         title: hunterResults.title,
         seniority: hunterResults.seniority,
         department: hunterResults.department,
         confidence: hunterResults.confidence,
         dataSource: hunterResults.dataSource,
-        status: hunterResults.status,
+        status: hunterResults.reviewStatus,
         createdAt: hunterResults.createdAt,
-        updatedAt: hunterResults.updatedAt,
+        updatedAt: hunterResults.lastVerified,
       })
       .from(hunterResults);
 
     // Apply filters
     const conditions = [];
     if (status) {
-      conditions.push(eq(hunterResults.status, status as string));
+      conditions.push(eq(hunterResults.reviewStatus, status as any));
     }
     if (emailStatus) {
-      conditions.push(eq(hunterResults.emailStatus, emailStatus as string));
+      conditions.push(eq(hunterResults.emailStatus, emailStatus as any));
     }
 
     if (conditions.length > 0) {
@@ -83,8 +83,7 @@ router.post("/contacts/bulk-approve", async (req, res) => {
     await db
       .update(hunterResults)
       .set({
-        status: "approved",
-        updatedAt: new Date(),
+        reviewStatus: "approved",
       })
       .where(inArray(hunterResults.id, ids));
 
@@ -113,8 +112,7 @@ router.post("/contacts/bulk-reject", async (req, res) => {
     await db
       .update(hunterResults)
       .set({
-        status: "rejected",
-        updatedAt: new Date(),
+        reviewStatus: "rejected",
       })
       .where(inArray(hunterResults.id, ids));
 

@@ -47,36 +47,36 @@ export default function EmailSettings() {
   const { data: accounts, isLoading } = trpc.emailAccounts.list.useQuery();
 
   // Mutations
-  const createMutation = trpc.emailAccounts.create.useMutation({
+  const createMutation = (trpc.emailAccounts.create as any).useMutation({
     onSuccess: () => {
       utils.emailAccounts.list.invalidate();
       setEditingAccount(null);
       alert('E-Mail-Konto erfolgreich erstellt!');
     },
-    onError: (error) => {
+    onError: (error: any) => {
       alert(`Fehler: ${error.message}`);
     },
   });
 
-  const updateMutation = trpc.emailAccounts.update.useMutation({
+  const updateMutation = (trpc.emailAccounts.update as any).useMutation({
     onSuccess: () => {
       utils.emailAccounts.list.invalidate();
       setEditingAccount(null);
       alert('E-Mail-Konto erfolgreich aktualisiert!');
     },
-    onError: (error) => {
+    onError: (error: any) => {
       alert(`Fehler: ${error.message}`);
     },
   });
 
-  const deleteMutation = trpc.emailAccounts.delete.useMutation({
+  const deleteMutation = (trpc.emailAccounts.delete as any).useMutation({
     onSuccess: () => {
       utils.emailAccounts.list.invalidate();
       alert('E-Mail-Konto gelöscht!');
     },
   });
 
-  const testConnectionMutation = trpc.emailAccounts.testConnection.useMutation();
+  const testConnectionMutation = ((trpc.emailAccounts as any).testConnection as any).useMutation();
 
   const handleNewAccount = () => {
     setEditingAccount({
@@ -179,7 +179,7 @@ export default function EmailSettings() {
       {/* Account List */}
       {accounts && accounts.length > 0 && !editingAccount && (
         <div className="grid gap-4">
-          {accounts.map((account: EmailAccount) => (
+          {accounts.map((account: any) => (
             <Card key={account.id} className={!account.isActive ? 'opacity-60' : ''}>
               <CardHeader className="pb-2">
                 <div className="flex justify-between items-start">

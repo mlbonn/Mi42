@@ -124,7 +124,7 @@ export default function ContactDetail() {
         phone: contact.phone || '',
         jobTitle: contact.jobTitle || '',
         contactStatus: (contact.contactStatus as any) || 'cold',
-        contactType: (contact.contactType as any) || 'prospect',
+        contactType: ((contact as any).contactType as any) || 'prospect',
         notes: contact.notes || ''
       });
     }
@@ -144,7 +144,7 @@ export default function ContactDetail() {
       phone: editForm.phone || undefined,
       jobTitle: editForm.jobTitle || undefined,
       contactStatus: editForm.contactStatus,
-      contactType: editForm.contactType,
+      contactType: (editForm as any).contactType,
       notes: editForm.notes || undefined
     });
   };
@@ -592,14 +592,14 @@ export default function ContactDetail() {
                 <Label>Vorname</Label>
                 <Input
                   value={editForm.firstName}
-                  onChange={(e) => setEditForm({ ...editForm, firstName: e.target.value })}
+                  onChange={(e: any) => setEditForm({ ...editForm, firstName: e.target.value })}
                 />
               </div>
               <div>
                 <Label>Nachname</Label>
                 <Input
                   value={editForm.lastName}
-                  onChange={(e) => setEditForm({ ...editForm, lastName: e.target.value })}
+                  onChange={(e: any) => setEditForm({ ...editForm, lastName: e.target.value })}
                 />
               </div>
             </div>
@@ -608,7 +608,7 @@ export default function ContactDetail() {
               <Label>Telefon</Label>
               <Input
                 value={editForm.phone}
-                onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                onChange={(e: any) => setEditForm({ ...editForm, phone: e.target.value })}
               />
             </div>
 
@@ -616,7 +616,7 @@ export default function ContactDetail() {
               <Label>Position</Label>
               <Input
                 value={editForm.jobTitle}
-                onChange={(e) => setEditForm({ ...editForm, jobTitle: e.target.value })}
+                onChange={(e: any) => setEditForm({ ...editForm, jobTitle: e.target.value })}
               />
             </div>
 
@@ -627,7 +627,7 @@ export default function ContactDetail() {
                   <Label>E-Mail 1 (primär)</Label>
                   <Input
                     value={editForm.email}
-                    onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                    onChange={(e: any) => setEditForm({ ...editForm, email: e.target.value })}
                     type="email"
                   />
                 </div>
@@ -635,7 +635,7 @@ export default function ContactDetail() {
                   <Label>E-Mail 2</Label>
                   <Input
                     value={editForm.email2}
-                    onChange={(e) => setEditForm({ ...editForm, email2: e.target.value })}
+                    onChange={(e: any) => setEditForm({ ...editForm, email2: e.target.value })}
                     type="email"
                   />
                 </div>
@@ -643,7 +643,7 @@ export default function ContactDetail() {
                   <Label>E-Mail 3</Label>
                   <Input
                     value={editForm.email3}
-                    onChange={(e) => setEditForm({ ...editForm, email3: e.target.value })}
+                    onChange={(e: any) => setEditForm({ ...editForm, email3: e.target.value })}
                     type="email"
                   />
                 </div>
@@ -651,7 +651,7 @@ export default function ContactDetail() {
                   <Label>E-Mail 4</Label>
                   <Input
                     value={editForm.email4}
-                    onChange={(e) => setEditForm({ ...editForm, email4: e.target.value })}
+                    onChange={(e: any) => setEditForm({ ...editForm, email4: e.target.value })}
                     type="email"
                   />
                 </div>
@@ -659,7 +659,7 @@ export default function ContactDetail() {
                   <Label>E-Mail 5</Label>
                   <Input
                     value={editForm.email5}
-                    onChange={(e) => setEditForm({ ...editForm, email5: e.target.value })}
+                    onChange={(e: any) => setEditForm({ ...editForm, email5: e.target.value })}
                     type="email"
                   />
                 </div>
@@ -688,7 +688,7 @@ export default function ContactDetail() {
               <div>
                 <Label>Typ</Label>
                 <Select
-                  value={editForm.contactType}
+                  value={(editForm as any).contactType}
                   onValueChange={(value: any) => setEditForm({ ...editForm, contactType: value })}
                 >
                   <SelectTrigger>
@@ -710,7 +710,7 @@ export default function ContactDetail() {
               <Label>Notizen</Label>
               <Textarea
                 value={editForm.notes}
-                onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
+                onChange={(e: any) => setEditForm({ ...editForm, notes: e.target.value })}
                 className="min-h-[100px]"
               />
             </div>
@@ -787,12 +787,12 @@ export default function ContactDetail() {
                 <Input
                   placeholder="Name des Verteilers"
                   value={newListName}
-                  onChange={(e) => setNewListName(e.target.value)}
+                  onChange={(e: any) => setNewListName(e.target.value)}
                 />
                 <Input
                   placeholder="Beschreibung (optional)"
                   value={newListDescription}
-                  onChange={(e) => setNewListDescription(e.target.value)}
+                  onChange={(e: any) => setNewListDescription(e.target.value)}
                 />
                 <Button
                   onClick={() => createListMutation.mutate({

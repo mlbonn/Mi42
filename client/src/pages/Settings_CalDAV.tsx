@@ -15,7 +15,7 @@ export default function Settings() {
   useEffect(() => {
     if (credentials) {
       setCaldavEmail(credentials.caldavEmail || '');
-      setCaldavPassword(credentials.caldavPassword || '');
+      setCaldavPassword((credentials as any).caldavPassword || '');
       setCaldavEnabled(credentials.caldavEnabled || false);
     }
   }, [credentials]);

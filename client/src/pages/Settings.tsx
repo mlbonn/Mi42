@@ -358,10 +358,10 @@ export default function Settings() {
               <div className="flex gap-3 pt-4">
                 <button
                   onClick={handleTestConnection}
-                  disabled={testConnectionMutation.isLoading}
+                  disabled={testConnectionMutation.isPending}
                   className="flex-1 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 disabled:bg-gray-300 transition"
                 >
-                  {testConnectionMutation.isLoading ? 'Teste...' : 'Verbindung testen'}
+                  {testConnectionMutation.isPending ? 'Teste...' : 'Verbindung testen'}
                 </button>
                 <button
                   onClick={closeModal}
@@ -371,10 +371,10 @@ export default function Settings() {
                 </button>
                 <button
                   onClick={handleSave}
-                  disabled={createMutation.isLoading || updateMutation.isLoading}
+                  disabled={createMutation.isPending || updateMutation.isPending}
                   className="px-4 py-2 bg-bl2020-orange text-white rounded-lg hover:bg-bl2020-orange-dark disabled:bg-blue-300 transition"
                 >
-                  {createMutation.isLoading || updateMutation.isLoading
+                  {createMutation.isPending || updateMutation.isPending
                     ? 'Speichere...'
                     : 'Speichern'}
                 </button>

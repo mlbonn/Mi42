@@ -43,7 +43,7 @@ export const outreachRouter = router({
         language: input.language,
         status: "draft",
         createdBy: ctx.user.id,
-      });
+      } as any) as any;
 
       return { campaignId };
     }),

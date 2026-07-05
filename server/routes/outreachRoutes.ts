@@ -24,13 +24,13 @@ router.get("/drafts", async (req, res) => {
 
     const { status } = req.query;
 
-    let query = db.select().from(emailDrafts);
+    let query: any = db.select().from(emailDrafts);
 
     if (status) {
-      query = query.where(eq(emailDrafts.reviewStatus, status as string)) as any;
+      query = query.where(eq(emailDrafts.reviewStatus, status as any)) as any;
     }
 
-    const drafts = await query.orderBy(desc(emailDrafts.createdAt));
+    const drafts = await (query as any).orderBy(desc(emailDrafts.createdAt));
 
     res.json(drafts);
   } catch (error) {
@@ -145,7 +145,7 @@ router.get("/responses", async (req, res) => {
     let query = db.select().from(emailResponses);
 
     if (qualification) {
-      query = query.where(eq(emailResponses.qualification, qualification as string)) as any;
+      query = query.where(eq(emailResponses.notes, qualification as string)) as any;
     }
 
     const responses = await query.orderBy(desc(emailResponses.receivedAt));
@@ -171,7 +171,7 @@ router.post("/responses/:id/read", async (req, res) => {
     await db
       .update(emailResponses)
       .set({
-        isRead: true,
+        requiresAction: true,
       })
       .where(eq(emailResponses.id, id));
 
@@ -201,8 +201,8 @@ router.post("/responses/:id/qualify", async (req, res) => {
     await db
       .update(emailResponses)
       .set({
-        qualification,
-        qualifiedAt: new Date(),
+        notes: String(qualification),
+        processedAt: new Date(),
       })
       .where(eq(emailResponses.id, id));
 
@@ -235,7 +235,7 @@ router.get("/templates", async (req, res) => {
       conditions.push(eq(emailTemplates.language, language as string));
     }
     if (industry) {
-      conditions.push(eq(emailTemplates.industry, industry as string));
+      conditions.push(eq(emailTemplates.category, industry as string));
     }
 
     if (conditions.length > 0) {
@@ -270,27 +270,23 @@ router.post("/templates", async (req, res) => {
     const variableRegex = /\{\{(\w+)\}\}/g;
     const subjectVars = [...subject.matchAll(variableRegex)].map((m: any) => m[1]);
     const bodyVars = [...body.matchAll(variableRegex)].map((m: any) => m[1]);
-    const variables = [...new Set([...subjectVars, ...bodyVars])];
+    const variables = Array.from(new Set([...subjectVars, ...bodyVars]));
 
-    const [template] = await db
+    const templateId = crypto.randomUUID();
+    await db
       .insert(emailTemplates)
       .values({
+        id: templateId,
         name,
         description: description || "",
         subject,
         body,
         language,
-        industry: industry || null,
-        targetRole: targetRole || null,
         variables,
-        usageCount: 0,
-        openRate: null,
-        responseRate: null,
         createdAt: new Date(),
         updatedAt: new Date(),
-      })
-      .returning();
-
+      });
+    const template = { id: templateId, name, subject, body };
     res.json(template);
   } catch (error) {
     console.error("Error creating template:", error);
@@ -327,7 +323,7 @@ router.patch("/templates/:id", async (req, res) => {
       const variableRegex = /\{\{(\w+)\}\}/g;
       const subjectVars = subject ? [...subject.matchAll(variableRegex)].map((m: any) => m[1]) : [];
       const bodyVars = body ? [...body.matchAll(variableRegex)].map((m: any) => m[1]) : [];
-      updates.variables = [...new Set([...subjectVars, ...bodyVars])];
+      updates.variables = Array.from(new Set([...subjectVars, ...bodyVars]));
     }
 
     await db
@@ -386,25 +382,21 @@ router.post("/templates/:id/duplicate", async (req, res) => {
     }
 
     // Create duplicate
-    const [duplicate] = await db
+    const dupId = crypto.randomUUID();
+    await db
       .insert(emailTemplates)
       .values({
+        id: dupId,
         name: `${original.name} (Copy)`,
         description: original.description,
         subject: original.subject,
         body: original.body,
         language: original.language,
-        industry: original.industry,
-        targetRole: original.targetRole,
         variables: original.variables,
-        usageCount: 0,
-        openRate: null,
-        responseRate: null,
         createdAt: new Date(),
         updatedAt: new Date(),
-      })
-      .returning();
-
+      });
+    const duplicate = { id: dupId, name: `${original.name} (Copy)` };
     res.json(duplicate);
   } catch (error) {
     console.error("Error duplicating template:", error);

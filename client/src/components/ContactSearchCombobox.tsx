@@ -14,7 +14,7 @@ export const ContactSearchCombobox: React.FC<ContactSearchComboboxProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
 
-  const searchMutation = trpc.emailSearch.searchContacts.useMutation();
+  const searchMutation = (trpc.emailSearch.searchContacts as any).useMutation();
   const results = searchMutation.data || [];
 
   useEffect(() => {
@@ -75,7 +75,7 @@ export const ContactSearchCombobox: React.FC<ContactSearchComboboxProps> = ({
 
       {isOpen && results.length > 0 && (
         <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50">
-          {results.map((contact, index) => (
+          {results.map((contact: any, index: any) => (
             <button
               key={contact.id}
               onClick={() => handleSelect(contact)}

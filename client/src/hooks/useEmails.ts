@@ -1,14 +1,14 @@
 // client/hooks/useEmails.ts
 // React Query Hooks für E-Mail-Client
 
-import { trpc } from '../utils/trpc';
+import { trpc } from '../lib/trpc';
 
 // ============================================================
 // E-Mail-Konten
 // ============================================================
 
 export function useEmailAccounts() {
-  return trpc.emailLive.listAccounts.useQuery(undefined, {
+  return (trpc as any).emailLive.listAccounts.useQuery(undefined, {
     staleTime: 300000, // 5 Minuten Cache
   });
 }
@@ -16,9 +16,9 @@ export function useEmailAccounts() {
 export function useAddEmailAccount() {
   const utils = trpc.useContext();
 
-  return trpc.emailLive.addAccount.useMutation({
+  return (trpc as any).emailLive.addAccount.useMutation({
     onSuccess: () => {
-      utils.emailLive.listAccounts.invalidate();
+      (utils as any).emailLive.listAccounts.invalidate();
     },
   });
 }
@@ -26,15 +26,15 @@ export function useAddEmailAccount() {
 export function useDeleteEmailAccount() {
   const utils = trpc.useContext();
 
-  return trpc.emailLive.deleteAccount.useMutation({
+  return (trpc as any).emailLive.deleteAccount.useMutation({
     onSuccess: () => {
-      utils.emailLive.listAccounts.invalidate();
+      (utils as any).emailLive.listAccounts.invalidate();
     },
   });
 }
 
 export function useTestConnection() {
-  return trpc.emailLive.testConnection.useMutation();
+  return (trpc as any).emailLive.testConnection.useMutation();
 }
 
 // ============================================================
@@ -42,7 +42,7 @@ export function useTestConnection() {
 // ============================================================
 
 export function useMessages(accountId: number, folder: string = 'INBOX', skip: number = 0) {
-  return trpc.emailLive.getMessages.useQuery(
+  return (trpc as any).emailLive.getMessages.useQuery(
     {
       accountId,
       folder,
@@ -58,7 +58,7 @@ export function useMessages(accountId: number, folder: string = 'INBOX', skip: n
 }
 
 export function useMessage(accountId: number, messageUid: string) {
-  return trpc.emailLive.getMessage.useQuery(
+  return (trpc as any).emailLive.getMessage.useQuery(
     {
       accountId,
       messageUid,
@@ -71,7 +71,7 @@ export function useMessage(accountId: number, messageUid: string) {
 }
 
 export function useSearchMessages(accountId: number, query: string, folder: string = 'INBOX') {
-  return trpc.emailLive.searchMessages.useQuery(
+  return (trpc as any).emailLive.searchMessages.useQuery(
     {
       accountId,
       query,
@@ -87,7 +87,7 @@ export function useSearchMessages(accountId: number, query: string, folder: stri
 }
 
 export function useFolders(accountId: number) {
-  return trpc.emailLive.getFolders.useQuery(
+  return (trpc as any).emailLive.getFolders.useQuery(
     {
       accountId,
     },
@@ -103,7 +103,7 @@ export function useFolders(accountId: number) {
 // ============================================================
 
 export function useSendMessage() {
-  return trpc.emailLive.sendMessage.useMutation();
+  return (trpc as any).emailLive.sendMessage.useMutation();
 }
 
 // ============================================================
@@ -113,9 +113,9 @@ export function useSendMessage() {
 export function useMarkAsRead() {
   const utils = trpc.useContext();
 
-  return trpc.emailLive.markAsRead.useMutation({
+  return (trpc as any).emailLive.markAsRead.useMutation({
     onSuccess: () => {
-      utils.emailLive.getMessages.invalidate();
+      (utils as any).emailLive.getMessages.invalidate();
     },
   });
 }
@@ -123,9 +123,9 @@ export function useMarkAsRead() {
 export function useMoveMessage() {
   const utils = trpc.useContext();
 
-  return trpc.emailLive.moveMessage.useMutation({
+  return (trpc as any).emailLive.moveMessage.useMutation({
     onSuccess: () => {
-      utils.emailLive.getMessages.invalidate();
+      (utils as any).emailLive.getMessages.invalidate();
     },
   });
 }
@@ -133,9 +133,9 @@ export function useMoveMessage() {
 export function useDeleteMessage() {
   const utils = trpc.useContext();
 
-  return trpc.emailLive.deleteMessage.useMutation({
+  return (trpc as any).emailLive.deleteMessage.useMutation({
     onSuccess: () => {
-      utils.emailLive.getMessages.invalidate();
+      (utils as any).emailLive.getMessages.invalidate();
     },
   });
 }
@@ -147,9 +147,9 @@ export function useDeleteMessage() {
 export function useArchiveEmail() {
   const utils = trpc.useContext();
 
-  return trpc.emailArchive.archiveEmail.useMutation({
+  return (trpc as any).emailArchive.archiveEmail.useMutation({
     onSuccess: () => {
-      utils.emailArchive.listArchivedEmails.invalidate();
+      (utils as any).emailArchive.listArchivedEmails.invalidate();
     },
   });
 }
@@ -160,7 +160,7 @@ export function useArchivedEmails(filters?: {
   dealId?: number;
   status?: string;
 }) {
-  return trpc.emailArchive.listArchivedEmails.useQuery(
+  return (trpc as any).emailArchive.listArchivedEmails.useQuery(
     {
       ...filters,
       skip: 0,
@@ -173,7 +173,7 @@ export function useArchivedEmails(filters?: {
 }
 
 export function useArchivedEmail(emailId: number) {
-  return trpc.emailArchive.getArchivedEmail.useQuery(
+  return (trpc as any).emailArchive.getArchivedEmail.useQuery(
     {
       emailId,
     },
@@ -191,10 +191,10 @@ export function useArchivedEmail(emailId: number) {
 export function useLinkToContact() {
   const utils = trpc.useContext();
 
-  return trpc.emailArchive.linkToContact.useMutation({
+  return (trpc as any).emailArchive.linkToContact.useMutation({
     onSuccess: () => {
-      utils.emailArchive.getArchivedEmail.invalidate();
-      utils.emailArchive.listArchivedEmails.invalidate();
+      (utils as any).emailArchive.getArchivedEmail.invalidate();
+      (utils as any).emailArchive.listArchivedEmails.invalidate();
     },
   });
 }
@@ -202,10 +202,10 @@ export function useLinkToContact() {
 export function useLinkToCompany() {
   const utils = trpc.useContext();
 
-  return trpc.emailArchive.linkToCompany.useMutation({
+  return (trpc as any).emailArchive.linkToCompany.useMutation({
     onSuccess: () => {
-      utils.emailArchive.getArchivedEmail.invalidate();
-      utils.emailArchive.listArchivedEmails.invalidate();
+      (utils as any).emailArchive.getArchivedEmail.invalidate();
+      (utils as any).emailArchive.listArchivedEmails.invalidate();
     },
   });
 }
@@ -213,10 +213,10 @@ export function useLinkToCompany() {
 export function useLinkToDeal() {
   const utils = trpc.useContext();
 
-  return trpc.emailArchive.linkToDeal.useMutation({
+  return (trpc as any).emailArchive.linkToDeal.useMutation({
     onSuccess: () => {
-      utils.emailArchive.getArchivedEmail.invalidate();
-      utils.emailArchive.listArchivedEmails.invalidate();
+      (utils as any).emailArchive.getArchivedEmail.invalidate();
+      (utils as any).emailArchive.listArchivedEmails.invalidate();
     },
   });
 }
@@ -228,10 +228,10 @@ export function useLinkToDeal() {
 export function useAssignToUser() {
   const utils = trpc.useContext();
 
-  return trpc.emailArchive.assignToUser.useMutation({
+  return (trpc as any).emailArchive.assignToUser.useMutation({
     onSuccess: () => {
-      utils.emailArchive.getArchivedEmail.invalidate();
-      utils.emailArchive.listArchivedEmails.invalidate();
+      (utils as any).emailArchive.getArchivedEmail.invalidate();
+      (utils as any).emailArchive.listArchivedEmails.invalidate();
     },
   });
 }
@@ -239,9 +239,9 @@ export function useAssignToUser() {
 export function useAddComment() {
   const utils = trpc.useContext();
 
-  return trpc.emailArchive.addComment.useMutation({
+  return (trpc as any).emailArchive.addComment.useMutation({
     onSuccess: () => {
-      utils.emailArchive.getArchivedEmail.invalidate();
+      (utils as any).emailArchive.getArchivedEmail.invalidate();
     },
   });
 }
@@ -249,10 +249,10 @@ export function useAddComment() {
 export function useUpdateStatus() {
   const utils = trpc.useContext();
 
-  return trpc.emailArchive.updateStatus.useMutation({
+  return (trpc as any).emailArchive.updateStatus.useMutation({
     onSuccess: () => {
-      utils.emailArchive.getArchivedEmail.invalidate();
-      utils.emailArchive.listArchivedEmails.invalidate();
+      (utils as any).emailArchive.getArchivedEmail.invalidate();
+      (utils as any).emailArchive.listArchivedEmails.invalidate();
     },
   });
 }
@@ -262,7 +262,7 @@ export function useUpdateStatus() {
 // ============================================================
 
 export function useEmailStats() {
-  return trpc.emailArchive.getStats.useQuery(undefined, {
+  return (trpc as any).emailArchive.getStats.useQuery(undefined, {
     staleTime: 300000, // 5 Minuten
   });
 }

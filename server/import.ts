@@ -282,7 +282,7 @@ async function importActivities(
       direction: record.direction || "Outbound",
       outcome: record.outcome || null,
       createdBy: record.created_by || null,
-    });
+    } as any);
   }
 
   console.log(`✅ Imported ${records.length} activities`);

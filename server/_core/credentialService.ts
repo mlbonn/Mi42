@@ -96,7 +96,7 @@ function evpBytesToKey(
 ): { key: Buffer; iv: Buffer } {
   const passwordBuf = Buffer.from(password, 'utf8');
   const result: Buffer[] = [];
-  let prev = Buffer.alloc(0);
+  let prev: any = Buffer.alloc(0);
   while (Buffer.concat(result).length < keyLen + ivLen) {
     prev = crypto.createHash('md5').update(Buffer.concat([prev, passwordBuf])).digest();
     result.push(prev);

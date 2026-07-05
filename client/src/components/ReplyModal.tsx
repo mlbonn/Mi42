@@ -38,8 +38,8 @@ export default function ReplyModal({
   const [isSending, setIsSending] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const sendMessageMutation = trpc.emailClient.sendMessage.useMutation();
-  const generateAIReplyMutation = trpc.emailClient.generateAIReply.useMutation();
+  const sendMessageMutation = (trpc.emailClient.sendMessage as any).useMutation();
+  const generateAIReplyMutation = (trpc.emailClient.generateAIReply as any).useMutation();
   const { data: templates } = trpc.emailClient.getEmailTemplates.useQuery();
 
   const handleGenerateAI = async () => {
@@ -59,7 +59,7 @@ export default function ReplyModal({
         setBody(result.reply);
         setShowAiPanel(false);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('AI generation error:', error);
       alert('Fehler bei der AI-Generierung');
     } finally {
@@ -90,7 +90,7 @@ export default function ReplyModal({
       alert('Email erfolgreich gesendet!');
       onSuccess?.();
       onClose();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Send error:', error);
       alert('Fehler beim Senden der Email');
     } finally {
@@ -163,18 +163,18 @@ export default function ReplyModal({
           </div>
 
           {/* Templates Dropdown */}
-          {templates && templates.length > 0 && (
+          {templates && (templates as any[]).length > 0 && (
             <div>
               <label className="block text-sm font-medium mb-1">Vorlage:</label>
               <select
                 onChange={(e) => {
-                  const template = templates.find((t: any) => t.id === parseInt(e.target.value));
+                  const template = (templates as any[]).find((t: any) => t.id === parseInt(e.target.value));
                   if (template) handleTemplateSelect(template);
                 }}
                 className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
               >
                 <option value="">-- Vorlage auswählen --</option>
-                {templates.map((template: any) => (
+                {(templates as any[]).map((template: any) => (
                   <option key={template.id} value={template.id}>
                     {template.name}
                   </option>

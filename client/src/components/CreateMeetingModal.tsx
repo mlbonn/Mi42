@@ -30,7 +30,7 @@ export function CreateMeetingModal({ isOpen, onClose, defaultAttendees = [] }: C
   const [emailBody, setEmailBody] = useState('');
   const [showAdvanced, setShowAdvanced] = useState(false);
 
-  const createMeetingMutation = trpc.calendar.createMeetingInvitation.useMutation();
+  const createMeetingMutation = (trpc.calendar as any).createMeetingInvitation.useMutation();
 
   if (!isOpen) return null;
 

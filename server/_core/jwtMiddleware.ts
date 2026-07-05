@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import { ENV } from "./env";
 import * as db from "../db";
 
-const JWT_SECRET = ENV.jwtSecret!;
+const JWT_SECRET = process.env.JWT_SECRET || '';
 
 interface JwtPayload {
   userId: string;

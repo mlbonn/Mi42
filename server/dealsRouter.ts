@@ -53,7 +53,7 @@ export const dealsRouter = router({
     )
     .mutation(async ({ input }) => {
       const { userId, ...dealData } = input;
-      return await createDeal(dealData, userId);
+      return await createDeal(dealData as any, userId);
     }),
 
   // Update deal stage

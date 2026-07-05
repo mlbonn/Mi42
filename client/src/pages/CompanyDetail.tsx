@@ -93,14 +93,14 @@ export default function CompanyDetail() {
     { enabled: !!id }
   );
 
-  const updateCompanyMutation = trpc.companies.update.useMutation({
+  const updateCompanyMutation = (trpc.companies.update as any).useMutation({
     onSuccess: () => {
       utils.companies.get.invalidate({ id: id! });
       setIsEditOpen(false);
     },
   });
 
-  const createContactMutation = trpc.contacts.create.useMutation({
+  const createContactMutation = (trpc.contacts.create as any).useMutation({
     onMutate: () => {
       // Prevent double submission
     },
@@ -185,7 +185,7 @@ export default function CompanyDetail() {
                   state: company.state || "",
                   poBox: company.poBox || "",
                   poBoxZip: company.poBoxZip || "",
-                  rebate: company.rebate || 0,
+                  rebate: Number(company.rebate) || 0 || 0,
                   priceList: company.priceList || "",
                   rebateList: company.rebateList || "",
                   debitorNumber: company.debitorNumber || "",
@@ -776,7 +776,7 @@ export default function CompanyDetail() {
                 </div>
                 <div>
                   <Label htmlFor="edit-revenueEur">Umsatz (EUR)</Label>
-                  <Input id="edit-revenueEur" type="number" value={editData.revenueEur || ''} onChange={(e) => setEditData({ ...editData, revenueEur: revenueEur === 'rebate' ? parseFloat(e.target.value) || 0 : parseInt(e.target.value) || 0 })} placeholder="z.B. 100000000" />
+                  <Input id="edit-revenueEur" type="number" value={editData.revenueEur || ''} onChange={(e) => setEditData({ ...editData, revenueEur: parseFloat(e.target.value) || 0 })} placeholder="z.B. 100000000" />
                 </div>
                 <div className="">
                   <Label htmlFor="edit-companySize">Unternehmensgröße</Label>
@@ -927,7 +927,7 @@ export default function CompanyDetail() {
                 </div>
                 <div>
                   <Label htmlFor="edit-rebate">Rabatt (%)</Label>
-                  <Input id="edit-rebate" type="number" value={editData.rebate || ''} onChange={(e) => setEditData({ ...editData, rebate: rebate === 'rebate' ? parseFloat(e.target.value) || 0 : parseInt(e.target.value) || 0 })} placeholder="Rabatt in Prozent" />
+                  <Input id="edit-rebate" type="number" value={editData.rebate || ''} onChange={(e) => setEditData({ ...editData, rebate: parseFloat(e.target.value) || 0 })} placeholder="Rabatt in Prozent" />
                 </div>
                 <div className="">
                   <Label htmlFor="edit-priceList">Preisliste</Label>

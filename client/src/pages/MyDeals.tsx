@@ -8,10 +8,10 @@ import { Link } from "wouter";
 export default function MyDeals() {
   const { user, logout } = useAuth();
   const { data: deals, isLoading: dealsLoading } = trpc.deals.list.useQuery();
-  const { data: commissions, isLoading: commissionsLoading } = trpc.commissions.myCommissions.useQuery();
+  const { data: commissions, isLoading: commissionsLoading } = (trpc as any).commissions.myCommissions.useQuery();
 
-  const totalCommission = commissions?.reduce((sum, c) => sum + Number(c.commissionAmount || 0), 0) || 0;
-  const paidCommission = commissions?.filter(c => c.paid).reduce((sum, c) => sum + Number(c.commissionAmount || 0), 0) || 0;
+  const totalCommission = commissions?.reduce((sum: any, c: any) => sum + Number(c.commissionAmount || 0), 0) || 0;
+  const paidCommission = commissions?.filter((c: any) => c.paid).reduce((sum: any, c: any) => sum + Number(c.commissionAmount || 0), 0) || 0;
   const pendingCommission = totalCommission - paidCommission;
 
   return (
@@ -156,7 +156,7 @@ export default function MyDeals() {
                 </TableHeader>
                 <TableBody>
                   {commissions && commissions.length > 0 ? (
-                    commissions.map((commission) => (
+                    commissions.map((commission: any) => (
                       <TableRow key={commission.id} className="border-b border-gray-300">
                         <TableCell className="text-gray-600 font-mono text-xs">
                           {commission.dealId.substring(0, 8)}...

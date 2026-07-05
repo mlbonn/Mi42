@@ -104,7 +104,7 @@ export async function runAgentJob(job: {
     }
 
     if (agent.apply) {
-      await agent.apply({ jobId: job.id, runId: runId!, output: parsed });
+      await agent.apply({ jobId: job.id, runId: runId!, output: parsed as any });
     }
 
     await completeAgentRun(runId!, parsed);

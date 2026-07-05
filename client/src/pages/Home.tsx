@@ -56,7 +56,7 @@ export default function Home() {
               <Building2 className="h-4 w-4 text-gray-400" />
             </div>
             <div className="text-2xl font-semibold text-gray-900 mb-1">
-              {stats?.totalCorporations || 0}
+              {(stats as any)?.totalCorporations || 0}
             </div>
             <Link href="/corporations">
               <span className="text-xs text-orange-600 hover:text-orange-700 cursor-pointer">
@@ -72,7 +72,7 @@ export default function Home() {
               <Users className="h-4 w-4 text-gray-400" />
             </div>
             <div className="text-2xl font-semibold text-gray-900 mb-1">
-              {stats?.totalContacts || 0}
+              {(stats as any)?.totalContacts || 0}
             </div>
             <Link href="/contacts">
               <span className="text-xs text-orange-600 hover:text-orange-700 cursor-pointer">
@@ -88,7 +88,7 @@ export default function Home() {
               <TrendingUp className="h-4 w-4 text-gray-400" />
             </div>
             <div className="text-2xl font-semibold text-gray-900 mb-1">
-              {stats?.totalDeals || 0}
+              {(stats as any)?.totalDeals || 0}
             </div>
             <Link href="/deals">
               <span className="text-xs text-orange-600 hover:text-orange-700 cursor-pointer">
@@ -107,8 +107,8 @@ export default function Home() {
             </div>
             <div className="text-2xl font-semibold text-gray-900 mb-1">
               €{(user?.role === 'staff_plus' 
-                ? (stats?.pendingCommission || 0) 
-                : (stats?.totalDealValue || 0)
+                ? ((stats as any)?.pendingCommission || 0) 
+                : ((stats as any)?.totalDealValue || 0)
               ).toLocaleString()}
             </div>
             <span className="text-xs text-gray-500">Gesamt</span>
@@ -126,7 +126,7 @@ export default function Home() {
           
           {recentActivities && recentActivities.length > 0 ? (
             <div className="divide-y divide-gray-100">
-              {recentActivities.map((activity) => (
+              {recentActivities.map((activity: any) => (
                 <div key={activity.id} className="px-4 py-3 hover:bg-gray-50 transition-colors">
                   <div className="flex items-start gap-3">
                     <div className="flex-1 min-w-0">

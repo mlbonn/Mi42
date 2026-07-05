@@ -16,7 +16,7 @@ import {
 import { getDb } from './db';
 import { users } from '../drizzle/schema';
 import { eq, sql } from 'drizzle-orm';
-import { encryptPassword, decryptPassword } from './encryption';
+// encryption.ts entfernt (PR C) - CalDAV-Credentials in email_accounts_new
 import bcrypt from 'bcryptjs';
 
 export const userRouter = router({
@@ -118,16 +118,11 @@ export const userRouter = router({
       // Hash password with bcrypt (nur für Login-Auth)
       const bcryptHash = await bcrypt.hash(input.password, 10);
       
-      // CalDAV-Passwort separat verschlüsseln (Credential-Entkopplung PR4)
-      const encryptedCalDAVPassword = encryptPassword(input.password);
-      
       await db.createUser({
         id: userId,
         name: input.name,
         email: input.email,
         passwordHash: bcryptHash,
-        caldavPassword: encryptedCalDAVPassword,
-        caldavEmail: input.email,
         role: input.role,
         status: 'active',
         assignedTo: input.assignedTo,
@@ -293,20 +288,28 @@ export const userRouter = router({
       caldavEnabled: z.boolean(),
     }))
     .mutation(async ({ ctx, input }) => {
+      // PR C: CalDAV-Credentials in email_accounts_new speichern
+      const { encryptCredential } = await import('./credentialService');
+      const passwordEncrypted = encryptCredential(input.caldavPassword);
+      const existing = await db.getEmailAccounts(ctx.user.id);
+      const primary = existing.find((a: any) => a.isPrimary) || existing[0];
       const database = await getDb();
       if (!database) throw new Error('Database not available');
-      
-      // Encrypt password before storing
-      const encryptedPassword = encryptPassword(input.caldavPassword);
-      
-      await database.update(users)
-        .set({
-          caldavEmail: input.caldavEmail,
-          caldavPassword: encryptedPassword,
-          caldavEnabled: input.caldavEnabled,
-        })
-        .where(eq(users.id, ctx.user.id));
-      
+      if (primary) {
+        const { emailAccountsNew: eaNew } = await import('../drizzle/schema');
+        const { eq: eqOp } = await import('drizzle-orm');
+        await database.update(eaNew)
+          .set({ emailAddress: input.caldavEmail, passwordEncrypted, useForCaldav: input.caldavEnabled, updatedAt: new Date() })
+          .where(eqOp(eaNew.id, primary.id));
+      } else {
+        await db.createEmailAccount({
+          userId: ctx.user.id,
+          emailAddress: input.caldavEmail,
+          passwordEncrypted,
+          serverUrl: 'https://mail.bl2020.com',
+          isPrimary: true,
+        });
+      }
       return { success: true };
     }),
 
@@ -353,15 +356,16 @@ export const userRouter = router({
       
       // Update each user
       for (const userUpdate of input.users) {
-        const encryptedPassword = encryptPassword(userUpdate.caldavPassword);
-        
-        await database.update(users)
-          .set({
-            caldavEmail: userUpdate.caldavEmail,
-            caldavPassword: encryptedPassword,
-            caldavEnabled: userUpdate.caldavEnabled,
-          })
-          .where(eq(users.id, userUpdate.userId));
+        // PR C: CalDAV via email_accounts_new
+        const { encryptCredential } = await import('./credentialService');
+        const passwordEncrypted = encryptCredential(userUpdate.caldavPassword);
+        await db.createEmailAccount({
+          userId: userUpdate.userId,
+          emailAddress: userUpdate.caldavEmail,
+          passwordEncrypted,
+          serverUrl: 'https://mail.bl2020.com',
+          isPrimary: true,
+        });
       }
       
       return { success: true, count: input.users.length };

@@ -21,16 +21,16 @@ export default function OutreachResponses() {
   const [showActionRequired, setShowActionRequired] = useState(false);
   const [editingResponse, setEditingResponse] = useState<any>(null);
 
-  const { data: allResponses, isLoading, refetch } = trpc.responses.list.useQuery();
+  const { data: allResponses, isLoading, refetch } = (trpc as any).responses.list.useQuery();
   
-  const updateMutation = trpc.responses.update.useMutation({
+  const updateMutation = (trpc as any).responses.update.useMutation({
     onSuccess: () => {
       refetch();
       setEditingResponse(null);
     },
   });
 
-  const markProcessedMutation = trpc.responses.markProcessed.useMutation({
+  const markProcessedMutation = (trpc as any).responses.markProcessed.useMutation({
     onSuccess: () => refetch(),
   });
 

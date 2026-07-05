@@ -45,10 +45,10 @@ export default function ArchiveModal({ email, onClose, onSuccess }: ArchiveModal
   const [deleteAfterArchive, setDeleteAfterArchive] = useState(false);
   const [archiving, setArchiving] = useState(false);
 
-  const findContactsMutation = trpc.emailClient.findContactsByEmails.useMutation();
-  const extractContactMutation = trpc.emailClient.extractContactFromSignature.useMutation();
-  const archiveEmailMutation = trpc.emailClient.archiveEmail.useMutation();
-  const searchContactsMutation = trpc.contacts.searchContacts.useMutation();
+  const findContactsMutation = (trpc.emailClient.findContactsByEmails as any).useMutation();
+  const extractContactMutation = (trpc.emailClient.extractContactFromSignature as any).useMutation();
+  const archiveEmailMutation = (trpc.emailClient.archiveEmail as any).useMutation();
+  const searchContactsMutation = (trpc.contacts.searchContacts as any).useMutation();
 
   // Initial: Find contacts by email addresses
   useEffect(() => {
@@ -61,7 +61,7 @@ export default function ArchiveModal({ email, onClose, onSuccess }: ArchiveModal
     findContactsMutation.mutate(
       { emails },
       {
-        onSuccess: (data) => {
+        onSuccess: (data: any) => {
           // First email (from) is suggested contact
           if (data[email.fromAddress] && data[email.fromAddress].length > 0) {
             setSuggestedContact(data[email.fromAddress][0]);
@@ -69,9 +69,9 @@ export default function ArchiveModal({ email, onClose, onSuccess }: ArchiveModal
 
           // Other emails are additional contacts
           const additional: Contact[] = [];
-          Object.entries(data).forEach(([emailAddr, contacts]) => {
-            if (emailAddr !== email.fromAddress && contacts.length > 0) {
-              additional.push(...contacts);
+          Object.entries(data as any).forEach(([emailAddr, contacts]) => {
+            if (emailAddr !== email.fromAddress && (contacts as any[]).length > 0) {
+              additional.push(...(contacts as any[]));
             }
           });
           setAdditionalContacts(additional);
@@ -82,7 +82,7 @@ export default function ArchiveModal({ email, onClose, onSuccess }: ArchiveModal
             extractContactMutation.mutate(
               { emailBody: email.body, fromAddress: email.fromAddress },
               {
-                onSuccess: (extracted) => {
+                onSuccess: (extracted: any) => {
                   setExtractedContact(extracted);
                 },
               }
@@ -107,8 +107,8 @@ export default function ArchiveModal({ email, onClose, onSuccess }: ArchiveModal
       searchContactsMutation.mutate(
         { query: searchQuery },
         {
-          onSuccess: (results) => {
-            setSearchResults(results);
+          onSuccess: (results: any) => {
+            setSearchResults(results as any);
           },
         }
       );
@@ -129,7 +129,7 @@ export default function ArchiveModal({ email, onClose, onSuccess }: ArchiveModal
       const contactIds = [suggestedContact.id, ...selectedAdditionalIds];
 
       await archiveEmailMutation.mutateAsync({
-        emailId: email.id,
+        emailId: String(email.id),
         contactIds,
         deleteAfterArchive,
       });

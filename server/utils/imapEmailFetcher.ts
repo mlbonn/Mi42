@@ -75,7 +75,7 @@ export class IMAPEmailFetcher {
               emails.push({
                 id: String(seqno),
                 from: parsed.from?.text || '',
-                to: parsed.to?.text || '',
+                to: (Array.isArray(parsed.to) ? parsed.to[0]?.text : parsed.to?.text) || '',
                 subject: parsed.subject || '(no subject)',
                 text: parsed.text || '',
                 html: parsed.html || '',

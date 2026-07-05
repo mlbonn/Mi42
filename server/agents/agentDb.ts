@@ -32,20 +32,20 @@ export async function enqueueAgentJob(params: {
 
 export async function claimNextAgentJob() {
   // Wähle den nächsten Job per SELECT
-  const rows = await db
+  const rows = await (await getDb())!
     .select()
     .from(agentJobs)
     .where(eq(agentJobs.status, 'pending'))
     .orderBy(sql`${agentJobs.priority} DESC, ${agentJobs.createdAt} ASC`)
     .limit(1);
 
-  if (rows.length === 0) return null;
+  if ((rows as unknown as any[]).length === 0) return null;
 
-  const candidate = rows[0];
+  const candidate = (rows as unknown as any[])[0];
   const workerId = `worker-${process.pid}-${Date.now()}`;
 
   // Atomares UPDATE: nur wenn Status noch 'pending' ist
-  const result = await db
+  const result = (await getDb())!
     .update(agentJobs)
     .set({
       status: 'processing',
@@ -75,7 +75,7 @@ export async function claimNextAgentJob() {
 export async function recoverStaleJobs(timeoutMinutes = 15) {
   const cutoff = new Date(Date.now() - timeoutMinutes * 60 * 1000);
 
-  const result = await db
+  const result = (await getDb())!
     .update(agentJobs)
     .set({
       status: 'pending',
@@ -118,7 +118,7 @@ export async function createAgentRun(params: {
 }
 
 export async function completeAgentRun(runId: string, outputJson: unknown) {
-  await db
+  (await getDb())!
     .update(agentRuns)
     .set({
       status: 'completed',
@@ -129,7 +129,7 @@ export async function completeAgentRun(runId: string, outputJson: unknown) {
 }
 
 export async function failAgentRun(runId: string, errorMessage: string) {
-  await db
+  (await getDb())!
     .update(agentRuns)
     .set({
       status: 'failed',
@@ -142,7 +142,7 @@ export async function failAgentRun(runId: string, errorMessage: string) {
 // ─── Job Completion ──────────────────────────────────────────────────────────
 
 export async function completeAgentJob(jobId: string) {
-  await db
+  (await getDb())!
     .update(agentJobs)
     .set({
       status: 'completed',
@@ -153,7 +153,7 @@ export async function completeAgentJob(jobId: string) {
 }
 
 export async function failAgentJob(jobId: string, errorMessage: string) {
-  await db
+  (await getDb())!
     .update(agentJobs)
     .set({
       status: 'failed',

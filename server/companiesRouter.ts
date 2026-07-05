@@ -85,7 +85,7 @@ export const companiesRouter = router({
       // Apply filters
       if (input?.search) {
         const searchLower = input.search.toLowerCase();
-        companies = companies.filter(
+        companies = (companies as any[]).filter(
           (c: any) =>
             c.name?.toLowerCase().includes(searchLower) ||
             c.city?.toLowerCase().includes(searchLower) ||
@@ -94,7 +94,7 @@ export const companiesRouter = router({
       }
       
       if (input?.country) {
-        companies = companies.filter(
+        companies = (companies as any[]).filter(
           (c: any) => c.country?.toLowerCase() === input.country?.toLowerCase()
         );
       }
@@ -142,7 +142,7 @@ export const companiesRouter = router({
       }).merge(companySchema.partial())
     )
     .mutation(async ({ input }) => {
-      return await createCompany(input);
+      return await createCompany(input as any);
     }),
 
   // Update company
@@ -154,6 +154,6 @@ export const companiesRouter = router({
     )
     .mutation(async ({ input }) => {
       const { id, ...data } = input;
-      return await updateCompany(id, data);
+      return await updateCompany(id, data as any);
     }),
 });

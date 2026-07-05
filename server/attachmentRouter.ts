@@ -15,7 +15,8 @@ export const attachmentRouter = router({
     .input(z.object({ activityId: z.string() }))
     .query(async ({ input }) => {
       const db = await getDb();
-      const results = await db
+  if (!db) throw new Error('Database not available');
+      const results = await db!
         .select()
         .from(attachments)
         .where(eq(attachments.activityId, input.activityId));
@@ -27,7 +28,8 @@ export const attachmentRouter = router({
     .input(z.object({ id: z.string() }))
     .query(async ({ input }) => {
       const db = await getDb();
-      const results = await db
+  if (!db) throw new Error('Database not available');
+      const results = await db!
         .select()
         .from(attachments)
         .where(eq(attachments.id, input.id))
@@ -40,8 +42,9 @@ export const attachmentRouter = router({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
+  if (!db) throw new Error('Database not available');
       // Get attachment metadata
-      const attachment = await db
+      const attachment = await db!
         .select()
         .from(attachments)
         .where(eq(attachments.id, input.id))
@@ -61,16 +64,16 @@ export const attachmentRouter = router({
       }
 
       // Delete from database
-      await db.delete(attachments).where(eq(attachments.id, input.id));
+      await db!.delete(attachments).where(eq(attachments.id, input.id));
 
       // Update activity attachment count
       const activityId = attachment[0].activityId;
-      const remainingAttachments = await db
+      const remainingAttachments = await db!
         .select()
         .from(attachments)
         .where(eq(attachments.activityId, activityId));
 
-      await db
+      await db!
         .update(activities)
         .set({
           attachmentCount: remainingAttachments.length,
@@ -86,7 +89,8 @@ export const attachmentRouter = router({
     .input(z.object({ id: z.string() }))
     .query(async ({ input }) => {
       const db = await getDb();
-      const results = await db
+  if (!db) throw new Error('Database not available');
+      const results = await db!
         .select()
         .from(attachments)
         .where(eq(attachments.id, input.id))

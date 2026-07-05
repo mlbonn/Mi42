@@ -257,6 +257,7 @@ export const deals = mysqlTable("deals", {
   notes: text("notes"),
   createdAt: timestamp("createdAt").defaultNow(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow(),
+  createdBy: varchar("createdBy", { length: 64 }),
 }, (table) => ({
   corporationIdx: index("deals_corporation_idx").on(table.corporationId),
   stageIdx: index("deals_stage_idx").on(table.stage),
@@ -948,10 +949,10 @@ export const emailAccountsNew = mysqlTable("email_accounts_new", {
   serverUrl: varchar("server_url", { length: 255 }).notNull().default("https://mail.bl2020.com"),
   isPrimary: boolean("is_primary").notNull().default(false),
   isActive: boolean("is_active").notNull().default(true),
+  useForCaldav: boolean("use_for_caldav").notNull().default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
 });
-export type EmailAccountNew = typeof emailAccountsNew.$inferSelect;
 export type EmailAccountNew = typeof emailAccountsNew.$inferSelect;
 export type InsertEmailAccountNew = typeof emailAccountsNew.$inferInsert;
 

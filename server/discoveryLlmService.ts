@@ -91,7 +91,7 @@ Antworte NUR mit einem JSON-Objekt im folgenden Format:
       throw new Error("No content in LLM response");
     }
 
-    return JSON.parse(content) as GeneratedKeywords;
+    return JSON.parse(typeof content === 'string' ? content : JSON.stringify(content)) as GeneratedKeywords;
   } catch (error) {
     console.error("[Discovery LLM] Error generating keywords:", error);
     // Return empty defaults on error
@@ -196,7 +196,7 @@ Bewerte:
       throw new Error("No content in LLM response");
     }
 
-    return JSON.parse(content) as SimilarityResult;
+    return JSON.parse(typeof content === 'string' ? content : JSON.stringify(content)) as SimilarityResult;
   } catch (error) {
     console.error("[Discovery LLM] Error analyzing similarity:", error);
     return {
@@ -283,7 +283,7 @@ Gib für jeden Verband an:
       throw new Error("No content in LLM response");
     }
 
-    const parsed = JSON.parse(content);
+    const parsed = JSON.parse(typeof content === 'string' ? content : JSON.stringify(content));
     return parsed.associations as AssociationSuggestion[];
   } catch (error) {
     console.error("[Discovery LLM] Error suggesting associations:", error);
@@ -359,7 +359,7 @@ Bewerte:
       throw new Error("No content in LLM response");
     }
 
-    return JSON.parse(content) as NewsAnalysisResult;
+    return JSON.parse(typeof content === 'string' ? content : JSON.stringify(content)) as NewsAnalysisResult;
   } catch (error) {
     console.error("[Discovery LLM] Error analyzing news:", error);
     return {

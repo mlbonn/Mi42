@@ -29,8 +29,8 @@ export default function Contacts() {
   });
 
   const utils = trpc.useUtils();
-  const createContactMutation = trpc.contacts.createStandalone.useMutation({
-    onSuccess: (data) => {
+  const createContactMutation = (trpc.contacts.createStandalone as any).useMutation({
+    onSuccess: (data: any) => {
       utils.contacts.list.invalidate();
       setShowNewContactDialog(false);
       setNewContact({ firstName: "", lastName: "", title: "", email: "", phone: "", position: "" });
@@ -48,12 +48,12 @@ export default function Contacts() {
   const filteredContacts = useMemo(() => {
     if (!contacts?.data) return [];
 
-    let filtered = (contacts?.data || []).filter((contact) => {
+    let filtered = (contacts?.data || []).filter((contact: any) => {
       const matchesSearch =
         search === "" ||
         contact.firstName?.toLowerCase().includes(search.toLowerCase()) ||
         contact.lastName?.toLowerCase().includes(search.toLowerCase()) ||
-        contact.primaryEmail?.toLowerCase().includes(search.toLowerCase()) ||
+        (contact as any).primaryEmail?.toLowerCase().includes(search.toLowerCase()) ||
         contact.position?.toLowerCase().includes(search.toLowerCase());
 
       return matchesSearch;
@@ -69,8 +69,8 @@ export default function Contacts() {
           bVal = `${b.firstName || ""} ${b.lastName || ""}`.toLowerCase();
           break;
         case "email":
-          aVal = a.primaryEmail || "";
-          bVal = b.primaryEmail || "";
+          aVal = (a as any).primaryEmail || "";
+          bVal = (b as any).primaryEmail || "";
           break;
         case "position":
           aVal = a.position || "";
@@ -127,7 +127,7 @@ export default function Contacts() {
               type="text"
               placeholder="Suche nach Name, E-Mail, Position..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e: any) => setSearch(e.target.value)}
               className="h-8 text-sm"
             />
 
@@ -173,7 +173,7 @@ export default function Contacts() {
                 </tr>
               </thead>
               <tbody>
-                {filteredContacts.map((contact) => (
+                {filteredContacts.map((contact: any) => (
                   <tr 
                     key={contact.id} 
                     className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
@@ -195,10 +195,10 @@ export default function Contacts() {
                       </Link>
                     </td>
                     <td className="px-3 py-2 text-xs text-gray-600">
-                      {contact.primaryEmail || "-"}
+                      {(contact as any).primaryEmail || "-"}
                     </td>
                     <td className="px-3 py-2 text-xs text-gray-600">
-                      {contact.primaryPhone || "-"}
+                      {(contact as any).primaryPhone || "-"}
                     </td>
                     <td className="px-3 py-2 text-xs text-gray-600">
                       {contact.position || "-"}
@@ -263,7 +263,7 @@ export default function Contacts() {
                 <Input
                   id="newFirstName"
                   value={newContact.firstName}
-                  onChange={(e) => setNewContact({ ...newContact, firstName: e.target.value })}
+                  onChange={(e: any) => setNewContact({ ...newContact, firstName: e.target.value })}
                   placeholder="Vorname"
                 />
               </div>
@@ -272,7 +272,7 @@ export default function Contacts() {
                 <Input
                   id="newLastName"
                   value={newContact.lastName}
-                  onChange={(e) => setNewContact({ ...newContact, lastName: e.target.value })}
+                  onChange={(e: any) => setNewContact({ ...newContact, lastName: e.target.value })}
                   placeholder="Nachname"
                 />
               </div>
@@ -282,7 +282,7 @@ export default function Contacts() {
               <Input
                 id="newTitle"
                 value={newContact.title}
-                onChange={(e) => setNewContact({ ...newContact, title: e.target.value })}
+                onChange={(e: any) => setNewContact({ ...newContact, title: e.target.value })}
                 placeholder="z.B. Dr., Prof."
               />
             </div>
@@ -292,7 +292,7 @@ export default function Contacts() {
                 id="newEmail"
                 type="email"
                 value={newContact.email}
-                onChange={(e) => setNewContact({ ...newContact, email: e.target.value })}
+                onChange={(e: any) => setNewContact({ ...newContact, email: e.target.value })}
                 placeholder="email@beispiel.de"
               />
             </div>
@@ -301,7 +301,7 @@ export default function Contacts() {
               <Input
                 id="newPhone"
                 value={newContact.phone}
-                onChange={(e) => setNewContact({ ...newContact, phone: e.target.value })}
+                onChange={(e: any) => setNewContact({ ...newContact, phone: e.target.value })}
                 placeholder="+49 123 456789"
               />
             </div>
@@ -310,7 +310,7 @@ export default function Contacts() {
               <Input
                 id="newPosition"
                 value={newContact.position}
-                onChange={(e) => setNewContact({ ...newContact, position: e.target.value })}
+                onChange={(e: any) => setNewContact({ ...newContact, position: e.target.value })}
                 placeholder="z.B. Geschäftsführer"
               />
             </div>

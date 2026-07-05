@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { claimNextAgentJob } from "./agents/agentDb";
 import { runAgentJob } from "./agents/runtime/agentRunner";
+import { validateEnv } from './_core/validateEnv';
 
 const POLL_INTERVAL_MS = 30_000;
 const workerId = `agent-worker-${process.pid}`;
@@ -11,9 +12,11 @@ async function poll() {
   isProcessing = true;
 
   try {
-    const job = await claimNextAgentJob(workerId);
+    const job = await claimNextAgentJob();
     if (!job) {
-      console.log("[AgentWorker] No pending jobs");
+      
+validateEnv();
+console.log("[AgentWorker] No pending jobs");
       return;
     }
 

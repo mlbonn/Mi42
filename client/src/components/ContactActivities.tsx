@@ -41,7 +41,7 @@ export default function ContactActivities({ contactId }: ContactActivitiesProps)
     { enabled: !!contactId }
   );
 
-  const { data: attachmentsMap = {} } = trpc.attachments?.getByActivity?.useQuery
+  const { data: attachmentsMap = {} } = (trpc as any).attachments?.getByActivity?.useQuery
     ? {} // Will be populated per activity
     : {};
 
@@ -245,8 +245,8 @@ export default function ContactActivities({ contactId }: ContactActivitiesProps)
 
 // Sub-component for attachments list
 function AttachmentsList({ activityId }: { activityId: string }) {
-  const { data: attachments = [] } = trpc.attachments?.getByActivity?.useQuery
-    ? trpc.attachments.getByActivity.useQuery({ activityId })
+  const { data: attachments = [] } = (trpc as any).attachments?.getByActivity?.useQuery
+    ? (trpc as any).attachments.getByActivity.useQuery({ activityId })
     : { data: [] };
 
   if (!attachments || attachments.length === 0) {

@@ -3,6 +3,7 @@ import { protectedProcedure, router } from './_core/trpc';
 import { getDb } from './db';
 import { contacts } from '../drizzle/schema';
 import { or, like } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 
 export const emailContactSearchRouter = router({
   // Kontakte suchen (für E-Mail-Adresssuche)
@@ -73,7 +74,7 @@ export const emailContactSearchRouter = router({
         const result = await db
           .select()
           .from(contacts)
-          .where((t) => t.id === input.contactId)
+          .where(eq(contacts.id, input.contactId))
           .limit(1);
 
         const contact = result[0];

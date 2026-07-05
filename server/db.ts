@@ -5,7 +5,10 @@ import {
   corporations, companies, contacts, contactCompanyRelations, contactEmails,
   deals, activities, productUsage, partners, partnerDeals,
   userAccountAssignments, commissions, apiKeys,
-  emailTemplates, emailDrafts, emailResponses, emailAccounts, emailAccountsNew, emailFetchLog,
+  emailTemplates, emailDrafts, emailResponses, emailAccountsOld as emailAccounts,
+  emailProjectLinks,
+  projectTimesheets,
+  projectBudgetPlans, emailAccountsNew, emailFetchLog,
   hunterResults,
   type Corporation, type Company, type Contact, type Deal, type Activity
 } from "../drizzle/schema";
@@ -510,7 +513,7 @@ export async function getDealsByUser(userId: string) {
     return await db
       .select()
       .from(deals)
-      .where(eq(deals.createdBy, userId))
+      .where(eq((deals as any).createdBy, userId))
       .orderBy(desc(deals.createdAt));
   }
 
@@ -1042,6 +1045,7 @@ export async function createUser(data: {
   id: string;
   name: string;
   email: string;
+  passwordHash?: string;
   role: 'super_admin' | 'admin' | 'staff' | 'staff_plus';
   status: string;
   assignedTo?: string;
@@ -1299,7 +1303,7 @@ export async function listHunterResults(filters: {
   
   const { reviewStatus = "all", dataSource, corporationId, limit = 50, offset = 0 } = filters;
   
-  let query = db.select().from(hunterResults);
+  let query: any = db.select().from(hunterResults);
   
   if (reviewStatus !== "all") {
     query = query.where(eq(hunterResults.reviewStatus, reviewStatus as any));
@@ -1362,18 +1366,17 @@ export async function createContactFromHunterResult(resultId: string, createdBy:
   }
   
   // Create contact
-  const contactId = await createContact({
+  const contactData = {
     firstName: result.firstName || "",
     lastName: result.lastName || "",
     email: result.email || "",
     phone: result.phoneNumber || null,
-    title: result.title || null,
+    jobTitle: result.title || null,
     linkedinUrl: result.linkedinUrl || null,
-    companyId: null, // TODO: Link to company if exists
     source: `hunter_${result.dataSource}`,
     notes: `Imported from Hunter Agent (${result.dataSource})`,
-    createdBy,
-  });
+  } as any;
+  const contactId = await createContact(contactData, createdBy);
   
   // Mark as approved
   await updateHunterResultReviewStatus(resultId, "approved", createdBy);
@@ -1455,10 +1458,6 @@ export async function authenticateUser(email: string, password: string) {
     // Calculate SHA-256 hash of provided password
     const hash = crypto.createHash('sha256').update(password).digest('hex');
 
-    console.log(`[Auth Debug] Login attempt for: ${email}`);
-    console.log(`[Auth Debug] Calculated hash: ${hash}`);
-    console.log(`[Auth Debug] Stored hash: ${user.passwordHash}`);
-    console.log(`[Auth Debug] Hashes match: ${hash === user.passwordHash}`);
 
     // Compare hashes
     if (hash !== user.passwordHash) {
@@ -1563,7 +1562,7 @@ export async function createContactSimple(data: {
         id: crypto.randomUUID(),
         contactId,
         email: data.email,
-        type: "work",
+        emailType: "work",
         isPrimary: true,
       });
     }
@@ -1630,25 +1629,24 @@ export async function getEmailAccount(id: number, userId: string) {
 export async function createEmailAccount(data: {
   userId: string;
   emailAddress: string;
-  password: string;
+  passwordEncrypted: string;
   serverUrl?: string;
   isPrimary?: boolean;
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  const encryptedPassword = encryptCredential(data.password);
   
   const [account] = await db.insert(emailAccountsNew).values({
     userId: data.userId,
     emailAddress: data.emailAddress,
-    passwordEncrypted: encryptedPassword,
+    passwordEncrypted: data.passwordEncrypted,
     serverUrl: data.serverUrl || 'https://mail.bl2020.com',
     isPrimary: data.isPrimary || false,
     isActive: true,
-  }).returning();
+  });
   
-  return account;
+  return { id: 0, userId: data.userId, emailAddress: data.emailAddress, passwordEncrypted: data.passwordEncrypted, serverUrl: data.serverUrl || 'https://mail.bl2020.com', isPrimary: data.isPrimary || false, isActive: true, useForCaldav: false, createdAt: new Date(), updatedAt: new Date() };
 }
 
 // Update email account
@@ -1789,8 +1787,8 @@ export async function getProjectStats(projectId: string) {
   }, 0);
 
   const budgetSpent = budgetPlans.reduce((sum, bp) => {
-    const spent = typeof bp.spent === 'string' ? parseFloat(bp.spent) : bp.spent;
-    return sum + (isNaN(spent) ? 0 : spent);
+    const spent = bp.spent == null ? 0 : (typeof bp.spent === 'string' ? parseFloat(bp.spent) : bp.spent);
+    return sum + (spent ?? 0);
   }, 0);
 
   return {
@@ -1934,4 +1932,36 @@ export async function unassignUserEntity(
         eq(userAccountAssignments.corporationId, entityId)
       )
     );
+}
+
+
+/**
+ * Get CalDAV credentials for a user from email_accounts_new.
+ * Returns { email, password } from the primary active account with useForCaldav=true.
+ */
+export async function getCaldavCredentials(userId: string): Promise<{ email: string; password: string } | null> {
+  const db = await getDb();
+  if (!db) return null;
+  const { decryptCredential } = await import('./credentialService');
+  const accounts = await db
+    .select()
+    .from(emailAccountsNew)
+    .where(
+      and(
+        eq(emailAccountsNew.userId, userId),
+        eq(emailAccountsNew.isActive, true),
+        eq(emailAccountsNew.useForCaldav, true)
+      )
+    )
+    .orderBy(desc(emailAccountsNew.isPrimary), desc(emailAccountsNew.createdAt))
+    .limit(1);
+  if (accounts.length === 0) return null;
+  const account = accounts[0];
+  try {
+    const password = decryptCredential(account.passwordEncrypted);
+    return { email: account.emailAddress, password };
+  } catch (e) {
+    console.warn('[db] getCaldavCredentials: failed to decrypt for user', userId, e);
+    return null;
+  }
 }

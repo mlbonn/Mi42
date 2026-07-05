@@ -1,36 +1,24 @@
 import { router, protectedProcedure } from './_core/trpc';
-import { getDb } from './db';
-import { createEmailAccount } from './db';
-import { users } from '../drizzle/schema';
+import { getDb, getEmailAccounts, createEmailAccount } from './db';
+import { encryptCredential, decryptCredential } from './credentialService';
+import { emailAccountsNew, users } from '../drizzle/schema';
 import { eq } from 'drizzle-orm';
-import { encryptPassword, decryptPassword } from './encryption';
 import { z } from 'zod';
 
 export const userSettingsRouter = router({
+  /**
+   * Get CalDAV credentials for current user (from email_accounts_new)
+   */
   getCalDAVCredentials: protectedProcedure.query(async ({ ctx }) => {
     try {
-      // Get database
-      const db = await getDb();
-      if (!db) {
-        throw new Error('Database not available');
-      }
-
-      // Get user from database using ctx.user.id
-      const userList = await db
-        .select()
-        .from(users)
-        .where(eq(users.id, ctx.user.id));
-
-      if (!userList || userList.length === 0) {
-        console.log('[UserSettings] User not found in database');
+      const accounts = await getEmailAccounts(ctx.user.id);
+      const primary = accounts.find((a: any) => a.isPrimary) || accounts[0];
+      if (!primary) {
         return { caldavEmail: '', caldavEnabled: false };
       }
-
-      const user = userList[0];
-
       return {
-        caldavEmail: user.caldavEmail || '',
-        caldavEnabled: user.caldavEnabled || false,
+        caldavEmail: primary.emailAddress,
+        caldavEnabled: primary.isActive,
       };
     } catch (error) {
       console.error('[UserSettings] Error getting CalDAV credentials:', error);
@@ -38,6 +26,9 @@ export const userSettingsRouter = router({
     }
   }),
 
+  /**
+   * Save CalDAV credentials (stored in email_accounts_new)
+   */
   saveCalDAVCredentials: protectedProcedure
     .input(
       z.object({
@@ -48,57 +39,33 @@ export const userSettingsRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       try {
-        // Get database
+        const passwordEncrypted = encryptCredential(input.caldavPassword);
+        const existing = await getEmailAccounts(ctx.user.id);
+        const primary = existing.find((a: any) => a.isPrimary) || existing[0];
         const db = await getDb();
-        if (!db) {
-          throw new Error('Database not available');
+        if (!db) throw new Error('Database not available');
+
+        if (primary) {
+          await db
+            .update(emailAccountsNew)
+            .set({
+              emailAddress: input.caldavEmail,
+              passwordEncrypted,
+              isActive: input.caldavEnabled,
+              useForCaldav: input.caldavEnabled,
+              updatedAt: new Date(),
+            })
+            .where(eq(emailAccountsNew.id, primary.id));
+        } else {
+          await createEmailAccount({
+            userId: ctx.user.id,
+            emailAddress: input.caldavEmail,
+            passwordEncrypted,
+            serverUrl: 'https://mail.bl2020.com',
+            isPrimary: true,
+          });
         }
-
-        // Get user from database using ctx.user.id
-        const userList = await db
-          .select()
-          .from(users)
-          .where(eq(users.id, ctx.user.id));
-
-        if (!userList || userList.length === 0) {
-          throw new Error('User not found in database');
-        }
-
-        const user = userList[0];
-
-        // Encrypt the password
-        // Store password in plaintext for testing
-        const encryptedPassword = input.caldavPassword;
-
-        // Save to database
-        await db
-          .update(users)
-          .set({
-            caldavEmail: input.caldavEmail,
-            caldavPassword: encryptedPassword,
-            caldavEnabled: input.caldavEnabled,
-          })
-          .where(eq(users.id, user.id));
-
-        console.log(
-          `[UserSettings] CalDAV credentials saved for user ${input.caldavEmail}`
-        );
-
-
-      // ALSO save to email_accounts table for email sync
-      try {
-        await createEmailAccount({
-          userId: user.id,
-          emailAddress: input.caldavEmail,
-          password: input.caldavPassword,
-          serverUrl: 'https://mail.bl2020.com',
-          isPrimary: true,
-        });
-        console.log('[UserSettings] Email account created in email_accounts table');
-      } catch (emailAccountError) {
-        console.error('[UserSettings] Error creating email account:', emailAccountError);
-        // Don't fail if email_accounts insert fails, credentials are already saved in users table
-      }
+        console.log(`[UserSettings] CalDAV credentials saved for user ${input.caldavEmail}`);
         return { success: true, message: 'Credentials saved successfully' };
       } catch (error) {
         console.error('[UserSettings] Error saving CalDAV credentials:', error);
@@ -106,6 +73,9 @@ export const userSettingsRouter = router({
       }
     }),
 
+  /**
+   * Test CalDAV connection
+   */
   testCalDAVConnection: protectedProcedure
     .input(
       z.object({
@@ -115,22 +85,18 @@ export const userSettingsRouter = router({
     )
     .mutation(async ({ input }) => {
       try {
-        // Test CalDAV connection
         const { DAVClient } = await import('tsdav');
-
         const client = new DAVClient({
-          serverUrl: `https://mail.bl2020.com`,
-          username: input.caldavEmail,
-          password: input.caldavPassword,
-          authType: 'basic',
+          serverUrl: 'https://mail.bl2020.com',
+          credentials: {
+            username: input.caldavEmail,
+            password: input.caldavPassword,
+          },
+          authMethod: 'Basic',
           defaultAccountType: 'caldav',
         });
-
-        await client.checkDavSupport();
-        console.log(
-          `[UserSettings] CalDAV connection test successful for ${input.caldavEmail}`
-        );
-
+        await client.login();
+        console.log(`[UserSettings] CalDAV connection test successful for ${input.caldavEmail}`);
         return { success: true, message: 'Connection successful' };
       } catch (error) {
         console.error('[UserSettings] CalDAV connection test failed:', error);

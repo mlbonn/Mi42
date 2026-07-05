@@ -55,7 +55,7 @@ export const smartermailApiAccountsRouter = router({
       return await db.createEmailAccount({
         userId,
         emailAddress: input.emailAddress,
-        password: input.password,
+        passwordEncrypted: require('./credentialService').encryptCredential(input.password),
         serverUrl: input.serverUrl || 'https://mail.bl2020.com',
         isPrimary: input.isPrimary || false,
       });
@@ -162,11 +162,12 @@ export const smartermailApiAccountsRouter = router({
     )
     .mutation(async ({ input }) => {
       try {
-        // Import authenticateSmarterMail from emailClientRouter
-        const { authenticateSmarterMail } = await import('./smarterMailApi');
+        // Test connection using SmarterMailClient
+        const { SmarterMailClient } = await import('./smartermailClient');
+        const client = new SmarterMailClient(input.emailAddress);
+        await client.authenticate(input.emailAddress, input.password);
         
-        const token = await authenticateSmarterMail(input.emailAddress, input.password);
-        
+        const token = true; // authentication already done above
         if (token) {
           return { success: true, message: 'Verbindung erfolgreich!' };
         } else {

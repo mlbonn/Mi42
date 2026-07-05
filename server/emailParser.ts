@@ -63,8 +63,8 @@ function extractWithRegex(emailBody: string): ParsedForwardedEmail | null {
     /Begin forwarded message:/i,
     /Ursprüngliche Nachricht/i,
     /Original Message/i,
-    /Von:.*Gesendet:/is,
-    /From:.*Sent:/is,
+    /Von:[\s\S]*?Gesendet:/i,
+    /From:[\s\S]*?Sent:/i,
   ];
 
   for (const delimiter of forwardDelimiters) {
@@ -143,8 +143,8 @@ async function getOllamaConfig(): Promise<{ url: string; key: string } | null> {
     if (rowWithOllama) {
       console.log('[EmailParser] Found Ollama config:', rowWithOllama.ollamaUrl);
       return {
-        url: rowWithOllama.ollamaUrl,
-        key: rowWithOllama.ollamaKey,
+        url: rowWithOllama.ollamaUrl || '',
+        key: rowWithOllama.ollamaKey || '',
       };
     }
     

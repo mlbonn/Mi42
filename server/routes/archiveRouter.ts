@@ -56,9 +56,8 @@ export const archiveRouter = router({
         // Verify contact exists
         const db = await getDb();
         if (!db) throw new Error("Database not available");
-        const contact = await db.query.contacts.findFirst({
-          where: eq(contacts.id, input.contactId),
-        });
+        const contactRows = await db.select().from(contacts).where(eq(contacts.id, input.contactId)).limit(1);
+        const contact = contactRows[0];
 
         if (!contact) {
           throw new Error('Contact not found');
@@ -81,7 +80,7 @@ export const archiveRouter = router({
           notes: input.notes || '',
         });
 
-        const archivedEmailId = result.insertId;
+        const archivedEmailId = (result as any).insertId;
 
         // Handle attachments if present
         if (input.emailData.attachments && input.emailData.attachments.length > 0) {
@@ -152,16 +151,17 @@ export const archiveRouter = router({
     .query(async ({ input }) => {
       const searchPattern = `%${input.email}%`;
       
-      const results = await db.query.contacts.findMany({
-        where: or(
+      const dbInst = await getDb();
+      if (!dbInst) throw new Error('Database not available');
+      const results = await dbInst.select().from(contacts).where(
+        or(
           like(contacts.email, searchPattern),
           like(contacts.email2, searchPattern),
           like(contacts.email3, searchPattern),
           like(contacts.email4, searchPattern),
           like(contacts.email5, searchPattern)
-        ),
-        limit: 10,
-      });
+        )
+      ).limit(10);
 
       return { contacts: results };
     }),
@@ -246,15 +246,16 @@ export const archiveRouter = router({
     .mutation(async ({ input }) => {
       const contactId = crypto.randomUUID();
       
-      await db.insert(contacts).values({
+      const dbInst2 = await getDb();
+      if (!dbInst2) throw new Error('Database not available');
+      await dbInst2.insert(contacts).values({
         id: contactId,
         firstName: input.firstName,
         lastName: input.lastName,
         email: input.email,
         jobTitle: input.jobTitle || '',
-        company: input.company || '',
         phone: input.phone || '',
-      });
+      } as any);
 
       return { contactId };
     }),
