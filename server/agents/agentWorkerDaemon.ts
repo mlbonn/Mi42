@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { claimNextAgentJob, recoverStaleJobs } from './agentDb';
 import { runAgentJob } from './agentRunner';
 
