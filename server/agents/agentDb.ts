@@ -1,51 +1,31 @@
+import { and, eq, lt } from 'drizzle-orm';
 import { getDb } from '../db';
-import { agentJobs, agentRuns, agentToolCalls, agentSuggestions, tasks } from '../../drizzle/schema';
-import { eq, and, lt, sql } from 'drizzle-orm';
+import {
+  agentJobs,
+  agentRuns,
+  agentSuggestions,
+  agentToolCalls,
+} from '../drizzle/schema';
 
-// ─── Job Enqueue ────────────────────────────────────────────────────────────
-
-export async function enqueueAgentJob(params: {
-  type: string;
-  entityType?: string;
-  entityId?: string;
-  payload?: Record<string, unknown>;
-  priority?: number;
-  createdBy?: string;
-}) {
-  const id = crypto.randomUUID();
-  (await getDb())!.insert(agentJobs).values({
-    id,
-    type: params.type,
-    entityType: params.entityType,
-    entityId: params.entityId,
-    payload: params.payload ?? {},
-    priority: params.priority ?? 5,
-    status: 'pending',
-    createdBy: params.createdBy,
-    createdAt: new Date(),
-  });
-  return id;
-}
-
-// ─── Atomic Job Claiming (B1) ────────────────────────────────────────────────
-// Nutzt SELECT + UPDATE WHERE status='pending' mit atomarem Guard gegen Race Conditions.
+// ─── Atomic Job Claiming ─────────────────────────────────────────────────────
 
 export async function claimNextAgentJob() {
-  // Wähle den nächsten Job per SELECT
-  const rows = await (await getDb())!
+  const db = await getDb();
+  if (!db) return null;
+
+  const rows = await db
     .select()
     .from(agentJobs)
     .where(eq(agentJobs.status, 'pending'))
-    .orderBy(sql`${agentJobs.priority} DESC, ${agentJobs.createdAt} ASC`)
+    .orderBy(agentJobs.priority)
     .limit(1);
 
-  if ((rows as unknown as any[]).length === 0) return null;
-
-  const candidate = (rows as unknown as any[])[0];
+  if (rows.length === 0) return null;
+  const candidate = rows[0];
   const workerId = `worker-${process.pid}-${Date.now()}`;
 
   // Atomares UPDATE: nur wenn Status noch 'pending' ist
-  const result = (await getDb())!
+  const result = await db
     .update(agentJobs)
     .set({
       status: 'processing',
@@ -55,27 +35,24 @@ export async function claimNextAgentJob() {
     .where(
       and(
         eq(agentJobs.id, candidate.id),
-        eq(agentJobs.status, 'pending') // Guard gegen Race Condition
+        eq(agentJobs.status, 'pending')
       )
     );
 
-  // Drizzle gibt bei MySQL rowsAffected zurück
-  const affected = (result as any).rowsAffected ?? (result as any)[0]?.affectedRows ?? 1;
+  const affected = (result as any).rowsAffected ?? (result as any)[0]?.affectedRows ?? 0;
   if (affected === 0) {
-    // Ein anderer Worker hat diesen Job bereits geclaimt
     return null;
   }
-
   return { ...candidate, lockedBy: workerId };
 }
 
-// ─── Stale-Lock Recovery (B2) ────────────────────────────────────────────────
-// Setzt Jobs zurück auf 'pending', die seit > timeoutMinutes im Status 'processing' hängen.
-
 export async function recoverStaleJobs(timeoutMinutes = 15) {
+  const db = await getDb();
+  if (!db) return 0;
+
   const cutoff = new Date(Date.now() - timeoutMinutes * 60 * 1000);
 
-  const result = (await getDb())!
+  const result = await db
     .update(agentJobs)
     .set({
       status: 'pending',
@@ -104,8 +81,11 @@ export async function createAgentRun(params: {
   promptVersion?: string;
   inputJson?: unknown;
 }) {
+  const db = await getDb();
+  if (!db) return crypto.randomUUID();
+
   const id = crypto.randomUUID();
-  (await getDb())!.insert(agentRuns).values({
+  await db.insert(agentRuns).values({
     id,
     jobId: params.jobId,
     agentName: params.agentName,
@@ -118,7 +98,10 @@ export async function createAgentRun(params: {
 }
 
 export async function completeAgentRun(runId: string, outputJson: unknown) {
-  (await getDb())!
+  const db = await getDb();
+  if (!db) return;
+
+  await db
     .update(agentRuns)
     .set({
       status: 'completed',
@@ -129,7 +112,10 @@ export async function completeAgentRun(runId: string, outputJson: unknown) {
 }
 
 export async function failAgentRun(runId: string, errorMessage: string) {
-  (await getDb())!
+  const db = await getDb();
+  if (!db) return;
+
+  await db
     .update(agentRuns)
     .set({
       status: 'failed',
@@ -142,7 +128,10 @@ export async function failAgentRun(runId: string, errorMessage: string) {
 // ─── Job Completion ──────────────────────────────────────────────────────────
 
 export async function completeAgentJob(jobId: string) {
-  (await getDb())!
+  const db = await getDb();
+  if (!db) return;
+
+  await db
     .update(agentJobs)
     .set({
       status: 'completed',
@@ -153,7 +142,10 @@ export async function completeAgentJob(jobId: string) {
 }
 
 export async function failAgentJob(jobId: string, errorMessage: string) {
-  (await getDb())!
+  const db = await getDb();
+  if (!db) return;
+
+  await db
     .update(agentJobs)
     .set({
       status: 'failed',
@@ -173,8 +165,11 @@ export async function logToolCall(params: {
   output?: unknown;
   sideEffectLevel?: number;
 }) {
+  const db = await getDb();
+  if (!db) return crypto.randomUUID();
+
   const id = crypto.randomUUID();
-  (await getDb())!.insert(agentToolCalls).values({
+  await db.insert(agentToolCalls).values({
     id,
     runId: params.runId,
     toolName: params.toolName,
@@ -196,8 +191,11 @@ export async function saveAgentSuggestion(params: {
   payload: unknown;
   confidence?: number;
 }) {
+  const db = await getDb();
+  if (!db) return crypto.randomUUID();
+
   const id = crypto.randomUUID();
-  (await getDb())!.insert(agentSuggestions).values({
+  await db.insert(agentSuggestions).values({
     id,
     agentRunId: params.agentRunId,
     entityType: params.entityType,
