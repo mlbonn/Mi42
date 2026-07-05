@@ -5,6 +5,7 @@ import https from 'https';
 import { sql } from 'drizzle-orm';
 import * as db from './db';
 import { getSmarterMailClient } from './smartermailClient';
+import { matchContactsForEmail, linkEmailToContactDb } from './db';
 import { decryptCredential } from './credentialService';
 import * as path from 'path';
 import { getEmailFolders } from './emailService';

@@ -7,6 +7,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
 import OpenAI from 'openai';
+import { matchContactsForEmail, linkEmailToContactDb } from '../db';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,

@@ -1965,3 +1965,115 @@ export async function getCaldavCredentials(userId: string): Promise<{ email: str
     return null;
   }
 }
+
+
+// ─── E-Mail-Kontakt-Matching ───────────────────────────────────────────────
+
+/**
+ * Findet alle Kontakte deren hinterlegte E-Mail-Adressen (email..email5)
+ * mit einer der übergebenen Adressen übereinstimmen.
+ * Normalisierung: lowercase + trim. Kein Fuzzy-Matching.
+ */
+export async function matchContactsForEmail(
+  fromAddress: string,
+  toAddresses: string[],
+  ccAddresses: string[]
+): Promise<string[]> {
+  const dbInstance = await getDb();
+  if (!dbInstance) return [];
+
+  const allAddresses = [fromAddress, ...toAddresses, ...ccAddresses]
+    .map(a => a.toLowerCase().trim())
+    .filter(Boolean);
+
+  if (allAddresses.length === 0) return [];
+
+  const ph = allAddresses.map(() => '?').join(', ');
+  const args5 = [...allAddresses, ...allAddresses, ...allAddresses, ...allAddresses, ...allAddresses];
+
+  const [contactRows] = await (dbInstance as any).$client.execute(
+    `SELECT DISTINCT id FROM contacts
+     WHERE LOWER(TRIM(email))  IN (${ph})
+        OR LOWER(TRIM(email2)) IN (${ph})
+        OR LOWER(TRIM(email3)) IN (${ph})
+        OR LOWER(TRIM(email4)) IN (${ph})
+        OR LOWER(TRIM(email5)) IN (${ph})`,
+    args5
+  ) as any;
+
+  const [relRows] = await (dbInstance as any).$client.execute(
+    `SELECT DISTINCT contact_id AS id FROM contact_company_relations
+     WHERE LOWER(TRIM(email))  IN (${ph})
+        OR LOWER(TRIM(email2)) IN (${ph})
+        OR LOWER(TRIM(email3)) IN (${ph})
+        OR LOWER(TRIM(email4)) IN (${ph})
+        OR LOWER(TRIM(email5)) IN (${ph})`,
+    args5
+  ) as any;
+
+  const ids = new Set<string>();
+  for (const row of (contactRows as any[])) ids.add(row.id);
+  for (const row of (relRows as any[])) ids.add(row.id);
+  return Array.from(ids);
+}
+
+/**
+ * Verknüpft eine E-Mail mit einem Kontakt in archived_emails.
+ * Idempotent: doppelte (email_id, contact_id) werden via INSERT IGNORE ignoriert.
+ */
+export async function linkEmailToContactDb(params: {
+  emailId: string;
+  contactId: string;
+  userId: string;
+  fromAddress?: string;
+  fromName?: string;
+  toAddress?: string;
+  ccAddress?: string;
+  subject?: string;
+  body?: string;
+  htmlBody?: string;
+  emailDate?: Date;
+  folder?: string;
+}): Promise<{ inserted: boolean }> {
+  const dbInstance = await getDb();
+  if (!dbInstance) return { inserted: false };
+
+  try {
+    const [result] = await (dbInstance as any).$client.execute(
+      `INSERT IGNORE INTO archived_emails
+       (email_id, contact_id, user_id, folder, from_address, from_name,
+        to_address, cc_address, subject, body, html_body, email_date, notes)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '')`,
+      [
+        params.emailId,
+        params.contactId,
+        params.userId,
+        params.folder ?? 'INBOX',
+        params.fromAddress ?? '',
+        params.fromName ?? '',
+        params.toAddress ?? '',
+        params.ccAddress ?? '',
+        params.subject ?? '',
+        params.body ?? '',
+        params.htmlBody ?? '',
+        params.emailDate ?? new Date(),
+      ]
+    ) as any;
+    return { inserted: (result as any).affectedRows > 0 };
+  } catch (e: any) {
+    if (e.code === 'ER_DUP_ENTRY') return { inserted: false };
+    throw e;
+  }
+}
+
+/**
+ * Entfernt eine Verknüpfung zwischen E-Mail und Kontakt.
+ */
+export async function unlinkEmailFromContactDb(emailId: string, contactId: string): Promise<void> {
+  const dbInstance = await getDb();
+  if (!dbInstance) return;
+  await (dbInstance as any).$client.execute(
+    'DELETE FROM archived_emails WHERE email_id = ? AND contact_id = ?',
+    [emailId, contactId]
+  );
+}

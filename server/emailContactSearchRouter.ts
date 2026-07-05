@@ -2,11 +2,15 @@ import { z } from 'zod';
 import { protectedProcedure, router } from './_core/trpc';
 import { getDb } from './db';
 import { contacts } from '../drizzle/schema';
-import { or, like } from 'drizzle-orm';
-import { eq } from 'drizzle-orm';
+import { or, like, eq } from 'drizzle-orm';
+import {
+  matchContactsForEmail,
+  linkEmailToContactDb,
+  unlinkEmailFromContactDb,
+} from './db';
 
 export const emailContactSearchRouter = router({
-  // Kontakte suchen (für E-Mail-Adresssuche)
+  // Kontakte suchen
   searchContacts: protectedProcedure
     .input(
       z.object({
@@ -18,7 +22,6 @@ export const emailContactSearchRouter = router({
       try {
         const db = await getDb();
         if (!db) return [];
-
         const results = await db
           .select()
           .from(contacts)
@@ -30,7 +33,6 @@ export const emailContactSearchRouter = router({
             )
           )
           .limit(input.limit);
-
         return results.map((c) => ({
           id: c.id,
           name: `${c.firstName || ''} ${c.lastName || ''}`.trim(),
@@ -44,42 +46,85 @@ export const emailContactSearchRouter = router({
       }
     }),
 
-  // Kontakt mit E-Mail verlinken
+  // Kontakt mit E-Mail manuell verlinken (echter DB-Eintrag)
   linkEmailToContact: protectedProcedure
     .input(
       z.object({
         emailId: z.string(),
         contactId: z.string(),
-        emailAddress: z.string().email(),
+        emailAddress: z.string().email().optional(),
+        fromAddress: z.string().optional(),
+        fromName: z.string().optional(),
+        toAddress: z.string().optional(),
+        ccAddress: z.string().optional(),
+        subject: z.string().optional(),
+        folder: z.string().optional(),
+        emailDate: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.user?.id;
+      if (!userId) throw new Error('Not authenticated');
+      const result = await linkEmailToContactDb({
+        emailId: input.emailId,
+        contactId: input.contactId,
+        userId,
+        fromAddress: input.fromAddress,
+        fromName: input.fromName,
+        toAddress: input.toAddress,
+        ccAddress: input.ccAddress,
+        subject: input.subject,
+        folder: input.folder,
+        emailDate: input.emailDate ? new Date(input.emailDate) : undefined,
+      });
+      return { success: true, inserted: result.inserted };
+    }),
+
+  // Verknüpfung entfernen
+  unlinkEmailFromContact: protectedProcedure
+    .input(
+      z.object({
+        emailId: z.string(),
+        contactId: z.string(),
       })
     )
     .mutation(async ({ input }) => {
-      try {
-        const id = `ecl_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        return { success: true, id };
-      } catch (error) {
-        console.error('[EmailSearch] Link failed:', error);
-        throw new Error('Failed to link email to contact');
-      }
+      await unlinkEmailFromContactDb(input.emailId, input.contactId);
+      return { success: true };
     }),
 
-  // Kontakt-Details mit Projekten
+  // Automatisches Matching: Kontakte für eine E-Mail finden
+  matchContactsForEmail: protectedProcedure
+    .input(
+      z.object({
+        fromAddress: z.string(),
+        toAddresses: z.array(z.string()).default([]),
+        ccAddresses: z.array(z.string()).default([]),
+      })
+    )
+    .query(async ({ input }) => {
+      const contactIds = await matchContactsForEmail(
+        input.fromAddress,
+        input.toAddresses,
+        input.ccAddresses
+      );
+      return { contactIds };
+    }),
+
+  // Kontakt-Details
   getContactWithProjects: protectedProcedure
     .input(z.object({ contactId: z.string() }))
     .query(async ({ input }) => {
       try {
         const db = await getDb();
         if (!db) return null;
-
         const result = await db
           .select()
           .from(contacts)
           .where(eq(contacts.id, input.contactId))
           .limit(1);
-
         const contact = result[0];
         if (!contact) return null;
-
         return {
           id: contact.id,
           name: `${contact.firstName || ''} ${contact.lastName || ''}`.trim(),
