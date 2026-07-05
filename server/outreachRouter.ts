@@ -7,9 +7,8 @@ import { router, protectedProcedure } from "./_core/trpc";
 import { emailSendQueue } from '../drizzle/schema.js';
 import { eq } from 'drizzle-orm';
 import { decryptCredential } from './credentialService.js';
-import { getCaldavCredentials } from './db.js';
+import { getCaldavCredentials, getDb } from './db.js';
 import {
-import { getDb } from './db.js';
   createCampaign,
   getCampaign,
   getAllCampaigns,
