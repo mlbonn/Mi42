@@ -1,6 +1,6 @@
 # Firmenprofil: Egger Holzwerkstoffe Wismar GmbH & CO.KG
 
-**Generiert:** 2026-07-05T18:44:22.175Z
+**Generiert:** 2026-07-05T18:48:50.126Z
 **Agent:** company_enrichment v1.0
 
 ---

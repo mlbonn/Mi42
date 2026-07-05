@@ -1,6 +1,6 @@
 # Firmenprofil: Egger Skandinavia
 
-**Generiert:** 2026-07-05T18:44:08.523Z
+**Generiert:** 2026-07-05T18:48:45.604Z
 **Agent:** company_enrichment v1.0
 
 ---
@@ -9,11 +9,11 @@
 
 | Feld | Wert |
 |---|---|
-| Branche | Agenturhandel mit Tømmer und anderen Baumaterialien |
-| Mitarbeiter | 12 |
+| Branche | – |
+| Mitarbeiter | – |
 | Website | – |
-| Stadt | Tistrup |
-| Land | DK |
+| Stadt | – |
+| Land | – |
 | Segment | – |
 | Unternehmensgröße | – |
 | Umsatz (EUR) | – |
@@ -28,7 +28,7 @@ _Keine belastbaren Informationen gefunden._
 
 ## Standorte
 
-Tistrup
+_Keine belastbaren Informationen gefunden._
 
 ---
 
@@ -40,7 +40,7 @@ _Keine belastbaren Informationen gefunden._
 
 ## Relevante Zielmärkte (Bau/Renovierung)
 
-Dänemark, Norwegen, Finnland, Schweden, Island
+_Keine belastbaren Informationen gefunden._
 
 ---
 
@@ -48,10 +48,7 @@ Dänemark, Norwegen, Finnland, Schweden, Island
 
 | Feld | Quelle | Abgerufen |
 |---|---|---|
-| industry | DuckDuckGo-Suche (Egger Skandinavia) | 2026-07-05 |
-| employeeCount | DuckDuckGo-Suche (Egger Skandinavia) | 2026-07-05 |
-| city | DuckDuckGo-Suche (Egger Skandinavia) | 2026-07-05 |
-| country | DuckDuckGo-Suche (Egger Skandinavia) | 2026-07-05 |
+_(keine angereicherten Felder)_
 
 ---
 

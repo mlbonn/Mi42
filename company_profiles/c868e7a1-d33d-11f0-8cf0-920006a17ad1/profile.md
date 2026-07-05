@@ -1,6 +1,6 @@
 # Firmenprofil: TechVision Solutions GmbH
 
-**Generiert:** 2026-07-05T18:44:03.221Z
+**Generiert:** 2026-07-05T18:48:41.352Z
 **Agent:** company_enrichment v1.0
 
 ---
@@ -9,7 +9,7 @@
 
 | Feld | Wert |
 |---|---|
-| Branche | IT-Dienstleistungen |
+| Branche | – |
 | Mitarbeiter | – |
 | Website | https://solutions.techvision.de |
 | Stadt | München |
@@ -28,13 +28,13 @@ _Keine belastbaren Informationen gefunden._
 
 ## Standorte
 
-Ein Standort
+_Keine belastbaren Informationen gefunden._
 
 ---
 
 ## Jüngste Entwicklungen
 
-Letzte Handelsregisteränderung am 05.04.2022
+_Keine belastbaren Informationen gefunden._
 
 ---
 
@@ -48,7 +48,7 @@ _Keine belastbaren Informationen gefunden._
 
 | Feld | Quelle | Abgerufen |
 |---|---|---|
-| industry | DuckDuckGo-Suche (TechVision Solutions GmbH) | 2026-07-05 |
+_(keine angereicherten Felder)_
 
 ---
 

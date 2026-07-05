@@ -1,6 +1,6 @@
 # Firmenprofil: EGGER Panneaux & Décors S.A.S.
 
-**Generiert:** 2026-07-05T18:44:08.662Z
+**Generiert:** 2026-07-05T18:48:25.124Z
 **Agent:** company_enrichment v1.0
 
 ---
@@ -9,14 +9,14 @@
 
 | Feld | Wert |
 |---|---|
-| Branche | Herstellung von Furnier und Holzplatten |
-| Mitarbeiter | 750 |
+| Branche | – |
+| Mitarbeiter | – |
 | Website | – |
 | Stadt | Rion des Landes Cedex 01 |
 | Land | FR |
 | Segment | – |
 | Unternehmensgröße | – |
-| Umsatz (EUR) | 230000000 |
+| Umsatz (EUR) | – |
 
 ---
 
@@ -28,7 +28,7 @@ _Keine belastbaren Informationen gefunden._
 
 ## Standorte
 
-Europa, Amerika (als Teil der Gruppe)
+_Keine belastbaren Informationen gefunden._
 
 ---
 
@@ -40,7 +40,7 @@ _Keine belastbaren Informationen gefunden._
 
 ## Relevante Zielmärkte (Bau/Renovierung)
 
-Weltweit
+_Keine belastbaren Informationen gefunden._
 
 ---
 
@@ -48,9 +48,7 @@ Weltweit
 
 | Feld | Quelle | Abgerufen |
 |---|---|---|
-| industry | DuckDuckGo-Suche (EGGER Panneaux & Décors S.A.S.) | 2026-07-05 |
-| employeeCount | DuckDuckGo-Suche (EGGER Panneaux & Décors S.A.S.) | 2026-07-05 |
-| revenueEur | DuckDuckGo-Suche (EGGER Panneaux & Décors S.A.S.) | 2026-07-05 |
+_(keine angereicherten Felder)_
 
 ---
 

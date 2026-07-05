@@ -1,6 +1,6 @@
 # Firmenprofil: Fritz Egger Spanplattenindustrie
 
-**Generiert:** 2026-07-05T18:44:03.432Z
+**Generiert:** 2026-07-05T18:48:30.549Z
 **Agent:** company_enrichment v1.0
 
 ---
@@ -9,11 +9,11 @@
 
 | Feld | Wert |
 |---|---|
-| Branche | Holzindustrie |
-| Mitarbeiter | 11100 |
+| Branche | – |
+| Mitarbeiter | – |
 | Website | – |
 | Stadt | Brilon |
-| Land | AT |
+| Land | – |
 | Segment | – |
 | Unternehmensgröße | – |
 | Umsatz (EUR) | – |
@@ -22,13 +22,13 @@
 
 ## Marktposition
 
-international führend
+_Keine belastbaren Informationen gefunden._
 
 ---
 
 ## Standorte
 
-21 Standorte weltweit
+_Keine belastbaren Informationen gefunden._
 
 ---
 
@@ -40,7 +40,7 @@ _Keine belastbaren Informationen gefunden._
 
 ## Relevante Zielmärkte (Bau/Renovierung)
 
-Möbelindustrie, Holz- und Bodenbelagshandel, Baumärkte
+_Keine belastbaren Informationen gefunden._
 
 ---
 
@@ -48,9 +48,7 @@ Möbelindustrie, Holz- und Bodenbelagshandel, Baumärkte
 
 | Feld | Quelle | Abgerufen |
 |---|---|---|
-| industry | DuckDuckGo-Suche (Fritz Egger Spanplattenindustrie) | 2026-07-05 |
-| employeeCount | DuckDuckGo-Suche (Fritz Egger Spanplattenindustrie) | 2026-07-05 |
-| country | DuckDuckGo-Suche (Fritz Egger Spanplattenindustrie) | 2026-07-05 |
+_(keine angereicherten Felder)_
 
 ---
 

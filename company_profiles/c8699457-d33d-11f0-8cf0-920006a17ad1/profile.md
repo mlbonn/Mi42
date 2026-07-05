@@ -1,6 +1,6 @@
 # Firmenprofil: TechVision Consulting AG
 
-**Generiert:** 2026-07-05T18:44:23.031Z
+**Generiert:** 2026-07-05T18:48:30.540Z
 **Agent:** company_enrichment v1.0
 
 ---

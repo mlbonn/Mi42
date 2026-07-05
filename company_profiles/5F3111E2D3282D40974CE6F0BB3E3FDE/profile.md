@@ -1,6 +1,6 @@
 # Firmenprofil: Egger Products GmbH
 
-**Generiert:** 2026-07-05T18:44:12.039Z
+**Generiert:** 2026-07-05T18:48:30.543Z
 **Agent:** company_enrichment v1.0
 
 ---

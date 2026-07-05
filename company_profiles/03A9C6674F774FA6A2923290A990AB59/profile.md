@@ -1,6 +1,6 @@
 # Firmenprofil: EGGER Holzwerkstoffe Brilon GmbH & Co. KG
 
-**Generiert:** 2026-07-05T18:44:12.024Z
+**Generiert:** 2026-07-05T18:48:45.127Z
 **Agent:** company_enrichment v1.0
 
 ---

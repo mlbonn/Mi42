@@ -1,6 +1,6 @@
 # Firmenprofil: EGGER Osteuropa Beteiligungsverwaltung GmbH
 
-**Generiert:** 2026-07-05T18:44:27.227Z
+**Generiert:** 2026-07-05T18:48:25.251Z
 **Agent:** company_enrichment v1.0
 
 ---

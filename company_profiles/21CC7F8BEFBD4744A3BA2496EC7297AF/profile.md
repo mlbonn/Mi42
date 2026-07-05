@@ -1,6 +1,6 @@
 # Firmenprofil: Fritz Egger GmbH & Co. Spanplattenwerk
 
-**Generiert:** 2026-07-05T18:44:17.149Z
+**Generiert:** 2026-07-05T18:48:51.108Z
 **Agent:** company_enrichment v1.0
 
 ---
