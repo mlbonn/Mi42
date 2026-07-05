@@ -47,10 +47,13 @@ export type CompanyEnrichmentOutput = z.infer<typeof CompanyEnrichmentOutput>;
 
 const LLM_URL =
   process.env.CUSTOM_LLM_URL ??
-  "https://maxproxy.bl2020.com/api/chat/completions";
+  "https://openrouter.ai/api/v1/chat/completions";
 const LLM_TOKEN =
-  process.env.CUSTOM_LLM_TOKEN ?? "sk-bd621b0666474be1b054b3c5360b3cef";
-const LLM_MODEL = process.env.CUSTOM_LLM_MODEL ?? "gpt-oss:120b";
+  process.env.OPENROUTER_API_KEY ??
+  process.env.CUSTOM_LLM_TOKEN ??
+  "";
+const LLM_MODEL =
+  process.env.CUSTOM_LLM_MODEL ?? "google/gemini-2.5-flash";
 
 async function callLLM(
   systemPrompt: string,
@@ -60,7 +63,9 @@ async function callLLM(
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${LLM_TOKEN}`,
+      "Authorization": `Bearer ${LLM_TOKEN}`,
+      "HTTP-Referer": "https://friday-crm.local",
+      "X-Title": "FRIDAY CRM Enrichment",
     },
     body: JSON.stringify({
       model: LLM_MODEL,
@@ -69,16 +74,25 @@ async function callLLM(
         { role: "user", content: userPrompt },
       ],
       temperature: 0.2,
+      max_tokens: 2000,
     }),
   });
-  if (!res.ok) throw new Error(`LLM error ${res.status}: ${await res.text()}`);
-  const data = (await res.json()) as {
-    choices: { message: { content: string } }[];
-  };
+  if (!res.ok) {
+    const errText = await res.text().catch(() => "");
+    throw new Error(`LLM error ${res.status}: ${errText.slice(0, 300)}`);
+  }
+  const raw = await res.text();
+  let data: { choices?: Array<{ message?: { content?: string } }> } | null = null;
+  try {
+    data = JSON.parse(raw);
+  } catch {
+    throw new Error(`LLM returned non-JSON: ${raw.slice(0, 200)}`);
+  }
+  if (!data || !data.choices || data.choices.length === 0) {
+    throw new Error(`LLM returned no choices: ${raw.slice(0, 200)}`);
+  }
   return data.choices[0]?.message?.content ?? "";
 }
-
-// ── Web-Abruf ────────────────────────────────────────────────────────────────
 
 async function fetchPublicInfo(
   companyName: string,

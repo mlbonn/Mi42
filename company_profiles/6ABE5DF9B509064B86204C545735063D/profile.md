@@ -1,6 +1,6 @@
-# Firmenprofil: EGGER Holzwerkstoffe GmbH
+# Firmenprofil: Egger Benelux GCV
 
-**Generiert:** 2026-07-05T18:02:00.149Z
+**Generiert:** 2026-07-05T18:41:20.588Z
 **Agent:** company_enrichment v1.0
 
 ---
@@ -11,9 +11,9 @@
 |---|---|
 | Branche | – |
 | Mitarbeiter | – |
-| Website | www.egger.com |
-| Stadt | St. Johann in Tirol |
-| Land | AT |
+| Website | – |
+| Stadt | Zulte |
+| Land | – |
 | Segment | – |
 | Unternehmensgröße | – |
 | Umsatz (EUR) | – |
@@ -54,9 +54,7 @@ _(keine angereicherten Felder)_
 
 ## Übersprungene Felder (manuell gesetzt, nicht überschrieben)
 
-- website
 - city
-- country
 
 ---
 
