@@ -1981,55 +1981,42 @@ export async function matchContactsForEmail(
 ): Promise<string[]> {
   const dbInstance = await getDb();
   if (!dbInstance) return [];
-
   const allAddresses = [fromAddress, ...toAddresses, ...ccAddresses]
     .map((a) => a.toLowerCase().trim())
     .filter(Boolean);
   if (allAddresses.length === 0) return [];
-
   const ids = new Set<string>();
-
+  const placeholders = allAddresses.map(() => '?').join(',');
   try {
-    // Match via contacts.email / email2-5
-    const contactRows = await dbInstance
-      .select({ id: contacts.id })
-      .from(contacts)
-      .where(
-        or(
-          inArray(sql`LOWER(TRIM(${contacts.email}))`, allAddresses),
-          inArray(sql`LOWER(TRIM(${contacts.email2}))`, allAddresses),
-          inArray(sql`LOWER(TRIM(${contacts.email3}))`, allAddresses),
-          inArray(sql`LOWER(TRIM(${contacts.email4}))`, allAddresses),
-          inArray(sql`LOWER(TRIM(${contacts.email5}))`, allAddresses)
-        )
-      );
-    for (const row of contactRows) ids.add(row.id);
+    const [contactRows] = await (dbInstance as any).$client.execute(
+      `SELECT DISTINCT id FROM contacts WHERE
+        LOWER(TRIM(COALESCE(email,''))) IN (${placeholders}) OR
+        LOWER(TRIM(COALESCE(email2,''))) IN (${placeholders}) OR
+        LOWER(TRIM(COALESCE(email3,''))) IN (${placeholders}) OR
+        LOWER(TRIM(COALESCE(email4,''))) IN (${placeholders}) OR
+        LOWER(TRIM(COALESCE(email5,''))) IN (${placeholders})`,
+      [...allAddresses, ...allAddresses, ...allAddresses, ...allAddresses, ...allAddresses]
+    );
+    for (const row of (contactRows as any[])) ids.add(row.id);
   } catch (err: any) {
     console.error('[matchContactsForEmail] contacts query failed:', err.message);
   }
-
   try {
-    // Match via contact_company_relations
-    const relRows = await dbInstance
-      .select({ id: contactCompanyRelations.contactId })
-      .from(contactCompanyRelations)
-      .where(
-        or(
-          inArray(sql`LOWER(TRIM(${contactCompanyRelations.email}))`, allAddresses),
-          inArray(sql`LOWER(TRIM(${contactCompanyRelations.email2}))`, allAddresses),
-          inArray(sql`LOWER(TRIM(${contactCompanyRelations.email3}))`, allAddresses),
-          inArray(sql`LOWER(TRIM(${contactCompanyRelations.email4}))`, allAddresses),
-          inArray(sql`LOWER(TRIM(${contactCompanyRelations.email5}))`, allAddresses)
-        )
-      );
-    for (const row of relRows) ids.add(row.id);
+    const [relRows] = await (dbInstance as any).$client.execute(
+      `SELECT DISTINCT contactId AS id FROM contact_company_relations WHERE
+        LOWER(TRIM(COALESCE(email,''))) IN (${placeholders}) OR
+        LOWER(TRIM(COALESCE(email2,''))) IN (${placeholders}) OR
+        LOWER(TRIM(COALESCE(email3,''))) IN (${placeholders}) OR
+        LOWER(TRIM(COALESCE(email4,''))) IN (${placeholders}) OR
+        LOWER(TRIM(COALESCE(email5,''))) IN (${placeholders})`,
+      [...allAddresses, ...allAddresses, ...allAddresses, ...allAddresses, ...allAddresses]
+    );
+    for (const row of (relRows as any[])) if (row.id) ids.add(row.id);
   } catch (err: any) {
     console.error('[matchContactsForEmail] contact_company_relations query failed:', err.message);
   }
-
   return Array.from(ids);
 }
-
 
 export async function linkEmailToContactDb(params: {
   emailId: string;
