@@ -35,5 +35,13 @@ module.exports = {
         NODE_ENV: 'production',
       },
     },
+    {
+      name: 'agent-worker',
+      script: './dist/agentWorkerDaemon.js',
+      cwd: '/home/manus02/friday-crm',
+      env: {
+        NODE_ENV: 'production',
+      },
+    },
   ],
 };

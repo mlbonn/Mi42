@@ -755,6 +755,7 @@ export const apiKeys = mysqlTable("api_keys", {
   googleKey: text("googleKey"),
   mistralKey: text("mistralKey"),
   groqKey: text("groqKey"),
+  openrouterKey: text("openrouterKey"),
   ollamaKey: text("ollamaKey"),
   ollamaUrl: varchar("ollamaUrl", { length: 512 }),
   

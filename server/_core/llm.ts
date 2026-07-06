@@ -55,13 +55,20 @@ export type ToolChoice =
   | ToolChoiceByName
   | ToolChoiceExplicit;
 
-export type LLMProvider = "openai" | "anthropic" | "google" | "mistral" | "groq";
+export type LLMProvider = "openai" | "anthropic" | "google" | "mistral" | "groq" | "openrouter";
 
 export type InvokeParams = {
-  messages: Message[];
+  messages?: Message[];
+  /** Convenience shorthand: wird in messages[{role:"system"}] umgewandelt */
+  systemPrompt?: string;
+  /** Convenience shorthand: wird in messages[{role:"user"}] umgewandelt */
+  userPrompt?: string;
+  /** Bevorzugter Provider; wird von invokeLLMWithDbKeys ausgewertet */
+  preferredProvider?: LLMProvider;
   tools?: Tool[];
   toolChoice?: ToolChoice;
   tool_choice?: ToolChoice;
+  temperature?: number;
   maxTokens?: number;
   max_tokens?: number;
   outputSchema?: OutputSchema;
@@ -235,6 +242,12 @@ const PROVIDER_CONFIGS: Record<LLMProvider, { baseUrl: string; model: string }> 
     baseUrl: "https://api.groq.com/openai/v1/chat/completions",
     model: "llama-3.3-70b-versatile",
   },
+  // OpenRouter: Zugang zu vielen Modellen über eine einheitliche API.
+  // Bevorzugt für den company_enrichment Agent (Gemini 2.5 Flash).
+  openrouter: {
+    baseUrl: "https://openrouter.ai/api/v1/chat/completions",
+    model: "google/gemini-2.5-flash",
+  },
 };
 
 const resolveApiUrl = (provider?: LLMProvider) => {
@@ -317,10 +330,13 @@ const normalizeResponseFormat = ({
 
 export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
   const {
-    messages,
+    messages: rawMessages,
+    systemPrompt,
+    userPrompt,
     tools,
     toolChoice,
     tool_choice,
+    temperature,
     outputSchema,
     output_schema,
     responseFormat,
@@ -328,6 +344,11 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
     provider,
     apiKey: customApiKey,
   } = params;
+  // systemPrompt/userPrompt in messages-Array umwandeln
+  const messages: Message[] = rawMessages ?? [
+    ...(systemPrompt ? [{ role: "system" as const, content: systemPrompt }] : []),
+    ...(userPrompt ? [{ role: "user" as const, content: userPrompt }] : []),
+  ];
 
   const apiKey = resolveApiKey(provider, customApiKey);
   
@@ -339,6 +360,9 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
     model: resolveModel(provider),
     messages: messages.map(normalizeMessage),
   };
+  if (temperature !== undefined) {
+    payload.temperature = temperature;
+  }
 
   if (tools && tools.length > 0) {
     payload.tools = tools;
@@ -370,12 +394,18 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
     payload.response_format = normalizedResponseFormat;
   }
 
+  const fetchHeaders: Record<string, string> = {
+    "content-type": "application/json",
+    authorization: `Bearer ${apiKey}`,
+  };
+  // OpenRouter erfordert zusätzliche Header für Routing und Abuse-Prävention
+  if (provider === "openrouter") {
+    fetchHeaders["HTTP-Referer"] = "https://friday-crm.local";
+    fetchHeaders["X-Title"] = "FRIDAY CRM";
+  }
   const response = await fetch(resolveApiUrl(provider), {
     method: "POST",
-    headers: {
-      "content-type": "application/json",
-      authorization: `Bearer ${apiKey}`,
-    },
+    headers: fetchHeaders,
     body: JSON.stringify(payload),
   });
 
@@ -429,7 +459,7 @@ async function getApiKeysFromDb(): Promise<{
 
   // Find the first row that has at least one LLM key configured
   let row = result.find(r => 
-    r.openaiKey || r.anthropicKey || r.googleKey || r.mistralKey || r.groqKey
+    r.openaiKey || r.anthropicKey || r.googleKey || r.mistralKey || r.groqKey || r.openrouterKey
   );
   
   // If no row with keys found, use the first row
@@ -442,6 +472,7 @@ async function getApiKeysFromDb(): Promise<{
     google: row.googleKey || "",
     mistral: row.mistralKey || "",
     groq: row.groqKey || "",
+    openrouter: row.openrouterKey || process.env.OPENROUTER_API_KEY || "",
   };
 
   const defaultProvider = (row.defaultLlmProvider as LLMProvider) || "openai";
@@ -465,13 +496,18 @@ export async function invokeLLMWithDbKeys(
 ): Promise<InvokeResult> {
   const { keys, defaultProvider } = await getApiKeysFromDb();
   
-  // Try default provider first
-  let apiKey = keys[defaultProvider];
-  let provider: LLMProvider = defaultProvider;
-  
-  // If default provider has no key, try others
+  // preferredProvider: wenn gesetzt und Key vorhanden, diesen nehmen
+  const preferred = params.preferredProvider;
+  let apiKey = preferred && keys[preferred] ? keys[preferred] : "";
+  let provider: LLMProvider = preferred && keys[preferred] ? preferred : defaultProvider;
+  // Wenn preferred keinen Key hat: Default-Provider versuchen
   if (!apiKey) {
-    const providers: LLMProvider[] = ["openai", "google", "anthropic", "mistral", "groq"];
+    apiKey = keys[defaultProvider] ?? "";
+    provider = defaultProvider;
+  }
+  // Wenn Default-Provider keinen Key hat: alle anderen durchprobieren
+  if (!apiKey) {
+    const providers: LLMProvider[] = ["openai", "google", "anthropic", "mistral", "groq", "openrouter"];
     for (const p of providers) {
       if (keys[p]) {
         apiKey = keys[p];

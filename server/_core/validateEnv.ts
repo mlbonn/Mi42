@@ -60,6 +60,12 @@ export function validateEnv(): void {
     errors.push('DEV_MODE=true is not allowed in NODE_ENV=production');
   }
 
+  // OPENROUTER_API_KEY – kein harter Fehler, aber Warnung wenn fehlt
+  // (wird vom company_enrichment Agent benötigt; Fallback auf DB-Key möglich)
+  if (!process.env.OPENROUTER_API_KEY) {
+    console.warn('[validateEnv] WARNING: OPENROUTER_API_KEY is not set – company_enrichment agent will use DB-configured key or fail at runtime');
+  }
+
   if (errors.length > 0) {
     console.error('\n[validateEnv] Server startup aborted due to configuration errors:');
     errors.forEach(e => console.error(`  - ${e}`));
