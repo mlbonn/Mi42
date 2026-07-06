@@ -6,7 +6,7 @@ import {
   corporations, companies, contacts, contactCompanyRelations, contactEmails,
   deals, activities, productUsage, partners, partnerDeals,
   userAccountAssignments, commissions, apiKeys,
-  emailTemplates, emailDrafts, emailResponses, emailAccountsOld as emailAccounts,
+  emailTemplates, emailDrafts, emailResponses, emailAccountsNew as emailAccounts,
   emailProjectLinks,
   projectTimesheets,
   projectBudgetPlans, emailAccountsNew, emailFetchLog,
