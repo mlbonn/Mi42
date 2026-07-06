@@ -1186,10 +1186,10 @@ export const archivedEmailAttachments = mysqlTable(
   {
     id:              int("id").autoincrement().primaryKey(),
     archivedEmailId: int("archived_email_id").notNull(),
-    filename:        varchar("filename", { length: 512 }).notNull(),
-    contentType:     varchar("content_type", { length: 128 }),
+    filename:        varchar("filename", { length: 255 }).notNull(),
+    contentType:     varchar("content_type", { length: 100 }),
     sizeBytes:       int("size_bytes"),
-    filePath:        varchar("file_path", { length: 1024 }),
+    filePath:        varchar("file_path", { length: 500 }).notNull(),
     createdAt:       timestamp("created_at").defaultNow(),
   },
   (t) => ({
