@@ -821,45 +821,6 @@ export const contactDistributionLists = mysqlTable("contact_distribution_lists",
 export type ContactDistributionList = typeof contactDistributionLists.$inferSelect;
 export type InsertContactDistributionList = typeof contactDistributionLists.$inferInsert;
 
-// ============================================================================
-// EMAIL ACCOUNTS (IMAP Configuration)
-// ============================================================================
-export const emailAccountsOld = mysqlTable("email_accounts", {
-  id: varchar("id", { length: 64 }).primaryKey().$defaultFn(() => crypto.randomUUID()),
-  user_id: varchar("user_id", { length: 64 }),
-  
-  // Account identification
-  name: varchar("name", { length: 100 }).notNull(), // e.g., "Archiv", "Bounces", "Antworten"
-  email: varchar("email", { length: 255 }).notNull(), // e.g., "FRIDAYarchiv@BL2020.com"
-  purpose: varchar("purpose", { length: 50 }).notNull(), // "archive", "bounces", "replies", "general"
-  
-  // IMAP Server Configuration
-  imapHost: varchar("imapHost", { length: 255 }).notNull(),
-  imapPort: int("imapPort").notNull().default(993),
-  imapUser: varchar("imapUser", { length: 255 }).notNull(),
-  imapPassword: text("imapPassword").notNull(),
-  imapSsl: boolean("imapSsl").default(true),
-  
-  // Processing Options
-  deleteAfterFetch: boolean("deleteAfterFetch").default(true),
-  markAsReadAfterFetch: boolean("markAsReadAfterFetch").default(true),
-  fetchIntervalMinutes: int("fetchIntervalMinutes").default(5),
-  
-  // Status
-  isActive: boolean("isActive").default(true),
-  lastFetchAt: timestamp("lastFetchAt"),
-  lastError: text("lastError"),
-  
-  // Timestamps
-  createdAt: timestamp("createdAt").defaultNow(),
-  updatedAt: timestamp("updatedAt").defaultNow(),
-}, (table) => ({
-  emailIdx: index("ea_email_idx").on(table.email),
-  purposeIdx: index("ea_purpose_idx").on(table.purpose),
-}));
-
-export type EmailAccountOld = typeof emailAccountsOld.$inferSelect;
-export type InsertEmailAccountOld = typeof emailAccountsOld.$inferInsert;
 
 // ============================================================================
 // EMAIL FETCH LOG (Track processed emails)
