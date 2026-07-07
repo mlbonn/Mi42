@@ -1,7 +1,7 @@
 import { router, protectedProcedure } from '../_core/trpc';
 import { z } from 'zod';
 import { getDb } from '../db';
-import { archivedEmails, attachments, contacts } from '../../drizzle/schema';
+import { archivedEmails, archivedEmailAttachments, attachments, contacts } from '../../drizzle/schema';
 import { eq, desc, or, like } from 'drizzle-orm';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -260,4 +260,58 @@ export const archiveRouter = router({
 
       return { contactId };
     }),
+  /**
+   * Download an archived email attachment
+   * Returns the file content as base64 or a signed URL
+   */
+  downloadAttachment: protectedProcedure
+    .input(z.object({ attachmentId: z.number() }))
+    .query(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      // Get attachment metadata
+      const [attachment] = await db
+        .select()
+        .from(archivedEmailAttachments)
+        .where(eq(archivedEmailAttachments.id, input.attachmentId))
+        .limit(1);
+
+      if (!attachment) {
+        throw new Error("Attachment not found");
+      }
+
+      // Verify the user has access (the archived email must belong to a contact
+      // accessible by this user – for now we check the email exists)
+      const [archivedEmail] = await db
+        .select()
+        .from(archivedEmails)
+        .where(eq(archivedEmails.id, attachment.archivedEmailId))
+        .limit(1);
+
+      if (!archivedEmail) {
+        throw new Error("Archived email not found");
+      }
+
+      // Check if file exists on disk
+      const filePath = attachment.filePath;
+      const fs = await import("fs/promises");
+      try {
+        await fs.access(filePath);
+      } catch {
+        throw new Error("Attachment file not found on disk");
+      }
+
+      // Read file and return as base64
+      const fileBuffer = await fs.readFile(filePath);
+      const base64Content = fileBuffer.toString("base64");
+
+      return {
+        filename: attachment.filename,
+        contentType: attachment.contentType || "application/octet-stream",
+        sizeBytes: attachment.sizeBytes,
+        content: base64Content,
+      };
+    }),
+
 });
