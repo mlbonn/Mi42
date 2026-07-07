@@ -38,8 +38,7 @@ export default function GlobalSearch() {
   const { data, isFetching } = trpc.search.global.useQuery(
     { query: debouncedQuery, limit: 7 },
     {
-      enabled: debouncedQuery.length >= 2,
-      keepPreviousData: false,
+      enabled: debouncedQuery.length >= 2
     }
   );
 

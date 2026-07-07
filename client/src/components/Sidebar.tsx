@@ -3,7 +3,6 @@ import { Link, useLocation } from "wouter";
 import { trpc } from "../lib/trpc";
 
 import { Bot,
-import GlobalSearch from "./GlobalSearch";
   Home,
   Building2,
   Users,
@@ -24,6 +23,7 @@ import GlobalSearch from "./GlobalSearch";
   X,
   Folder,
 } from "lucide-react";
+import GlobalSearch from "./GlobalSearch";
 
 interface NavItem {
   name: string;
