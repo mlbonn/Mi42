@@ -4,7 +4,7 @@
 
 import { Router } from "express";
 import { getDb } from "../db";
-import { hunterResults } from "../../drizzle/schema";
+import { hunterResults, hunterQueue } from "../../drizzle/schema";
 import { eq, desc, and, inArray, sql } from "drizzle-orm";
 import { enrichPerson } from "../integrations/apolloEnrichment";
 
@@ -211,6 +211,58 @@ router.post("/data-sources/:source/test", async (req, res) => {
       success: false, 
       error: error.message || "Failed to test connection" 
     });
+  }
+});
+
+
+/**
+ * GET /api/hunter/queue
+ * List all hunter queue jobs with optional filters
+ */
+router.get("/queue", async (req, res) => {
+  try {
+    const db = await getDb();
+    if (!db) return res.status(500).json({ error: "Database not available" });
+    const { status } = req.query;
+    const conditions = [];
+    if (status && status !== "all") {
+      conditions.push(eq(hunterQueue.status, status as string));
+    }
+    let jobs;
+    if (conditions.length > 0) {
+      jobs = await db.select().from(hunterQueue).where(and(...conditions));
+    } else {
+      jobs = await db.select().from(hunterQueue);
+    }
+    jobs.sort((a: any, b: any) => {
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return dateB - dateA;
+    });
+    res.json(jobs);
+  } catch (error) {
+    console.error("Error fetching hunter queue:", error);
+    res.status(500).json({ error: "Failed to fetch hunter queue" });
+  }
+});
+
+/**
+ * POST /api/hunter/queue/:id/retry
+ * Retry a failed hunter job
+ */
+router.post("/queue/:id/retry", async (req, res) => {
+  try {
+    const db = await getDb();
+    if (!db) return res.status(500).json({ error: "Database not available" });
+    const { id } = req.params;
+    await db
+      .update(hunterQueue)
+      .set({ status: "pending", errorMessage: null })
+      .where(eq(hunterQueue.id, id));
+    res.json({ success: true, message: "Job queued for retry" });
+  } catch (error) {
+    console.error("Error retrying hunter job:", error);
+    res.status(500).json({ error: "Failed to retry job" });
   }
 });
 

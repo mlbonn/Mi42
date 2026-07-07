@@ -404,5 +404,59 @@ router.post("/templates/:id/duplicate", async (req, res) => {
   }
 });
 
+
+/**
+ * GET /api/outreach/queue
+ * List all outreach agent jobs (from agent_jobs table)
+ */
+router.get("/queue", async (req, res) => {
+  try {
+    const db = await getDb();
+    if (!db) return res.status(500).json({ error: "Database not available" });
+    const { status } = req.query;
+    const { agentJobs } = await import("../../drizzle/schema");
+    const { desc: descOp, eq: eqOp } = await import("drizzle-orm");
+    let jobs;
+    if (status && status !== "all") {
+      jobs = await db
+        .select()
+        .from(agentJobs)
+        .where(eqOp(agentJobs.status, status as any))
+        .orderBy(descOp(agentJobs.createdAt));
+    } else {
+      jobs = await db
+        .select()
+        .from(agentJobs)
+        .orderBy(descOp(agentJobs.createdAt));
+    }
+    res.json(jobs);
+  } catch (error) {
+    console.error("Error fetching outreach queue:", error);
+    res.status(500).json({ error: "Failed to fetch outreach queue" });
+  }
+});
+
+/**
+ * POST /api/outreach/queue/:id/retry
+ * Retry a failed outreach agent job
+ */
+router.post("/queue/:id/retry", async (req, res) => {
+  try {
+    const db = await getDb();
+    if (!db) return res.status(500).json({ error: "Database not available" });
+    const { id } = req.params;
+    const { agentJobs } = await import("../../drizzle/schema");
+    const { eq: eqOp } = await import("drizzle-orm");
+    await db
+      .update(agentJobs)
+      .set({ status: "pending" as any, errorMessage: null })
+      .where(eqOp(agentJobs.id, id));
+    res.json({ success: true, message: "Job queued for retry" });
+  } catch (error) {
+    console.error("Error retrying outreach job:", error);
+    res.status(500).json({ error: "Failed to retry job" });
+  }
+});
+
 export default router;
 

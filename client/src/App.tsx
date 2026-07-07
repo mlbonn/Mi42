@@ -25,10 +25,12 @@ import OutreachDrafts from "./pages/OutreachDrafts";
 import OutreachResponses from "./pages/OutreachResponses";
 import * as Placeholder from "./pages/Placeholder";
 import HunterDashboard from "./pages/HunterDashboard";
+import HunterJobQueue from "./pages/HunterJobQueue";
 import HunterTargetCompanies from "./pages/HunterTargetCompanies";
 import HunterReview from "./pages/HunterReview";
 import HunterFoundContacts from "./pages/HunterFoundContacts";
 import OutreachDashboard from "./pages/OutreachDashboard";
+import OutreachJobQueue from "./pages/OutreachJobQueue";
 import OutreachCampaigns from "./pages/OutreachCampaigns";
 import OutreachReview from "./pages/OutreachReview";
 import OutreachSent from "./pages/OutreachSent";
@@ -82,6 +84,7 @@ function Router() {
         <Route path="/hunter/targets" component={HunterTargetCompanies} />
         <Route path="/hunter/review" component={HunterReview} />
         <Route path="/hunter/contacts" component={HunterFoundContacts} />
+        <Route path="/hunter/queue" component={HunterJobQueue} />
         <Route path="/hunter/data-sources" component={Placeholder.HunterSourcesPage} />
         <Route path="/hunter/stats" component={Placeholder.HunterStatsPage} />
         
@@ -93,6 +96,7 @@ function Router() {
         <Route path="/outreach/sent" component={OutreachSent} />
         <Route path="/outreach/responses" component={OutreachResponses} />
         <Route path="/outreach/templates" component={OutreachTemplates} />
+        <Route path="/outreach/queue" component={OutreachJobQueue} />
         <Route path="/outreach/stats" component={Placeholder.OutreachStatsPage} />
         
         {/* Analytics */}
