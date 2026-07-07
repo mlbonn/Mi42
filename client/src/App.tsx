@@ -26,6 +26,7 @@ import OutreachResponses from "./pages/OutreachResponses";
 import * as Placeholder from "./pages/Placeholder";
 import HunterDashboard from "./pages/HunterDashboard";
 import HunterJobQueue from "./pages/HunterJobQueue";
+import HunterDataSources from "./pages/HunterDataSources";
 import HunterTargetCompanies from "./pages/HunterTargetCompanies";
 import HunterReview from "./pages/HunterReview";
 import HunterFoundContacts from "./pages/HunterFoundContacts";
@@ -85,7 +86,7 @@ function Router() {
         <Route path="/hunter/review" component={HunterReview} />
         <Route path="/hunter/contacts" component={HunterFoundContacts} />
         <Route path="/hunter/queue" component={HunterJobQueue} />
-        <Route path="/hunter/data-sources" component={Placeholder.HunterSourcesPage} />
+        <Route path="/hunter/data-sources" component={HunterDataSources} />
         <Route path="/hunter/stats" component={Placeholder.HunterStatsPage} />
         
         {/* Outreach Agent */}

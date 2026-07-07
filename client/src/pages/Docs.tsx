@@ -196,11 +196,10 @@ export default function Docs() {
         </div>
       </section>
 
-      {/* Weitere Phasen werden hier hinzugefügt */}
       <section className="mb-12 border-l-4 border-gray-300 pl-6">
         <div className="flex items-center gap-2 mb-4">
-          <span className="bg-gray-300 text-gray-700 px-3 py-1 text-sm font-bold">PHASE 2</span>
-          <span className="text-sm text-gray-600">In Entwicklung</span>
+          <span className="bg-green-600 text-white px-3 py-1 text-sm font-bold">PHASE 2</span>
+          <span className="text-sm text-green-700 font-medium">Completed</span>
         </div>
         
         <h2 className="text-2xl font-bold mb-4">Scout Agent - Backend APIs</h2>
@@ -211,8 +210,8 @@ export default function Docs() {
 
       <section className="mb-12 border-l-4 border-gray-300 pl-6">
         <div className="flex items-center gap-2 mb-4">
-          <span className="bg-gray-300 text-gray-700 px-3 py-1 text-sm font-bold">PHASE 3</span>
-          <span className="text-sm text-gray-600">Geplant</span>
+          <span className="bg-green-600 text-white px-3 py-1 text-sm font-bold">PHASE 3</span>
+          <span className="text-sm text-green-700 font-medium">Completed</span>
         </div>
         
         <h2 className="text-2xl font-bold mb-4">Scout Agent - Worker Service</h2>
@@ -223,8 +222,8 @@ export default function Docs() {
 
       <section className="mb-12 border-l-4 border-gray-300 pl-6">
         <div className="flex items-center gap-2 mb-4">
-          <span className="bg-gray-300 text-gray-700 px-3 py-1 text-sm font-bold">PHASE 4</span>
-          <span className="text-sm text-gray-600">Geplant</span>
+          <span className="bg-green-600 text-white px-3 py-1 text-sm font-bold">PHASE 4</span>
+          <span className="text-sm text-green-700 font-medium">Completed</span>
         </div>
         
         <h2 className="text-2xl font-bold mb-4">Scout Agent - Frontend UI</h2>
@@ -239,7 +238,7 @@ export default function Docs() {
           <strong>FRIDAY CRM</strong> - Fully Responsive Intelligence Driving Autonomous Yield
         </p>
         <p className="mt-2">
-          Entwickelt für Global Building Monitor | Version: Phase 1 (Database) | 
+          Entwickelt für Global Building Monitor | Version: Phase 1–4 (Database, Backend APIs, Worker, Frontend UI) | 
           Letzte Aktualisierung: {new Date().toLocaleDateString('de-DE')}
         </p>
       </footer>
