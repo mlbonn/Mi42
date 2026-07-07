@@ -1,4 +1,4 @@
-CREATE TABLE `agent_jobs` (
+CREATE TABLE IF NOT EXISTS `agent_jobs` (
 	`id` varchar(64) NOT NULL,
 	`type` varchar(100) NOT NULL,
 	`entityType` varchar(100),
@@ -18,7 +18,7 @@ CREATE TABLE `agent_jobs` (
 	CONSTRAINT `agent_jobs_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
-CREATE TABLE `agent_runs` (
+CREATE TABLE IF NOT EXISTS `agent_runs` (
 	`id` varchar(64) NOT NULL,
 	`jobId` varchar(64),
 	`agentName` varchar(100) NOT NULL,
@@ -33,7 +33,7 @@ CREATE TABLE `agent_runs` (
 	CONSTRAINT `agent_runs_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
-CREATE TABLE `agent_suggestions` (
+CREATE TABLE IF NOT EXISTS `agent_suggestions` (
 	`id` varchar(64) NOT NULL,
 	`agentRunId` varchar(64),
 	`entityType` varchar(100),
@@ -48,7 +48,7 @@ CREATE TABLE `agent_suggestions` (
 	CONSTRAINT `agent_suggestions_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
-CREATE TABLE `agent_tool_calls` (
+CREATE TABLE IF NOT EXISTS `agent_tool_calls` (
 	`id` varchar(64) NOT NULL,
 	`runId` varchar(64) NOT NULL,
 	`toolName` varchar(100) NOT NULL,
@@ -59,7 +59,7 @@ CREATE TABLE `agent_tool_calls` (
 	CONSTRAINT `agent_tool_calls_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
-CREATE TABLE `archived_email_attachments` (
+CREATE TABLE IF NOT EXISTS `archived_email_attachments` (
 	`id` int AUTO_INCREMENT NOT NULL,
 	`archived_email_id` int NOT NULL,
 	`filename` varchar(255) NOT NULL,
@@ -70,7 +70,7 @@ CREATE TABLE `archived_email_attachments` (
 	CONSTRAINT `archived_email_attachments_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
-CREATE TABLE `archived_emails` (
+CREATE TABLE IF NOT EXISTS `archived_emails` (
 	`id` int AUTO_INCREMENT NOT NULL,
 	`email_id` varchar(255) NOT NULL,
 	`contact_id` varchar(64) NOT NULL,
@@ -89,7 +89,7 @@ CREATE TABLE `archived_emails` (
 	CONSTRAINT `archived_emails_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
-CREATE TABLE `attachments` (
+CREATE TABLE IF NOT EXISTS `attachments` (
 	`id` varchar(64) NOT NULL,
 	`activityId` varchar(64) NOT NULL,
 	`fileName` varchar(255) NOT NULL,
@@ -101,7 +101,7 @@ CREATE TABLE `attachments` (
 	CONSTRAINT `attachments_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
-CREATE TABLE `contact_distribution_lists` (
+CREATE TABLE IF NOT EXISTS `contact_distribution_lists` (
 	`id` varchar(64) NOT NULL,
 	`contactId` varchar(64) NOT NULL,
 	`distributionListId` varchar(64) NOT NULL,
@@ -114,7 +114,7 @@ CREATE TABLE `contact_distribution_lists` (
 	CONSTRAINT `contact_distribution_lists_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
-CREATE TABLE `distribution_lists` (
+CREATE TABLE IF NOT EXISTS `distribution_lists` (
 	`id` varchar(64) NOT NULL,
 	`name` varchar(255) NOT NULL,
 	`description` text,
@@ -126,7 +126,7 @@ CREATE TABLE `distribution_lists` (
 	CONSTRAINT `distribution_lists_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
-CREATE TABLE `email_accounts_new` (
+CREATE TABLE IF NOT EXISTS `email_accounts_new` (
 	`id` int AUTO_INCREMENT NOT NULL,
 	`user_id` varchar(64) NOT NULL,
 	`email_address` varchar(255) NOT NULL,
@@ -140,7 +140,7 @@ CREATE TABLE `email_accounts_new` (
 	CONSTRAINT `email_accounts_new_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
-CREATE TABLE `email_accounts` (
+CREATE TABLE IF NOT EXISTS `email_accounts` (
 	`id` varchar(64) NOT NULL,
 	`user_id` varchar(64),
 	`name` varchar(100) NOT NULL,
@@ -162,7 +162,7 @@ CREATE TABLE `email_accounts` (
 	CONSTRAINT `email_accounts_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
-CREATE TABLE `email_fetch_log` (
+CREATE TABLE IF NOT EXISTS `email_fetch_log` (
 	`id` varchar(64) NOT NULL,
 	`emailAccountId` varchar(64) NOT NULL,
 	`messageId` varchar(255),
@@ -179,7 +179,7 @@ CREATE TABLE `email_fetch_log` (
 	CONSTRAINT `email_fetch_log_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
-CREATE TABLE `email_project_links` (
+CREATE TABLE IF NOT EXISTS `email_project_links` (
 	`id` varchar(64) NOT NULL,
 	`emailId` varchar(255) NOT NULL,
 	`projectId` varchar(64) NOT NULL,
@@ -188,7 +188,7 @@ CREATE TABLE `email_project_links` (
 	CONSTRAINT `email_project_links_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
-CREATE TABLE `email_send_queue` (
+CREATE TABLE IF NOT EXISTS `email_send_queue` (
 	`id` varchar(64) NOT NULL,
 	`draftId` varchar(64),
 	`userId` varchar(64) NOT NULL,
@@ -207,7 +207,7 @@ CREATE TABLE `email_send_queue` (
 	CONSTRAINT `email_send_queue_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
-CREATE TABLE `project_budget_plans` (
+CREATE TABLE IF NOT EXISTS `project_budget_plans` (
 	`id` varchar(64) NOT NULL,
 	`projectId` varchar(64) NOT NULL,
 	`category` varchar(100),
@@ -217,7 +217,7 @@ CREATE TABLE `project_budget_plans` (
 	CONSTRAINT `project_budget_plans_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
-CREATE TABLE `project_timesheets` (
+CREATE TABLE IF NOT EXISTS `project_timesheets` (
 	`id` varchar(64) NOT NULL,
 	`projectId` varchar(64) NOT NULL,
 	`taskId` varchar(64),
@@ -230,7 +230,7 @@ CREATE TABLE `project_timesheets` (
 	CONSTRAINT `project_timesheets_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
-CREATE TABLE `sessions` (
+CREATE TABLE IF NOT EXISTS `sessions` (
 	`id` varchar(64) NOT NULL,
 	`userId` varchar(64) NOT NULL,
 	`tokenHash` varchar(64) NOT NULL,
@@ -243,7 +243,7 @@ CREATE TABLE `sessions` (
 	CONSTRAINT `sessions_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
-CREATE TABLE `tasks` (
+CREATE TABLE IF NOT EXISTS `tasks` (
 	`id` varchar(64) NOT NULL,
 	`title` varchar(255) NOT NULL,
 	`description` text,
