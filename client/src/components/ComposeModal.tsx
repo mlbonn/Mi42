@@ -420,11 +420,11 @@ function ComposeModal({
                   ({(file.size / 1024).toFixed(1)} KB)
                 </span>
                 {uploadedAttachments[index] && (
-                  <span className="text-green-600">✓</span>
+                  <span className="text-[#E48F00]">✓</span>
                 )}
                 <button
                   onClick={() => removeAttachment(index)}
-                  className="text-red-600 hover:text-red-800"
+                  className="text-gray-600 hover:text-red-800"
                   disabled={isSending}
                 >
                   ×

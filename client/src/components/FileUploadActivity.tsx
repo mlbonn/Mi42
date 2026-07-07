@@ -39,7 +39,7 @@ export default function FileUploadActivity({
   const getFileIcon = (fileName: string) => {
     const ext = fileName.toLowerCase().split('.').pop();
     if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext || '')) {
-      return <Image className="h-8 w-8 text-green-500" />;
+      return <Image className="h-8 w-8 text-gray-500" />;
     }
     if (['doc', 'docx', 'pdf', 'txt'].includes(ext || '')) {
       return <FileText className="h-8 w-8 text-orange-500" />;
@@ -248,16 +248,16 @@ export default function FileUploadActivity({
 
         {/* Error Message */}
         {uploadError && (
-          <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-sm text-red-600">{uploadError}</p>
+          <div className="mt-3 p-3 bg-gray-50 border border-red-200 rounded-lg">
+            <p className="text-sm text-gray-600">{uploadError}</p>
           </div>
         )}
 
         {/* Success Message */}
         {uploadSuccess && (
-          <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
-            <CheckCircle className="h-4 w-4 text-green-600" />
-            <p className="text-sm text-green-600">Datei erfolgreich archiviert!</p>
+          <div className="mt-3 p-3 bg-gray-50 border border-green-200 rounded-lg flex items-center gap-2">
+            <CheckCircle className="h-4 w-4 text-gray-600" />
+            <p className="text-sm text-gray-600">Datei erfolgreich archiviert!</p>
           </div>
         )}
 

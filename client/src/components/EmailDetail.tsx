@@ -156,7 +156,7 @@ export function EmailDetail({ accountId, messageUid, onClose }: EmailDetailProps
     switch (ext) {
       case 'pdf':
         return (
-          <svg className="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+          <svg className="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
             <path d="M4 2h8l4 4v12H4V2zm8 0v4h4l-4-4z"/>
           </svg>
         );
@@ -170,7 +170,7 @@ export function EmailDetail({ accountId, messageUid, onClose }: EmailDetailProps
       case 'xls':
       case 'xlsx':
         return (
-          <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+          <svg className="w-5 h-5 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
             <path d="M4 2h8l4 4v12H4V2zm8 0v4h4l-4-4z"/>
           </svg>
         );
@@ -180,7 +180,7 @@ export function EmailDetail({ accountId, messageUid, onClose }: EmailDetailProps
       case 'gif':
       case 'bmp':
         return (
-          <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
         );
@@ -188,7 +188,7 @@ export function EmailDetail({ accountId, messageUid, onClose }: EmailDetailProps
       case 'rar':
       case '7z':
         return (
-          <svg className="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
           </svg>
         );
@@ -237,7 +237,7 @@ export function EmailDetail({ accountId, messageUid, onClose }: EmailDetailProps
       {/* Archive Notification */}
       {archiveNotification && (
         <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded shadow-lg ${
-          archiveNotification.type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+          archiveNotification.type === 'success' ? 'bg-gray-50 text-gray-700 border-gray-200' : 'bg-gray-100 text-gray-600 border-gray-300'
         }`}>
           {archiveNotification.message}
         </div>
@@ -274,7 +274,7 @@ export function EmailDetail({ accountId, messageUid, onClose }: EmailDetailProps
 
           <div className="flex space-x-2">
             <button
-              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 bg-[#E48F00] text-white rounded hover:bg-[#c87e00] disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={handleArchiveClick}
               disabled={isAutoArchiving}
             >
@@ -345,8 +345,8 @@ export function EmailDetail({ accountId, messageUid, onClose }: EmailDetailProps
 
       {/* Image Control Bar */}
       {message.htmlBody && !imagesAllowed && (
-        <div className="bg-yellow-50 border-b border-yellow-200 px-4 py-2 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm text-yellow-800">
+        <div className="bg-gray-50 border-b border-yellow-200 px-4 py-2 flex items-center justify-between">
+          <div className="flex items-center gap-2 text-sm text-gray-800">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
@@ -355,13 +355,13 @@ export function EmailDetail({ accountId, messageUid, onClose }: EmailDetailProps
           <div className="flex gap-2">
             <button
               onClick={() => setImagesAllowed(true)}
-              className="px-3 py-1 text-xs bg-white border border-yellow-300 rounded hover:bg-yellow-100 text-yellow-800"
+              className="px-3 py-1 text-xs bg-white border border-yellow-300 rounded hover:bg-gray-100 text-gray-800"
             >
               Bilder anzeigen
             </button>
             <button
               onClick={handleTrustSender}
-              className="px-3 py-1 text-xs bg-yellow-600 text-white rounded hover:bg-yellow-700"
+              className="px-3 py-1 text-xs bg-gray-600 text-white rounded hover:bg-gray-700"
             >
               Absender vertrauen
             </button>
