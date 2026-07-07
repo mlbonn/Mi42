@@ -63,12 +63,12 @@ export default function ContactActivities({ contactId }: ContactActivitiesProps)
   const getActivityTypeColor = (type: string) => {
     const colors: Record<string, string> = {
       'Email': 'bg-gray-100 text-gray-800',
-      'Call': 'bg-green-100 text-green-800',
-      'Meeting': 'bg-purple-100 text-purple-800',
-      'Demo': 'bg-orange-100 text-orange-800',
+      'Call': 'bg-gray-100 text-gray-700',
+      'Meeting': 'bg-gray-100 text-gray-700',
+      'Demo': 'bg-gray-100 text-orange-800',
       'Document': 'bg-gray-100 text-gray-800',
-      'Note': 'bg-yellow-100 text-yellow-800',
-      'AI Outreach': 'bg-pink-100 text-pink-800',
+      'Note': 'bg-gray-100 text-gray-600',
+      'AI Outreach': 'bg-gray-400 text-gray-600',
     };
     return colors[type] || 'bg-gray-100 text-gray-800';
   };
@@ -150,7 +150,7 @@ export default function ContactActivities({ contactId }: ContactActivitiesProps)
                       {activity.activityType === 'Document' && activity.hasAttachment ? (
                         <a 
                           href={`/api/download/${activity.id}`}
-                          className="text-orange-600 hover:underline font-medium text-sm flex items-center gap-1"
+                          className="text-[#E48F00] hover:underline font-medium text-sm flex items-center gap-1"
                           onClick={(e) => e.stopPropagation()}
                           target="_blank"
                           rel="noopener noreferrer"
@@ -179,9 +179,9 @@ export default function ContactActivities({ contactId }: ContactActivitiesProps)
                     {activity.direction && (
                       <span className={`text-xs px-2 py-0.5 rounded ${
                         activity.direction === 'Inbound' 
-                          ? 'bg-gray-50 text-orange-600' 
+                          ? 'bg-gray-50 text-[#E48F00]' 
                           : activity.direction === 'Outbound'
-                          ? 'bg-green-50 text-green-600'
+                          ? 'bg-gray-50 text-gray-700'
                           : 'bg-gray-50 text-gray-600'
                       }`}>
                         {activity.direction === 'Inbound' ? '← Eingehend' : 
@@ -277,7 +277,7 @@ function AttachmentsList({ activityId }: { activityId: string }) {
           </div>
           <a
             href={`/api/download/${att.id}`}
-            className="flex items-center gap-1 text-orange-600 hover:text-gray-800 text-sm"
+            className="flex items-center gap-1 text-[#E48F00] hover:text-gray-800 text-sm"
             target="_blank"
             rel="noopener noreferrer"
           >

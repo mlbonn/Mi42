@@ -60,11 +60,11 @@ export default function OutreachResponses() {
     if (!sentiment) return null;
     
     const styles = {
-      positive: 'bg-green-100 text-green-800',
+      positive: 'bg-gray-100 text-gray-700',
       neutral: 'bg-gray-100 text-gray-800',
-      negative: 'bg-red-100 text-red-800',
+      negative: 'bg-gray-100 text-gray-600',
       interested: 'bg-gray-100 text-gray-800',
-      not_interested: 'bg-orange-100 text-orange-800',
+      not_interested: 'bg-gray-100 text-orange-800',
     };
     const icons = {
       positive: Smile,
@@ -143,7 +143,7 @@ export default function OutreachResponses() {
               onClick={() => setShowActionRequired(!showActionRequired)}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 showActionRequired
-                  ? 'bg-orange-100 text-orange-800'
+                  ? 'bg-gray-100 text-orange-800'
                   : 'bg-white text-gray-700 hover:bg-gray-100'
               }`}
             >
@@ -167,13 +167,13 @@ export default function OutreachResponses() {
                     <h3 className="text-lg font-medium text-gray-900">{response.subject || '(Kein Betreff)'}</h3>
                     {getSentimentBadge(response.sentiment)}
                     {response.requiresAction && (
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-orange-800">
                         <AlertCircle className="h-3 w-3" />
                         Aktion erforderlich
                       </span>
                     )}
                     {response.processedBy && (
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
                         <CheckCircle className="h-3 w-3" />
                         Bearbeitet
                       </span>
@@ -210,7 +210,7 @@ export default function OutreachResponses() {
                   {!response.processedBy && (
                     <button
                       onClick={() => handleMarkProcessed(response.id)}
-                      className="px-3 py-1.5 bg-green-600 text-white rounded hover:bg-green-700 transition-colors text-sm font-medium flex items-center gap-1"
+                      className="px-3 py-1.5 bg-[#E48F00] text-white rounded hover:bg-[#c87e00] transition-colors text-sm font-medium flex items-center gap-1"
                     >
                       <CheckCircle className="h-4 w-4" />
                       Als bearbeitet markieren
@@ -226,8 +226,8 @@ export default function OutreachResponses() {
 
               {/* Notes */}
               {response.notes && (
-                <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-blue-200">
-                  <div className="text-xs font-medium text-blue-900 uppercase mb-1">Notizen</div>
+                <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="text-xs font-medium text-gray-900 uppercase mb-1">Notizen</div>
                   <div className="text-sm text-gray-800">{response.notes}</div>
                 </div>
               )}
@@ -262,7 +262,7 @@ export default function OutreachResponses() {
                 <select
                   name="sentiment"
                   defaultValue={editingResponse.sentiment || 'neutral'}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                 >
                   <option value="positive">Positiv</option>
                   <option value="neutral">Neutral</option>
@@ -276,7 +276,7 @@ export default function OutreachResponses() {
                 <select
                   name="requiresAction"
                   defaultValue={editingResponse.requiresAction ? 'true' : 'false'}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                 >
                   <option value="false">Nein</option>
                   <option value="true">Ja</option>
@@ -289,7 +289,7 @@ export default function OutreachResponses() {
                   name="actionType"
                   defaultValue={editingResponse.actionType || ''}
                   placeholder="z.B. Follow-up anrufen, Meeting vereinbaren"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                 />
               </div>
               <div>
@@ -299,7 +299,7 @@ export default function OutreachResponses() {
                   rows={5}
                   defaultValue={editingResponse.notes || ''}
                   placeholder="Interne Notizen zu dieser Antwort..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                 />
               </div>
               <div className="flex gap-3 pt-4">

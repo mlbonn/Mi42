@@ -134,7 +134,7 @@ export default function ScoutDiscoveryMethods() {
     const successRate = (method.successCount / total) * 100;
     if (successRate >= 80) {
       return (
-        <Badge variant="default" className="gap-1 bg-green-600">
+        <Badge variant="default" className="gap-1 bg-[#E48F00]">
           <CheckCircle className="h-3 w-3" />
           Aktiv ({successRate.toFixed(0)}% Erfolg)
         </Badge>
@@ -168,10 +168,10 @@ export default function ScoutDiscoveryMethods() {
       </div>
 
       {/* Info Card */}
-      <Card className="mb-6 border-blue-200 bg-gray-50">
+      <Card className="mb-6 border-gray-200 bg-gray-50">
         <CardContent className="pt-6">
           <div className="flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-orange-600 mt-0.5" />
+            <AlertCircle className="h-5 w-5 text-[#E48F00] mt-0.5" />
             <div className="text-sm text-gray-700">
               <p className="font-medium mb-1">Wie funktionieren Discovery Methods?</p>
               <p>
@@ -196,7 +196,7 @@ export default function ScoutDiscoveryMethods() {
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-3">
                     <div className="p-2 bg-gray-50 rounded-lg">
-                      <Icon className="h-5 w-5 text-orange-600" />
+                      <Icon className="h-5 w-5 text-[#E48F00]" />
                     </div>
                     <div>
                       <CardTitle className="text-base">{config.label}</CardTitle>
@@ -256,13 +256,13 @@ export default function ScoutDiscoveryMethods() {
                       <div className="grid grid-cols-3 gap-4 text-sm">
                         <div>
                           <div className="text-gray-600">Erfolge</div>
-                          <div className="font-medium text-green-600">
+                          <div className="font-medium text-gray-700">
                             {method.successCount}
                           </div>
                         </div>
                         <div>
                           <div className="text-gray-600">Fehler</div>
-                          <div className="font-medium text-red-600">
+                          <div className="font-medium text-gray-600">
                             {method.failureCount}
                           </div>
                         </div>

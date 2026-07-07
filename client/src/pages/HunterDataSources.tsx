@@ -106,7 +106,7 @@ export default function HunterDataSources() {
 
     if (source.status === "active") {
       return (
-        <Badge variant="default" className="gap-1 bg-green-600">
+        <Badge variant="default" className="gap-1 bg-[#E48F00]">
           <CheckCircle className="h-3 w-3" />
           Active
         </Badge>
@@ -166,10 +166,10 @@ export default function HunterDataSources() {
       </div>
 
       {/* Info Card */}
-      <Card className="mb-6 border-blue-200 bg-gray-50">
+      <Card className="mb-6 border-gray-200 bg-gray-50">
         <CardContent className="pt-6">
           <div className="flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-orange-600 mt-0.5" />
+            <AlertCircle className="h-5 w-5 text-[#E48F00] mt-0.5" />
             <div className="text-sm text-gray-700">
               <p className="font-medium mb-1">Wie funktionieren Datenquellen?</p>
               <p>
@@ -201,7 +201,7 @@ export default function HunterDataSources() {
                           href={info.website}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-orange-600 hover:text-orange-700"
+                          className="text-[#E48F00] hover:text-[#c87e00]"
                         >
                           <ExternalLink className="h-4 w-4" />
                         </a>
@@ -259,10 +259,10 @@ export default function HunterDataSources() {
 
                   {/* Error Message */}
                   {source?.errorMessage && (
-                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <div className="p-3 bg-gray-50 border border-gray-300 rounded-lg">
                       <div className="flex items-start gap-2">
-                        <XCircle className="h-4 w-4 text-red-600 mt-0.5" />
-                        <div className="text-sm text-red-700">{source.errorMessage}</div>
+                        <XCircle className="h-4 w-4 text-gray-600 mt-0.5" />
+                        <div className="text-sm text-gray-600">{source.errorMessage}</div>
                       </div>
                     </div>
                   )}

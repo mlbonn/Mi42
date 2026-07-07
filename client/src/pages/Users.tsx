@@ -13,10 +13,10 @@ const roleLabels: Record<UserRole, string> = {
 };
 
 const roleColors: Record<UserRole, string> = {
-  super_admin: 'bg-purple-100 text-purple-800',
+  super_admin: 'bg-gray-100 text-gray-700',
   admin: 'bg-gray-100 text-gray-800',
-  staff: 'bg-green-100 text-green-800',
-  staff_plus: 'bg-yellow-100 text-yellow-800',
+  staff: 'bg-gray-100 text-gray-700',
+  staff_plus: 'bg-gray-100 text-gray-600',
 };
 
 export default function Users() {
@@ -154,7 +154,7 @@ export default function Users() {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                    user.status === 'active' ? 'bg-gray-100 text-gray-700' : 'bg-gray-100 text-gray-600'
                   }`}>
                     {user.status === 'active' ? 'Aktiv' : 'Inaktiv'}
                   </span>
@@ -166,7 +166,7 @@ export default function Users() {
                   {user.role === 'staff_plus' && (
                     <button
                       onClick={() => setAssigningUser(user)}
-                      className="text-green-600 hover:text-green-900 mr-4"
+                      className="text-gray-700 hover:text-gray-900 mr-4"
                       title="Zuweisungen verwalten"
                     >
                       <LinkIcon className="w-4 h-4" />
@@ -174,13 +174,13 @@ export default function Users() {
                   )}
                   <button
                     onClick={() => setEditingUser(user)}
-                    className="text-orange-600 hover:text-blue-900 mr-4"
+                    className="text-[#E48F00] hover:text-gray-900 mr-4"
                   >
                     <Edit className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => handleDeleteUser(user.id)}
-                    className="text-red-600 hover:text-red-900"
+                    className="text-gray-600 hover:text-gray-900"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -212,7 +212,7 @@ export default function Users() {
                     type="text"
                     name="firstName"
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                   />
                 </div>
                 <div>
@@ -221,7 +221,7 @@ export default function Users() {
                     type="text"
                     name="lastName"
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                   />
                 </div>
                 <div>
@@ -233,7 +233,7 @@ export default function Users() {
                     pattern=".*@(bl2020\.com|BL\.cx|marktdaten\.de)$"
                     title="Muss eine @bl2020.com, @BL.cx oder @marktdaten.de Adresse sein"
                     placeholder="name@bl2020.com"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                   />
                   <p className="mt-1 text-xs text-gray-500">
                     Muss eine @bl2020.com, @BL.cx oder @marktdaten.de Adresse sein (für Mail & Kalender)
@@ -247,7 +247,7 @@ export default function Users() {
                     required
                     minLength={8}
                     placeholder="Mindestens 8 Zeichen"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                   />
                 </div>
                 <div>
@@ -255,7 +255,7 @@ export default function Users() {
                   <select
                     name="role"
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                   >
                     <option value="staff">Staff</option>
                     <option value="staff_plus">Staff+</option>
@@ -271,7 +271,7 @@ export default function Users() {
                     type="text"
                     name="assignedTo"
                     placeholder="User ID des Managers"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                   />
                 </div>
               </div>
@@ -319,7 +319,7 @@ export default function Users() {
                       name="companyId"
                       placeholder="Firmen-ID"
                       required
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                     />
                     <button
                       type="submit"
@@ -347,7 +347,7 @@ export default function Users() {
                       name="contactId"
                       placeholder="Kontakt-ID"
                       required
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                     />
                     <button
                       type="submit"
@@ -385,7 +385,7 @@ export default function Users() {
                     name="name"
                     defaultValue={editingUser.name}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                   />
                 </div>
                 <div>
@@ -395,7 +395,7 @@ export default function Users() {
                     name="email"
                     defaultValue={editingUser.email}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                   />
                 </div>
                 <div>
@@ -404,7 +404,7 @@ export default function Users() {
                     name="role"
                     defaultValue={editingUser.role}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                   >
                     <option value="staff">Staff</option>
                     <option value="staff_plus">Staff+</option>
@@ -418,7 +418,7 @@ export default function Users() {
                     name="status"
                     defaultValue={editingUser.status}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                   >
                     <option value="active">Aktiv</option>
                     <option value="inactive">Inaktiv</option>

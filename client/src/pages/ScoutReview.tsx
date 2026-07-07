@@ -109,7 +109,7 @@ export default function ScoutReview() {
 
       {/* Bulk Actions */}
       {selectedIds.length > 0 && (
-        <div className="bg-gray-50 p-4 mb-4 border-l-4 border-orange-600">
+        <div className="bg-gray-50 p-4 mb-4 border-l-4 border-[#E48F00]">
           <div className="flex items-center justify-between">
             <span className="font-bold">{selectedIds.length} ausgewählt</span>
             <div className="flex gap-2">
@@ -117,7 +117,7 @@ export default function ScoutReview() {
                 onClick={() => bulkApproveMutation.mutate({ corporationIds: selectedIds })}
                 disabled={bulkApproveMutation.isPending}
                 size="sm"
-                className="bg-green-600 hover:bg-green-700"
+                className="bg-[#E48F00] hover:bg-[#c87e00]"
               >
                 ✓ Alle Approven
               </Button>
@@ -173,7 +173,7 @@ export default function ScoutReview() {
                         href={corp.website}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-xs text-orange-600 hover:underline"
+                        className="text-xs text-[#E48F00] hover:underline"
                       >
                         {corp.website}
                       </a>
@@ -196,7 +196,7 @@ export default function ScoutReview() {
                         onClick={() => approveMutation.mutate({ corporationId: corp.id })}
                         disabled={approveMutation.isPending}
                         size="sm"
-                        className="bg-green-600 hover:bg-green-700"
+                        className="bg-[#E48F00] hover:bg-[#c87e00]"
                       >
                         ✓
                       </Button>
@@ -226,7 +226,7 @@ export default function ScoutReview() {
       )}
 
       {/* Info Footer */}
-      <div className="mt-8 bg-yellow-50 p-6 border-l-4 border-yellow-600">
+      <div className="mt-8 bg-gray-50 p-6 border-l-4 border-gray-300">
         <h3 className="font-bold mb-2">💡 Review-Tipps</h3>
         <ul className="text-sm text-gray-700 space-y-2 list-disc list-inside">
           <li>

@@ -146,7 +146,7 @@ export default function ScoutJobQueue() {
             <CardTitle className="text-xs font-medium text-gray-600">Processing</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{stats.processing}</div>
+            <div className="text-2xl font-bold text-[#E48F00]">{stats.processing}</div>
           </CardContent>
         </Card>
 
@@ -155,7 +155,7 @@ export default function ScoutJobQueue() {
             <CardTitle className="text-xs font-medium text-gray-600">Completed</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.completed}</div>
+            <div className="text-2xl font-bold text-gray-700">{stats.completed}</div>
           </CardContent>
         </Card>
 
@@ -164,7 +164,7 @@ export default function ScoutJobQueue() {
             <CardTitle className="text-xs font-medium text-gray-600">Failed</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{stats.failed}</div>
+            <div className="text-2xl font-bold text-gray-600">{stats.failed}</div>
           </CardContent>
         </Card>
       </div>
@@ -249,7 +249,7 @@ export default function ScoutJobQueue() {
                           </Button>
                         )}
                         {job.error && (
-                          <div className="mt-1 text-xs text-red-600 flex items-start gap-1">
+                          <div className="mt-1 text-xs text-gray-600 flex items-start gap-1">
                             <AlertCircle className="h-3 w-3 mt-0.5 flex-shrink-0" />
                             <span className="line-clamp-2">{job.error}</span>
                           </div>

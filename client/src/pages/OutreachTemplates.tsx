@@ -150,14 +150,14 @@ export default function OutreachTemplates() {
                     <div className="flex items-center justify-end gap-2">
                       <button
                         onClick={() => setEditingTemplate(template)}
-                        className="p-1.5 text-gray-600 hover:text-orange-600 hover:bg-gray-50 rounded transition-colors"
+                        className="p-1.5 text-gray-600 hover:text-[#E48F00] hover:bg-gray-50 rounded transition-colors"
                         title="Bearbeiten"
                       >
                         <Edit className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => handleDelete(template.id)}
-                        className="p-1.5 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                        className="p-1.5 text-gray-600 hover:text-gray-600 hover:bg-gray-50 rounded transition-colors"
                         title="Löschen"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -175,7 +175,7 @@ export default function OutreachTemplates() {
               <p className="text-gray-500 text-sm">Noch keine Vorlagen erstellt</p>
               <button
                 onClick={() => setShowCreateModal(true)}
-                className="mt-4 text-sm text-orange-600 hover:text-orange-700 font-medium"
+                className="mt-4 text-sm text-[#E48F00] hover:text-[#c87e00] font-medium"
               >
                 Erste Vorlage erstellen
               </button>
@@ -198,7 +198,7 @@ export default function OutreachTemplates() {
                   type="text"
                   name="name"
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                   placeholder="z.B. Cold Outreach - Bauindustrie"
                 />
               </div>
@@ -207,7 +207,7 @@ export default function OutreachTemplates() {
                 <input
                   type="text"
                   name="description"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                   placeholder="Kurze Beschreibung der Vorlage"
                 />
               </div>
@@ -216,7 +216,7 @@ export default function OutreachTemplates() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">Kategorie</label>
                   <select
                     name="category"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                   >
                     <option value="">Keine</option>
                     <option value="cold_outreach">Cold Outreach</option>
@@ -230,7 +230,7 @@ export default function OutreachTemplates() {
                   <select
                     name="language"
                     defaultValue="de"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                   >
                     <option value="de">Deutsch</option>
                     <option value="en">English</option>
@@ -244,7 +244,7 @@ export default function OutreachTemplates() {
                   type="text"
                   name="subject"
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                   placeholder="z.B. Zusammenarbeit mit {{companyName}}"
                 />
               </div>
@@ -254,7 +254,7 @@ export default function OutreachTemplates() {
                   name="body"
                   required
                   rows={10}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent font-mono text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent font-mono text-sm"
                   placeholder="Sehr geehrte/r {{firstName}} {{lastName}},&#10;&#10;ich bin auf {{companyName}} aufmerksam geworden..."
                 />
               </div>
@@ -265,7 +265,7 @@ export default function OutreachTemplates() {
                 <input
                   type="text"
                   name="variables"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                   placeholder="firstName, lastName, companyName, position"
                 />
                 <p className="text-xs text-gray-500 mt-1">
@@ -308,7 +308,7 @@ export default function OutreachTemplates() {
                   name="name"
                   required
                   defaultValue={editingTemplate.name}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                 />
               </div>
               <div>
@@ -317,7 +317,7 @@ export default function OutreachTemplates() {
                   type="text"
                   name="description"
                   defaultValue={editingTemplate.description || ''}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -326,7 +326,7 @@ export default function OutreachTemplates() {
                   <select
                     name="category"
                     defaultValue={editingTemplate.category || ''}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                   >
                     <option value="">Keine</option>
                     <option value="cold_outreach">Cold Outreach</option>
@@ -340,7 +340,7 @@ export default function OutreachTemplates() {
                   <select
                     name="language"
                     defaultValue={editingTemplate.language || 'de'}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                   >
                     <option value="de">Deutsch</option>
                     <option value="en">English</option>
@@ -355,7 +355,7 @@ export default function OutreachTemplates() {
                   name="subject"
                   required
                   defaultValue={editingTemplate.subject}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                 />
               </div>
               <div>
@@ -365,7 +365,7 @@ export default function OutreachTemplates() {
                   required
                   rows={10}
                   defaultValue={editingTemplate.body}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent font-mono text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent font-mono text-sm"
                 />
               </div>
               <div>
@@ -380,7 +380,7 @@ export default function OutreachTemplates() {
                       ? JSON.parse(editingTemplate.variables || '[]').join(', ')
                       : (editingTemplate.variables || []).join(', ')
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                 />
               </div>
               <div className="flex gap-3 pt-4">

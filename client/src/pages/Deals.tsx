@@ -24,10 +24,10 @@ import {
 const STAGES = [
   { id: 'Lead', label: 'Lead', color: 'bg-gray-100', headerColor: 'bg-gray-200' },
   { id: 'Qualified', label: 'Qualifiziert', color: 'bg-gray-50', headerColor: 'bg-gray-100' },
-  { id: 'Proposal', label: 'Angebot', color: 'bg-yellow-50', headerColor: 'bg-yellow-100' },
-  { id: 'Negotiation', label: 'Verhandlung', color: 'bg-orange-50', headerColor: 'bg-orange-100' },
-  { id: 'Won', label: 'Gewonnen', color: 'bg-green-50', headerColor: 'bg-green-100' },
-  { id: 'Lost', label: 'Verloren', color: 'bg-red-50', headerColor: 'bg-red-100' },
+  { id: 'Proposal', label: 'Angebot', color: 'bg-gray-50', headerColor: 'bg-gray-100' },
+  { id: 'Negotiation', label: 'Verhandlung', color: 'bg-gray-50', headerColor: 'bg-gray-100' },
+  { id: 'Won', label: 'Gewonnen', color: 'bg-gray-50', headerColor: 'bg-gray-100' },
+  { id: 'Lost', label: 'Verloren', color: 'bg-gray-50', headerColor: 'bg-gray-100' },
 ];
 
 // Legacy stages mapping
@@ -240,7 +240,7 @@ export default function Deals() {
                     >
                       {/* Deal Name */}
                       <Link href={`/deals/${deal.id}`}>
-                        <div className="font-medium text-sm text-gray-900 hover:text-orange-600 mb-2 line-clamp-2">
+                        <div className="font-medium text-sm text-gray-900 hover:text-[#E48F00] mb-2 line-clamp-2">
                           {deal.dealName}
                         </div>
                       </Link>

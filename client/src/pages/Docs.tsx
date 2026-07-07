@@ -119,7 +119,7 @@ export default function Docs() {
           </pre>
         </div>
 
-        <div className="bg-yellow-50 p-6 mb-6">
+        <div className="bg-gray-50 p-6 mb-6">
           <h3 className="font-bold mb-2">⚙️ Wie funktioniert der Scout Agent?</h3>
           <ol className="list-decimal list-inside text-sm space-y-3">
             <li>
@@ -157,7 +157,7 @@ export default function Docs() {
           </ol>
         </div>
 
-        <div className="bg-green-50 p-6">
+        <div className="bg-gray-50 p-6">
           <h3 className="font-bold mb-2">📊 Erwartete Ergebnisse</h3>
           <table className="w-full text-sm">
             <thead>
@@ -198,8 +198,8 @@ export default function Docs() {
 
       <section className="mb-12 border-l-4 border-gray-300 pl-6">
         <div className="flex items-center gap-2 mb-4">
-          <span className="bg-green-600 text-white px-3 py-1 text-sm font-bold">PHASE 2</span>
-          <span className="text-sm text-green-700 font-medium">Completed</span>
+          <span className="bg-[#E48F00] text-white px-3 py-1 text-sm font-bold">PHASE 2</span>
+          <span className="text-sm text-[#E48F00] font-medium">Completed</span>
         </div>
         
         <h2 className="text-2xl font-bold mb-4">Scout Agent - Backend APIs</h2>
@@ -210,8 +210,8 @@ export default function Docs() {
 
       <section className="mb-12 border-l-4 border-gray-300 pl-6">
         <div className="flex items-center gap-2 mb-4">
-          <span className="bg-green-600 text-white px-3 py-1 text-sm font-bold">PHASE 3</span>
-          <span className="text-sm text-green-700 font-medium">Completed</span>
+          <span className="bg-[#E48F00] text-white px-3 py-1 text-sm font-bold">PHASE 3</span>
+          <span className="text-sm text-[#E48F00] font-medium">Completed</span>
         </div>
         
         <h2 className="text-2xl font-bold mb-4">Scout Agent - Worker Service</h2>
@@ -222,8 +222,8 @@ export default function Docs() {
 
       <section className="mb-12 border-l-4 border-gray-300 pl-6">
         <div className="flex items-center gap-2 mb-4">
-          <span className="bg-green-600 text-white px-3 py-1 text-sm font-bold">PHASE 4</span>
-          <span className="text-sm text-green-700 font-medium">Completed</span>
+          <span className="bg-[#E48F00] text-white px-3 py-1 text-sm font-bold">PHASE 4</span>
+          <span className="text-sm text-[#E48F00] font-medium">Completed</span>
         </div>
         
         <h2 className="text-2xl font-bold mb-4">Scout Agent - Frontend UI</h2>

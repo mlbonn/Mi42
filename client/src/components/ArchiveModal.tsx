@@ -154,7 +154,7 @@ export default function ArchiveModal({ email, onClose, onSuccess }: ArchiveModal
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white rounded-lg p-6 max-w-md w-full">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#E48F00] mx-auto mb-4"></div>
             <p className="text-gray-600">Suche nach Kontakten...</p>
           </div>
         </div>
@@ -179,7 +179,7 @@ export default function ArchiveModal({ email, onClose, onSuccess }: ArchiveModal
               <h3 className="text-sm font-semibold text-gray-700 mb-2">
                 ✅ VORGESCHLAGENER KONTAKT
               </h3>
-              <div className="border-2 border-green-500 rounded-lg p-4 bg-green-50">
+              <div className="border-2 border-gray-300 rounded-lg p-4 bg-gray-50">
                 <div className="flex items-start">
                   <div className="flex-1">
                     <p className="font-semibold text-lg">
@@ -187,7 +187,7 @@ export default function ArchiveModal({ email, onClose, onSuccess }: ArchiveModal
                       {suggestedContact.company && ` | ${suggestedContact.company}`}
                     </p>
                     <p className="text-sm text-gray-600">✉️ {suggestedContact.email}</p>
-                    <p className="text-xs text-green-600 mt-1">[Automatisch gefunden]</p>
+                    <p className="text-xs text-gray-700 mt-1">[Automatisch gefunden]</p>
                   </div>
                 </div>
               </div>
@@ -275,16 +275,16 @@ export default function ArchiveModal({ email, onClose, onSuccess }: ArchiveModal
               </h3>
               <button
                 onClick={() => setShowNewContactForm(!showNewContactForm)}
-                className="w-full border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-orange-500 hover:bg-orange-50 transition"
+                className="w-full border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-[#E48F00] hover:bg-gray-50 transition"
               >
-                <span className="text-orange-600 font-medium">
+                <span className="text-[#E48F00] font-medium">
                   + Neuen Kontakt anlegen
                 </span>
               </button>
 
               {showNewContactForm && extractedContact && (
-                <div className="mt-4 border rounded-lg p-4 bg-blue-50">
-                  <p className="text-sm font-semibold text-blue-900 mb-3">
+                <div className="mt-4 border rounded-lg p-4 bg-gray-50">
+                  <p className="text-sm font-semibold text-gray-900 mb-3">
                     🤖 KI-Vorschlag aus Signatur:
                   </p>
                   <div className="space-y-2 text-sm">
@@ -299,7 +299,7 @@ export default function ArchiveModal({ email, onClose, onSuccess }: ArchiveModal
                     Confidence: {extractedContact.confidence}
                   </p>
                   <button
-                    className="mt-3 w-full bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700"
+                    className="mt-3 w-full bg-gray-700 text-white rounded-lg px-4 py-2 hover:bg-gray-800"
                     onClick={() => {
                       // TODO: Open contact creation modal with pre-filled data
                       alert('Contact creation modal would open here with pre-filled data');
@@ -337,7 +337,7 @@ export default function ArchiveModal({ email, onClose, onSuccess }: ArchiveModal
             <button
               onClick={handleArchive}
               disabled={archiving || !suggestedContact}
-              className="flex-1 bg-orange-600 text-white rounded-lg px-4 py-2 hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 bg-[#E48F00] text-white rounded-lg px-4 py-2 hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {archiving ? 'Archiviere...' : 'Archivieren'}
             </button>

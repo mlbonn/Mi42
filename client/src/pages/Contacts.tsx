@@ -186,7 +186,7 @@ export default function Contacts() {
                     </td>
                     <td className="px-3 py-2">
                       <Link href={`/contacts/${contact.id}`}>
-                        <div className="flex items-center gap-2 hover:text-orange-600 cursor-pointer">
+                        <div className="flex items-center gap-2 hover:text-[#E48F00] cursor-pointer">
                           <User className="h-4 w-4 text-gray-400 flex-shrink-0" />
                           <span className="text-sm font-medium text-gray-900">
                             {contact.firstName} {contact.lastName}

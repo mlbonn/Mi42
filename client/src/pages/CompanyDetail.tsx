@@ -368,7 +368,7 @@ export default function CompanyDetail() {
                               {contact.firstName} {contact.lastName}
                             </span>
                             {contact.decisionMaker && (
-                              <span className="px-2 py-0.5 bg-green-100 text-green-800 text-xs rounded">Decision Maker</span>
+                              <span className="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs rounded">Decision Maker</span>
                             )}
                           </div>
                           <div className="text-sm text-gray-600 space-y-0.5">
@@ -379,10 +379,10 @@ export default function CompanyDetail() {
                         </div>
                         <div className="text-right">
                           <span className={`px-2 py-1 text-xs rounded ${
-                            contact.contactStatus === 'Active' ? 'bg-green-100 text-green-800' :
+                            contact.contactStatus === 'Active' ? 'bg-gray-100 text-gray-700' :
                             contact.contactStatus === 'Cold' ? 'bg-gray-100 text-gray-800' :
-                            contact.contactStatus === 'Warm' ? 'bg-yellow-100 text-yellow-800' :
-                            contact.contactStatus === 'Hot' ? 'bg-red-100 text-red-800' :
+                            contact.contactStatus === 'Warm' ? 'bg-gray-100 text-gray-600' :
+                            contact.contactStatus === 'Hot' ? 'bg-gray-100 text-gray-600' :
                             'bg-gray-100 text-gray-800'
                           }`}>
                             {contact.contactStatus || 'Unknown'}
@@ -572,7 +572,7 @@ export default function CompanyDetail() {
                     <div className="text-sm text-gray-600 mb-1">Website</div>
                     <div className="text-gray-900">
                       {company.website ? (
-                        <a href={company.website} target="_blank" rel="noopener noreferrer" className="text-orange-600 hover:underline">
+                        <a href={company.website} target="_blank" rel="noopener noreferrer" className="text-[#E48F00] hover:underline">
                           {company.website}
                         </a>
                       ) : '-'}
@@ -730,7 +730,7 @@ export default function CompanyDetail() {
                     <div className="text-sm text-gray-600 mb-1">Website 2</div>
                     <div className="text-gray-900">
                       {company.website2 ? (
-                        <a href={company.website2} target="_blank" rel="noopener noreferrer" className="text-orange-600 hover:underline">
+                        <a href={company.website2} target="_blank" rel="noopener noreferrer" className="text-[#E48F00] hover:underline">
                           {company.website2}
                         </a>
                       ) : '-'}

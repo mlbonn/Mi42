@@ -196,7 +196,7 @@ export default function OutreachEmailDrafts() {
             <CardTitle className="text-xs font-medium text-gray-600">Pending</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">{stats.pending}</div>
+            <div className="text-2xl font-bold text-gray-600">{stats.pending}</div>
           </CardContent>
         </Card>
 
@@ -205,7 +205,7 @@ export default function OutreachEmailDrafts() {
             <CardTitle className="text-xs font-medium text-gray-600">Approved</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.approved}</div>
+            <div className="text-2xl font-bold text-gray-700">{stats.approved}</div>
           </CardContent>
         </Card>
 
@@ -214,7 +214,7 @@ export default function OutreachEmailDrafts() {
             <CardTitle className="text-xs font-medium text-gray-600">Rejected</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{stats.rejected}</div>
+            <div className="text-2xl font-bold text-gray-600">{stats.rejected}</div>
           </CardContent>
         </Card>
 
@@ -223,14 +223,14 @@ export default function OutreachEmailDrafts() {
             <CardTitle className="text-xs font-medium text-gray-600">Sent</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{stats.sent}</div>
+            <div className="text-2xl font-bold text-[#E48F00]">{stats.sent}</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Bulk Actions */}
       {selectedIds.size > 0 && (
-        <Card className="mb-4 border-blue-200 bg-gray-50">
+        <Card className="mb-4 border-gray-200 bg-gray-50">
           <CardContent className="py-3">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">
@@ -318,7 +318,7 @@ export default function OutreachEmailDrafts() {
                       </td>
                       <td className="py-3 px-3">
                         {draft.reviewStatus === "pending" && <Badge variant="secondary">Pending</Badge>}
-                        {draft.reviewStatus === "approved" && <Badge className="bg-green-600">Approved</Badge>}
+                        {draft.reviewStatus === "approved" && <Badge className="bg-[#E48F00]">Approved</Badge>}
                         {draft.reviewStatus === "rejected" && <Badge variant="destructive">Rejected</Badge>}
                         {draft.reviewStatus === "sent" && <Badge className="bg-bl2020-orange">Sent</Badge>}
                       </td>

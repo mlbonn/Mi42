@@ -59,7 +59,7 @@ export default function Home() {
               {(stats as any)?.totalCorporations || 0}
             </div>
             <Link href="/corporations">
-              <span className="text-xs text-orange-600 hover:text-orange-700 cursor-pointer">
+              <span className="text-xs text-[#E48F00] hover:text-[#c87e00] cursor-pointer">
                 Alle anzeigen →
               </span>
             </Link>
@@ -75,7 +75,7 @@ export default function Home() {
               {(stats as any)?.totalContacts || 0}
             </div>
             <Link href="/contacts">
-              <span className="text-xs text-orange-600 hover:text-orange-700 cursor-pointer">
+              <span className="text-xs text-[#E48F00] hover:text-[#c87e00] cursor-pointer">
                 Alle anzeigen →
               </span>
             </Link>
@@ -91,7 +91,7 @@ export default function Home() {
               {(stats as any)?.totalDeals || 0}
             </div>
             <Link href="/deals">
-              <span className="text-xs text-orange-600 hover:text-orange-700 cursor-pointer">
+              <span className="text-xs text-[#E48F00] hover:text-[#c87e00] cursor-pointer">
                 Pipeline anzeigen →
               </span>
             </Link>

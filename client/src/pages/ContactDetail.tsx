@@ -379,7 +379,7 @@ export default function ContactDetail() {
 
       {/* Back */}
       <Link href="/contacts">
-        <a className="text-orange-600 hover:text-gray-800 text-sm mb-4 inline-flex items-center gap-1">
+        <a className="text-[#E48F00] hover:text-gray-800 text-sm mb-4 inline-flex items-center gap-1">
           <ArrowLeft className="h-4 w-4" />
           Zurück zur Kontaktliste
         </a>
@@ -401,7 +401,7 @@ export default function ContactDetail() {
             {/* Meta row */}
             <div className="flex items-center gap-4 flex-wrap text-sm text-gray-600">
               {contact.phone && (
-                <a href={`tel:${contact.phone}`} className="flex items-center gap-1 text-orange-600 hover:text-gray-800">
+                <a href={`tel:${contact.phone}`} className="flex items-center gap-1 text-[#E48F00] hover:text-gray-800">
                   <Phone className="h-3.5 w-3.5" />{contact.phone}
                 </a>
               )}
@@ -416,7 +416,7 @@ export default function ContactDetail() {
                 .filter((addr): addr is string => !!addr)
                 .map((addr, i) => (
                   <a key={i} href={`mailto:${addr}`}
-                    className="flex items-center gap-1 text-orange-600 hover:text-gray-800">
+                    className="flex items-center gap-1 text-[#E48F00] hover:text-gray-800">
                     <Mail className="h-3.5 w-3.5" />{addr}
                   </a>
                 ))}
@@ -470,7 +470,7 @@ export default function ContactDetail() {
                     </span>
                     <button
                       onClick={() => removeFromList.mutate({ contactId: id!, distributionListId: list.listId ?? list.id })}
-                      className="text-gray-300 hover:text-red-500 transition-colors">
+                      className="text-gray-300 hover:text-gray-500 transition-colors">
                       <X className="h-3 w-3" />
                     </button>
                   </div>
@@ -512,7 +512,7 @@ export default function ContactDetail() {
                         : <FileText className="h-3.5 w-3.5 text-gray-400" />}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <span className="text-sm font-medium group-hover:text-orange-600 line-clamp-1">{item.subject}</span>
+                      <span className="text-sm font-medium group-hover:text-[#E48F00] line-clamp-1">{item.subject}</span>
                       <span className="text-xs text-gray-400">{fmtShort(item.date)}</span>
                     </div>
                     {(item.activityType === 'Document' || item.activityType === 'file_upload') && (
@@ -530,14 +530,14 @@ export default function ContactDetail() {
           <div className="bg-white rounded-lg border p-4">
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-semibold text-xs text-gray-500 uppercase tracking-wide">Notes</h3>
-              <button onClick={() => setIsEditing(true)} className="text-gray-400 hover:text-orange-600">
+              <button onClick={() => setIsEditing(true)} className="text-gray-400 hover:text-[#E48F00]">
                 <Edit className="h-3.5 w-3.5" />
               </button>
             </div>
             {contact.notes ? (
               <p className="text-sm text-gray-700 whitespace-pre-wrap">{contact.notes}</p>
             ) : (
-              <p className="text-sm text-gray-400 cursor-pointer hover:text-orange-600" onClick={() => setIsEditing(true)}>
+              <p className="text-sm text-gray-400 cursor-pointer hover:text-[#E48F00]" onClick={() => setIsEditing(true)}>
                 Click to add notes…
               </p>
             )}
@@ -556,7 +556,7 @@ export default function ContactDetail() {
                 </span>
               </h3>
               <button onClick={() => { refetchEmails(); refetchActivities(); }}
-                className="text-gray-400 hover:text-orange-600 transition-colors">
+                className="text-gray-400 hover:text-[#E48F00] transition-colors">
                 <RefreshCw className="h-4 w-4" />
               </button>
             </div>
@@ -707,7 +707,7 @@ export default function ContactDetail() {
               <div className="px-4 py-3 border-t text-center">
                 <button
                   onClick={() => setEmailPage(p => p + 1)}
-                  className="text-sm text-orange-600 hover:text-gray-800"
+                  className="text-sm text-[#E48F00] hover:text-gray-800"
                 >
                   Weitere {Math.min(EMAILS_PER_PAGE, filteredFeedItems.length - emailPage * EMAILS_PER_PAGE)} laden
                 </button>

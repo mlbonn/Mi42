@@ -153,7 +153,7 @@ export default function OutreachCampaigns() {
                   <tr key={campaign.id} className="border-t hover:bg-gray-50">
                     <td className="px-4 py-3">
                       {campaign.status === "active" && (
-                        <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs">
+                        <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">
                           Aktiv
                         </span>
                       )}
@@ -163,7 +163,7 @@ export default function OutreachCampaigns() {
                         </span>
                       )}
                       {campaign.status === "paused" && (
-                        <span className="px-2 py-1 bg-orange-100 text-orange-800 rounded text-xs">
+                        <span className="px-2 py-1 bg-gray-100 text-orange-800 rounded text-xs">
                           Pausiert
                         </span>
                       )}

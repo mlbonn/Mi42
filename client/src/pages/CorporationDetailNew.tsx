@@ -391,15 +391,15 @@ export default function CorporationDetailNew() {
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex justify-between text-sm">
-                <span className="text-green-600">Won: {dealStats.won.count}</span>
+                <span className="text-gray-700">Won: {dealStats.won.count}</span>
                 <span>€{(dealStats.won.value / 1000).toFixed(0)}k</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-red-600">Lost: {dealStats.lost.count}</span>
+                <span className="text-gray-600">Lost: {dealStats.lost.count}</span>
                 <span>€{(dealStats.lost.value / 1000).toFixed(0)}k</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-orange-600">Open: {dealStats.open.count}</span>
+                <span className="text-[#E48F00]">Open: {dealStats.open.count}</span>
                 <span>€{(dealStats.open.value / 1000).toFixed(0)}k</span>
               </div>
             </CardContent>

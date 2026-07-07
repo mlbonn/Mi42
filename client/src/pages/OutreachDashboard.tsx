@@ -21,7 +21,7 @@ export default function OutreachDashboard() {
         </div>
         <div className="bg-white p-4">
           <div className="text-sm text-gray-500">Aktive Kampagnen</div>
-          <div className="text-3xl font-bold text-green-600">{stats?.activeCampaigns || 0}</div>
+          <div className="text-3xl font-bold text-gray-700">{stats?.activeCampaigns || 0}</div>
         </div>
         <div className="bg-white p-4">
           <div className="text-sm text-gray-500">E-Mail Drafts</div>
@@ -29,7 +29,7 @@ export default function OutreachDashboard() {
         </div>
         <div className="bg-white p-4">
           <div className="text-sm text-gray-500">Zur Review</div>
-          <div className="text-3xl font-bold text-orange-600">{stats?.pendingReview || 0}</div>
+          <div className="text-3xl font-bold text-[#E48F00]">{stats?.pendingReview || 0}</div>
         </div>
         <div className="bg-white p-4">
           <div className="text-sm text-gray-500">Versendet</div>
@@ -97,7 +97,7 @@ export default function OutreachDashboard() {
                   <tr key={campaign.id} className="border-t hover:bg-gray-50">
                     <td className="px-4 py-3">
                       {campaign.status === "active" && (
-                        <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs">
+                        <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">
                           Aktiv
                         </span>
                       )}
@@ -107,7 +107,7 @@ export default function OutreachDashboard() {
                         </span>
                       )}
                       {campaign.status === "paused" && (
-                        <span className="px-2 py-1 bg-orange-100 text-orange-800 rounded text-xs">
+                        <span className="px-2 py-1 bg-gray-100 text-orange-800 rounded text-xs">
                           Pausiert
                         </span>
                       )}

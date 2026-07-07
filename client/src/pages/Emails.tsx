@@ -92,7 +92,7 @@ export default function Emails() {
                 }}
                 className={`w-full text-left px-3 py-2 rounded flex items-center gap-2 transition-colors text-sm ${
                   selectedFolder === folder
-                    ? 'bg-gray-100 text-orange-700 font-semibold'
+                    ? 'bg-gray-100 text-[#c87e00] font-semibold'
                     : 'text-gray-700 hover:bg-gray-100'
                 }`}
               >
@@ -120,7 +120,7 @@ export default function Emails() {
                       setSelectedFolder(e.target.value);
                       setSelectedEmail(null);
                     }}
-                    className="lg:hidden px-3 py-2 border border-gray-300 rounded text-sm font-semibold text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="lg:hidden px-3 py-2 border border-gray-300 rounded text-sm font-semibold text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-gray-400"
                   >
                     {(FOLDERS as any).map((folder: any) => (
                       <option key={folder} value={folder}>
@@ -147,7 +147,7 @@ export default function Emails() {
                 <input
                   type="text"
                   placeholder="E-Mails durchsuchen..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
                 />
               </div>
 
@@ -156,7 +156,7 @@ export default function Emails() {
                 {isLoading ? (
                   <div className="p-4 text-center text-gray-500 text-sm">Laden...</div>
                 ) : error ? (
-                  <div className="p-4 text-center text-red-500 text-sm">Fehler beim Laden der E-Mails</div>
+                  <div className="p-4 text-center text-gray-500 text-sm">Fehler beim Laden der E-Mails</div>
                 ) : (emails as any[]).length === 0 ? (
                   <div className="p-8 text-center text-gray-500">
                     <div className="text-3xl mb-2">📧</div>
@@ -193,7 +193,7 @@ export default function Emails() {
           </Panel>
 
           {/* Resize Handle */}
-          <PanelResizeHandle className="w-1 bg-gray-300 hover:bg-orange-500 transition-colors cursor-col-resize" />
+          <PanelResizeHandle className="w-1 bg-gray-300 hover:bg-[#E48F00] transition-colors cursor-col-resize" />
 
           {/* Email Detail Panel */}
           <Panel defaultSize={60} minSize={40}>
@@ -276,7 +276,7 @@ export default function Emails() {
                   setSelectedFolder(e.target.value);
                   setSelectedEmail(null);
                 }}
-                className="px-3 py-2 border border-gray-300 rounded text-sm font-semibold text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="px-3 py-2 border border-gray-300 rounded text-sm font-semibold text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-gray-400"
               >
                 {(FOLDERS as any).map((folder: any) => (
                   <option key={folder} value={folder}>
@@ -301,7 +301,7 @@ export default function Emails() {
             <input
               type="text"
               placeholder="E-Mails durchsuchen..."
-              className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
             />
           </div>
 
@@ -310,7 +310,7 @@ export default function Emails() {
             {isLoading ? (
               <div className="p-4 text-center text-gray-500 text-sm">Laden...</div>
             ) : error ? (
-              <div className="p-4 text-center text-red-500 text-sm">Fehler beim Laden der E-Mails</div>
+              <div className="p-4 text-center text-gray-500 text-sm">Fehler beim Laden der E-Mails</div>
             ) : (emails as any[]).length === 0 ? (
               <div className="p-8 text-center text-gray-500">
                 <div className="text-3xl mb-2">📧</div>

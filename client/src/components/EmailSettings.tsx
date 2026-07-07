@@ -184,8 +184,8 @@ export default function EmailSettings() {
               <CardHeader className="pb-2">
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-lg ${account.isActive ? 'bg-green-100' : 'bg-gray-100'}`}>
-                      <Mail className={`h-5 w-5 ${account.isActive ? 'text-green-600' : 'text-gray-400'}`} />
+                    <div className={`p-2 rounded-lg ${account.isActive ? 'bg-gray-100' : 'bg-gray-100'}`}>
+                      <Mail className={`h-5 w-5 ${account.isActive ? 'text-gray-700' : 'text-gray-400'}`} />
                     </div>
                     <div>
                       <CardTitle className="text-base">{account.name}</CardTitle>
@@ -194,9 +194,9 @@ export default function EmailSettings() {
                   </div>
                   <div className="flex gap-2">
                     <span className={`px-2 py-1 text-xs rounded-full ${
-                      account.purpose === 'archive' ? 'bg-gray-100 text-orange-700' :
-                      account.purpose === 'bounces' ? 'bg-orange-100 text-orange-700' :
-                      account.purpose === 'replies' ? 'bg-purple-100 text-purple-700' :
+                      account.purpose === 'archive' ? 'bg-gray-100 text-[#c87e00]' :
+                      account.purpose === 'bounces' ? 'bg-gray-100 text-[#c87e00]' :
+                      account.purpose === 'replies' ? 'bg-gray-100 text-gray-700' :
                       'bg-gray-100 text-gray-700'
                     }`}>
                       {purposeLabels[account.purpose] || account.purpose}
@@ -229,13 +229,13 @@ export default function EmailSettings() {
                       <Settings2 className="h-4 w-4 mr-1" />
                       Bearbeiten
                     </Button>
-                    <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700" onClick={() => handleDelete(account.id)}>
+                    <Button variant="outline" size="sm" className="text-gray-600 hover:text-gray-600" onClick={() => handleDelete(account.id)}>
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
                 {account.lastError && (
-                  <div className="mt-2 p-2 bg-red-50 rounded text-sm text-red-600 flex items-center gap-2">
+                  <div className="mt-2 p-2 bg-gray-50 rounded text-sm text-gray-600 flex items-center gap-2">
                     <AlertCircle className="h-4 w-4" />
                     {account.lastError}
                   </div>
@@ -396,7 +396,7 @@ export default function EmailSettings() {
                   Verbindung testen
                 </Button>
                 {testResult && (
-                  <span className={`ml-3 text-sm ${testResult.success ? 'text-green-600' : 'text-red-600'}`}>
+                  <span className={`ml-3 text-sm ${testResult.success ? 'text-gray-700' : 'text-gray-600'}`}>
                     {testResult.success ? <CheckCircle2 className="h-4 w-4 inline mr-1" /> : <XCircle className="h-4 w-4 inline mr-1" />}
                     {testResult.message}
                   </span>

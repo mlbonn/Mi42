@@ -170,8 +170,8 @@ export default function Settings() {
         <div
           className={`mb-4 p-4 rounded ${
             message.type === 'success'
-              ? 'bg-green-100 text-green-800'
-              : 'bg-red-100 text-red-800'
+              ? 'bg-gray-100 text-gray-700'
+              : 'bg-gray-100 text-gray-600'
           }`}
         >
           {message.text}
@@ -207,18 +207,18 @@ export default function Settings() {
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       {account.isPrimary && (
-                        <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
+                        <Star className="h-5 w-5 text-gray-500 fill-gray-500" />
                       )}
                       <h3 className="text-lg font-semibold">{account.emailAddress}</h3>
                       {account.isPrimary && (
-                        <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded">
+                        <span className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded">
                           Primary
                         </span>
                       )}
                       <span
                         className={`px-2 py-1 text-xs rounded ${
                           account.isActive
-                            ? 'bg-green-100 text-green-800'
+                            ? 'bg-gray-100 text-gray-700'
                             : 'bg-gray-100 text-gray-800'
                         }`}
                       >
@@ -243,14 +243,14 @@ export default function Settings() {
                     )}
                     <button
                       onClick={() => openEditModal(account)}
-                      className="p-2 text-orange-600 hover:bg-gray-50 rounded transition"
+                      className="p-2 text-[#E48F00] hover:bg-gray-50 rounded transition"
                       title="Bearbeiten"
                     >
                       <Edit className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => handleDelete(account.id)}
-                      className="p-2 text-red-600 hover:bg-red-50 rounded transition"
+                      className="p-2 text-gray-600 hover:bg-gray-50 rounded transition"
                       title="Löschen"
                       disabled={accounts.length === 1}
                     >
@@ -271,7 +271,7 @@ export default function Settings() {
 
       {/* Info Section */}
       <div className="bg-gray-50 rounded-lg p-6">
-        <h3 className="text-lg font-bold text-blue-900 mb-3">ℹ️ Hinweise</h3>
+        <h3 className="text-lg font-bold text-gray-900 mb-3">ℹ️ Hinweise</h3>
         <ul className="text-sm text-gray-800 space-y-2">
           <li>✓ Sie können mehrere SmarterMail-Konten hinzufügen</li>
           <li>✓ Das Primary-Konto wird standardmäßig im Email-Client verwendet</li>
@@ -307,7 +307,7 @@ export default function Settings() {
                   value={formEmail}
                   onChange={(e) => setFormEmail(e.target.value)}
                   placeholder="z.B. ml@bl2020.com"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                 />
               </div>
 
@@ -322,7 +322,7 @@ export default function Settings() {
                   value={formPassword}
                   onChange={(e) => setFormPassword(e.target.value)}
                   placeholder="Passwort eingeben"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                 />
               </div>
 
@@ -336,7 +336,7 @@ export default function Settings() {
                   value={formServerUrl}
                   onChange={(e) => setFormServerUrl(e.target.value)}
                   placeholder="https://mail.bl2020.com"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                 />
               </div>
 
@@ -347,7 +347,7 @@ export default function Settings() {
                   id="isPrimary"
                   checked={formIsPrimary}
                   onChange={(e) => setFormIsPrimary(e.target.checked)}
-                  className="w-4 h-4 text-orange-600 rounded focus:ring-2 focus:ring-orange-500"
+                  className="w-4 h-4 text-[#E48F00] rounded focus:ring-2 focus:ring-gray-400"
                 />
                 <label htmlFor="isPrimary" className="ml-2 text-sm font-medium text-gray-700">
                   Als Primary-Konto setzen
@@ -372,7 +372,7 @@ export default function Settings() {
                 <button
                   onClick={handleSave}
                   disabled={createMutation.isPending || updateMutation.isPending}
-                  className="px-4 py-2 bg-bl2020-orange text-white rounded-lg hover:bg-bl2020-orange-dark disabled:bg-blue-300 transition"
+                  className="px-4 py-2 bg-bl2020-orange text-white rounded-lg hover:bg-bl2020-orange-dark disabled:bg-gray-300 transition"
                 >
                   {createMutation.isPending || updateMutation.isPending
                     ? 'Speichere...'

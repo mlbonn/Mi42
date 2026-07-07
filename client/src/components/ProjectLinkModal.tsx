@@ -43,7 +43,7 @@ export const ProjectLinkModal: React.FC<ProjectLinkModalProps> = ({
               onClick={() => setSelectedProjectId(project.id)}
               className={`w-full text-left p-3 rounded border transition ${
                 selectedProjectId === project.id
-                  ? 'border-orange-600 bg-gray-50'
+                  ? 'border-[#E48F00] bg-gray-50'
                   : 'border-gray-200 hover:border-gray-300'
               }`}
             >
@@ -64,12 +64,12 @@ export const ProjectLinkModal: React.FC<ProjectLinkModalProps> = ({
               </div>
               <div className="flex justify-between">
                 <span>Kosten:</span>
-                <span className={projectStats.budgetUtilization > 100 ? 'text-red-600 font-semibold' : ''}>
+                <span className={projectStats.budgetUtilization > 100 ? 'text-gray-600 font-semibold' : ''}>
                   €{projectStats.budgetSpent} / €{projectStats.budget}
                 </span>
               </div>
               {projectStats.budgetUtilization > 100 && (
-                <div className="text-red-600 font-semibold">
+                <div className="text-gray-600 font-semibold">
                   ⚠️ {projectStats.budgetUtilization.toFixed(0)}% über Budget
                 </div>
               )}

@@ -450,7 +450,7 @@ export default function Emails() {
             {isLoading ? (
               <div className="p-4 text-center text-gray-500">Loading emails...</div>
             ) : error ? (
-              <div className="p-4 text-center text-red-500">Error loading emails</div>
+              <div className="p-4 text-center text-gray-500">Error loading emails</div>
             ) : (allEmails as any).length === 0 ? (
               <div className="p-4 text-center text-gray-500">
                 {searchFilters.query ? 'No emails found' : 'No emails available'}
@@ -612,7 +612,7 @@ export default function Emails() {
                           <button
                             key={idx}
                             onClick={() => handleAttachmentClick(att, idx, selectedEmail)}
-                            className="text-xs bg-gray-100 text-orange-700 px-2 py-1 rounded hover:bg-blue-200 cursor-pointer"
+                            className="text-xs bg-gray-100 text-[#c87e00] px-2 py-1 rounded hover:bg-gray-200 cursor-pointer"
                           >
                             📎 {att.filename || `Anhang ${idx + 1}`}
                           </button>
@@ -638,7 +638,7 @@ export default function Emails() {
                               onClick={() => {
                                 setImagesAllowed(prev => new Set(prev).add(selectedEmail.id));
                               }}
-                              className="text-orange-600 hover:underline"
+                              className="text-[#E48F00] hover:underline"
                             >
                               Show images
                             </button>
@@ -652,7 +652,7 @@ export default function Emails() {
                                   setImagesAllowed(prev => new Set(prev).add(selectedEmail.id));
                                 }
                               }}
-                              className="text-orange-600 hover:underline"
+                              className="text-[#E48F00] hover:underline"
                             >
                               always show images from this sender
                             </button>

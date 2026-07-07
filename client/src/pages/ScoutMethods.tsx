@@ -297,11 +297,11 @@ export default function ScoutMethods() {
                       </div>
                       <div className="flex items-center gap-4">
                         <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="text-green-600">
+                          <Badge variant="outline" className="text-gray-700">
                             <CheckCircle2 className="h-3 w-3 mr-1" />
                             {method.successCount || 0}
                           </Badge>
-                          <Badge variant="outline" className="text-red-600">
+                          <Badge variant="outline" className="text-gray-600">
                             <XCircle className="h-3 w-3 mr-1" />
                             {method.failureCount || 0}
                           </Badge>
@@ -598,7 +598,7 @@ export default function ScoutMethods() {
                                 href={assoc.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-sm text-orange-600 hover:underline"
+                                className="text-sm text-[#E48F00] hover:underline"
                               >
                                 {assoc.url}
                               </a>

@@ -109,9 +109,9 @@ export default function OutreachJobQueue() {
         {[
           { label: "Total Jobs", value: stats.total, color: "", filter: "all" },
           { label: "Pending", value: stats.pending, color: "text-gray-600", filter: "pending" },
-          { label: "Processing", value: stats.processing, color: "text-orange-600", filter: "processing" },
-          { label: "Completed", value: stats.completed, color: "text-green-600", filter: "completed" },
-          { label: "Failed", value: stats.failed, color: "text-red-600", filter: "failed" },
+          { label: "Processing", value: stats.processing, color: "text-[#E48F00]", filter: "processing" },
+          { label: "Completed", value: stats.completed, color: "text-gray-700", filter: "completed" },
+          { label: "Failed", value: stats.failed, color: "text-gray-600", filter: "failed" },
         ].map(({ label, value, color, filter }) => (
           <Card key={filter} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setSelectedStatus(filter)}>
             <CardHeader className="pb-2">
@@ -173,7 +173,7 @@ export default function OutreachJobQueue() {
                           </Button>
                         )}
                         {job.error && (
-                          <span className="ml-2 text-xs text-red-500" title={job.error}>⚠</span>
+                          <span className="ml-2 text-xs text-gray-500" title={job.error}>⚠</span>
                         )}
                       </td>
                     </tr>

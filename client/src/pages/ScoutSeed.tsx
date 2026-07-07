@@ -83,7 +83,7 @@ export default function ScoutSeed() {
             type="button"
             onClick={() => setSeedType("manual")}
             className={`p-4 border ${
-              seedType === "manual" ? "border-orange-600 bg-gray-50" : "border-gray-300"
+              seedType === "manual" ? "border-[#E48F00] bg-gray-50" : "border-gray-300"
             }`}
           >
             <div className="font-bold mb-2">✏️ Manuell</div>
@@ -94,7 +94,7 @@ export default function ScoutSeed() {
             type="button"
             onClick={() => setSeedType("linkedin")}
             className={`p-4 border ${
-              seedType === "linkedin" ? "border-orange-600 bg-gray-50" : "border-gray-300"
+              seedType === "linkedin" ? "border-[#E48F00] bg-gray-50" : "border-gray-300"
             }`}
           >
             <div className="font-bold mb-2">🔗 LinkedIn</div>
@@ -105,7 +105,7 @@ export default function ScoutSeed() {
             type="button"
             onClick={() => setSeedType("press")}
             className={`p-4 border ${
-              seedType === "press" ? "border-orange-600 bg-gray-50" : "border-gray-300"
+              seedType === "press" ? "border-[#E48F00] bg-gray-50" : "border-gray-300"
             }`}
           >
             <div className="font-bold mb-2">📰 Presse</div>
@@ -182,7 +182,7 @@ export default function ScoutSeed() {
         )}
 
         {/* Info Box */}
-        <div className="bg-gray-50 p-6 border-l-4 border-orange-600">
+        <div className="bg-gray-50 p-6 border-l-4 border-[#E48F00]">
           <h3 className="font-bold mb-2">Was passiert nach dem Hinzufügen?</h3>
           <ol className="text-sm text-gray-700 space-y-2 list-decimal list-inside">
             <li>Firma wird zur Scout Queue hinzugefügt (Generation 0 - Seed)</li>

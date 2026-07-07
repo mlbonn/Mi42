@@ -83,9 +83,9 @@ export default function OutreachDrafts() {
 
   const getStatusBadge = (status: string) => {
     const styles = {
-      pending: 'bg-yellow-100 text-yellow-800',
-      approved: 'bg-green-100 text-green-800',
-      rejected: 'bg-red-100 text-red-800',
+      pending: 'bg-gray-100 text-gray-600',
+      approved: 'bg-gray-100 text-gray-700',
+      rejected: 'bg-gray-100 text-gray-600',
       sent: 'bg-gray-100 text-gray-800',
     };
     const icons = {
@@ -183,7 +183,7 @@ export default function OutreachDrafts() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setPreviewDraft(draft)}
-                    className="p-2 text-gray-600 hover:text-orange-600 hover:bg-gray-50 rounded transition-colors"
+                    className="p-2 text-gray-600 hover:text-[#E48F00] hover:bg-gray-50 rounded transition-colors"
                     title="Vorschau"
                   >
                     <Eye className="h-4 w-4" />
@@ -192,21 +192,21 @@ export default function OutreachDrafts() {
                     <>
                       <button
                         onClick={() => setEditingDraft(draft)}
-                        className="p-2 text-gray-600 hover:text-orange-600 hover:bg-gray-50 rounded transition-colors"
+                        className="p-2 text-gray-600 hover:text-[#E48F00] hover:bg-gray-50 rounded transition-colors"
                         title="Bearbeiten"
                       >
                         <Edit className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => handleApprove(draft.id)}
-                        className="p-2 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded transition-colors"
+                        className="p-2 text-gray-600 hover:text-gray-700 hover:bg-gray-50 rounded transition-colors"
                         title="Genehmigen"
                       >
                         <CheckCircle className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => handleReject(draft.id)}
-                        className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                        className="p-2 text-gray-600 hover:text-gray-600 hover:bg-gray-50 rounded transition-colors"
                         title="Ablehnen"
                       >
                         <XCircle className="h-4 w-4" />
@@ -224,7 +224,7 @@ export default function OutreachDrafts() {
                   )}
                   <button
                     onClick={() => handleDelete(draft.id)}
-                    className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                    className="p-2 text-gray-600 hover:text-gray-600 hover:bg-gray-50 rounded transition-colors"
                     title="Löschen"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -268,7 +268,7 @@ export default function OutreachDrafts() {
                   type="text"
                   name="subject"
                   defaultValue={editingDraft.subject || ''}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                 />
               </div>
               <div>
@@ -277,7 +277,7 @@ export default function OutreachDrafts() {
                   name="body"
                   rows={15}
                   defaultValue={editingDraft.body || ''}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent font-mono text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent font-mono text-sm"
                 />
               </div>
               <div className="flex gap-3 pt-4">

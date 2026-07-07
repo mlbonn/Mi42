@@ -133,7 +133,7 @@ export function CreateMeetingModal({ isOpen, onClose, defaultAttendees = [] }: C
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
           <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <Calendar className="w-6 h-6 text-orange-600" />
+            <Calendar className="w-6 h-6 text-[#E48F00]" />
             Create Meeting Invitation
           </h2>
           <button
@@ -155,7 +155,7 @@ export function CreateMeetingModal({ isOpen, onClose, defaultAttendees = [] }: C
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400"
               placeholder="e.g., Project Kickoff Meeting"
               required
             />
@@ -169,7 +169,7 @@ export function CreateMeetingModal({ isOpen, onClose, defaultAttendees = [] }: C
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400"
               rows={3}
               placeholder="Meeting agenda and details..."
             />
@@ -187,14 +187,14 @@ export function CreateMeetingModal({ isOpen, onClose, defaultAttendees = [] }: C
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400"
                   required
                 />
                 <input
                   type="time"
                   value={startTime}
                   onChange={(e) => setStartTime(e.target.value)}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400"
                   required
                 />
               </div>
@@ -210,14 +210,14 @@ export function CreateMeetingModal({ isOpen, onClose, defaultAttendees = [] }: C
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400"
                   required
                 />
                 <input
                   type="time"
                   value={endTime}
                   onChange={(e) => setEndTime(e.target.value)}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400"
                   required
                 />
               </div>
@@ -234,7 +234,7 @@ export function CreateMeetingModal({ isOpen, onClose, defaultAttendees = [] }: C
               type="text"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400"
               placeholder="e.g., Conference Room A or Online"
             />
           </div>
@@ -249,7 +249,7 @@ export function CreateMeetingModal({ isOpen, onClose, defaultAttendees = [] }: C
               type="url"
               value={meetingUrl}
               onChange={(e) => setMeetingUrl(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400"
               placeholder="https://zoom.us/j/123456789"
             />
           </div>
@@ -271,7 +271,7 @@ export function CreateMeetingModal({ isOpen, onClose, defaultAttendees = [] }: C
                     handleAddAttendee();
                   }
                 }}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400"
                 placeholder="Enter email address"
               />
               <button
@@ -293,7 +293,7 @@ export function CreateMeetingModal({ isOpen, onClose, defaultAttendees = [] }: C
                     <button
                       type="button"
                       onClick={() => handleRemoveAttendee(email)}
-                      className="text-orange-600 hover:text-gray-800"
+                      className="text-[#E48F00] hover:text-gray-800"
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -312,7 +312,7 @@ export function CreateMeetingModal({ isOpen, onClose, defaultAttendees = [] }: C
             <select
               value={reminderMinutes}
               onChange={(e) => setReminderMinutes(Number(e.target.value))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400"
             >
               <option value={0}>No reminder</option>
               <option value={15}>15 minutes before</option>
@@ -328,7 +328,7 @@ export function CreateMeetingModal({ isOpen, onClose, defaultAttendees = [] }: C
             <button
               type="button"
               onClick={() => setShowAdvanced(!showAdvanced)}
-              className="text-orange-600 hover:text-gray-800 text-sm font-medium"
+              className="text-[#E48F00] hover:text-gray-800 text-sm font-medium"
             >
               {showAdvanced ? '▼' : '▶'} Advanced Email Options
             </button>
@@ -342,7 +342,7 @@ export function CreateMeetingModal({ isOpen, onClose, defaultAttendees = [] }: C
                     type="text"
                     value={emailSubject}
                     onChange={(e) => setEmailSubject(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400"
                     placeholder="Leave empty for default"
                   />
                 </div>
@@ -353,7 +353,7 @@ export function CreateMeetingModal({ isOpen, onClose, defaultAttendees = [] }: C
                   <textarea
                     value={emailBody}
                     onChange={(e) => setEmailBody(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400"
                     rows={4}
                     placeholder="Leave empty for default template"
                   />

@@ -122,14 +122,14 @@ export default function OutreachReview() {
               <button
                 onClick={() => handleBulkReview("approve")}
                 disabled={bulkReviewMutation.isPending}
-                className="px-4 py-1 bg-green-600 text-white text-sm hover:bg-green-700 disabled:bg-gray-400"
+                className="px-4 py-1 bg-[#E48F00] text-white text-sm hover:bg-[#c87e00] disabled:bg-gray-400"
               >
                 {selectedDrafts.size} Genehmigen
               </button>
               <button
                 onClick={() => handleBulkReview("reject")}
                 disabled={bulkReviewMutation.isPending}
-                className="px-4 py-1 bg-red-600 text-white text-sm hover:bg-red-700 disabled:bg-gray-400"
+                className="px-4 py-1 bg-gray-600 text-white text-sm hover:bg-gray-800 disabled:bg-gray-400"
               >
                 {selectedDrafts.size} Ablehnen
               </button>
@@ -146,7 +146,7 @@ export default function OutreachReview() {
           </div>
         ) : (
           filteredDrafts.map((draft) => (
-            <div key={draft.id} className="bg-white p-6 border-l-4 border-orange-600">
+            <div key={draft.id} className="bg-white p-6 border-l-4 border-[#E48F00]">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-start gap-3 flex-1">
                   <input
@@ -248,14 +248,14 @@ export default function OutreachReview() {
                     <button
                       onClick={() => handleReview(draft.id, "approve")}
                       disabled={reviewMutation.isPending}
-                      className="px-3 py-1 bg-green-600 text-white text-xs hover:bg-green-700 disabled:bg-gray-400"
+                      className="px-3 py-1 bg-[#E48F00] text-white text-xs hover:bg-[#c87e00] disabled:bg-gray-400"
                     >
                       Genehmigen
                     </button>
                     <button
                       onClick={() => handleReview(draft.id, "reject")}
                       disabled={reviewMutation.isPending}
-                      className="px-3 py-1 bg-red-600 text-white text-xs hover:bg-red-700 disabled:bg-gray-400"
+                      className="px-3 py-1 bg-gray-600 text-white text-xs hover:bg-gray-800 disabled:bg-gray-400"
                     >
                       Ablehnen
                     </button>

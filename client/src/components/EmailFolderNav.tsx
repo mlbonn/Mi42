@@ -24,7 +24,7 @@ export default function EmailFolderNav({ activeFolder, onFolderChange }: EmailFo
             onClick={() => onFolderChange(folder.id)}
             className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
               activeFolder === folder.id
-                ? 'bg-gray-50 text-orange-700'
+                ? 'bg-gray-50 text-[#c87e00]'
                 : 'text-gray-700 hover:bg-gray-50'
             }`}
           >

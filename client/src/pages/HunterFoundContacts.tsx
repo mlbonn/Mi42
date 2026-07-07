@@ -41,18 +41,18 @@ export default function HunterFoundContacts() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "approved": return "bg-green-100 text-green-800";
-      case "rejected": return "bg-red-100 text-red-800";
-      case "pending": return "bg-yellow-100 text-yellow-800";
+      case "approved": return "bg-gray-100 text-gray-700";
+      case "rejected": return "bg-gray-100 text-gray-600";
+      case "pending": return "bg-gray-100 text-gray-600";
       default: return "bg-gray-100 text-gray-800";
     }
   };
 
   const getEmailStatusColor = (status: string) => {
     switch (status) {
-      case "valid": return "bg-green-100 text-green-800";
-      case "invalid": return "bg-red-100 text-red-800";
-      case "risky": return "bg-orange-100 text-orange-800";
+      case "valid": return "bg-gray-100 text-gray-700";
+      case "invalid": return "bg-gray-100 text-gray-600";
+      case "risky": return "bg-gray-100 text-orange-800";
       default: return "bg-gray-100 text-gray-800";
     }
   };
@@ -75,15 +75,15 @@ export default function HunterFoundContacts() {
           </Card>
           <Card className="p-4">
             <div className="text-sm text-gray-600">Pending</div>
-            <div className="text-2xl font-bold text-yellow-600">{stats.pending}</div>
+            <div className="text-2xl font-bold text-gray-600">{stats.pending}</div>
           </Card>
           <Card className="p-4">
             <div className="text-sm text-gray-600">Approved</div>
-            <div className="text-2xl font-bold text-green-600">{stats.approved}</div>
+            <div className="text-2xl font-bold text-gray-700">{stats.approved}</div>
           </Card>
           <Card className="p-4">
             <div className="text-sm text-gray-600">Rejected</div>
-            <div className="text-2xl font-bold text-red-600">{stats.rejected}</div>
+            <div className="text-2xl font-bold text-gray-600">{stats.rejected}</div>
           </Card>
         </div>
       )}
@@ -154,7 +154,7 @@ export default function HunterFoundContacts() {
                     {result.email && (
                       <div className="flex items-center gap-2">
                         <Mail className="w-4 h-4 text-gray-400" />
-                        <a href={`mailto:${result.email}`} className="text-orange-600 hover:underline">
+                        <a href={`mailto:${result.email}`} className="text-[#E48F00] hover:underline">
                           {result.email}
                         </a>
                       </div>
@@ -162,7 +162,7 @@ export default function HunterFoundContacts() {
                     {result.phoneNumber && (
                       <div className="flex items-center gap-2">
                         <Phone className="w-4 h-4 text-gray-400" />
-                        <a href={`tel:${result.phoneNumber}`} className="text-orange-600 hover:underline">
+                        <a href={`tel:${result.phoneNumber}`} className="text-[#E48F00] hover:underline">
                           {result.phoneNumber}
                         </a>
                       </div>
@@ -180,7 +180,7 @@ export default function HunterFoundContacts() {
                           href={result.linkedinUrl} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="text-orange-600 hover:underline flex items-center gap-1"
+                          className="text-[#E48F00] hover:underline flex items-center gap-1"
                         >
                           LinkedIn
                           <ExternalLink className="w-3 h-3" />
@@ -214,7 +214,7 @@ export default function HunterFoundContacts() {
                         size="sm"
                         variant="outline"
                         onClick={() => handleApprove(result.id)}
-                        className="text-green-600 border-green-600 hover:bg-green-50"
+                        className="text-gray-700 border-gray-300 hover:bg-gray-50"
                       >
                         <CheckCircle2 className="w-4 h-4 mr-1" />
                         Approve
@@ -223,7 +223,7 @@ export default function HunterFoundContacts() {
                         size="sm"
                         variant="outline"
                         onClick={() => handleReject(result.id)}
-                        className="text-red-600 border-red-600 hover:bg-red-50"
+                        className="text-gray-600 border-gray-300 hover:bg-gray-50"
                       >
                         <XCircle className="w-4 h-4 mr-1" />
                         Reject

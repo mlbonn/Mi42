@@ -99,14 +99,14 @@ export default function HunterReview() {
               <button
                 onClick={() => handleBulkReview("approve")}
                 disabled={bulkReviewMutation.isPending}
-                className="px-4 py-1 bg-green-600 text-white text-sm hover:bg-green-700 disabled:bg-gray-400"
+                className="px-4 py-1 bg-[#E48F00] text-white text-sm hover:bg-[#c87e00] disabled:bg-gray-400"
               >
                 ✓ {selectedResults.size} Genehmigen
               </button>
               <button
                 onClick={() => handleBulkReview("reject")}
                 disabled={bulkReviewMutation.isPending}
-                className="px-4 py-1 bg-red-600 text-white text-sm hover:bg-red-700 disabled:bg-gray-400"
+                className="px-4 py-1 bg-gray-600 text-white text-sm hover:bg-gray-800 disabled:bg-gray-400"
               >
                 ✗ {selectedResults.size} Ablehnen
               </button>
@@ -165,7 +165,7 @@ export default function HunterReview() {
                     </td>
                     <td className="px-4 py-3">
                       {result.email ? (
-                        <a href={`mailto:${result.email}`} className="text-orange-600 hover:underline">
+                        <a href={`mailto:${result.email}`} className="text-[#E48F00] hover:underline">
                           {result.email}
                         </a>
                       ) : (
@@ -179,7 +179,7 @@ export default function HunterReview() {
                           href={result.linkedinUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-orange-600 hover:underline text-xs"
+                          className="text-[#E48F00] hover:underline text-xs"
                         >
                           Profil
                         </a>
@@ -191,7 +191,7 @@ export default function HunterReview() {
                           <div
                             className={`h-full ${
                               (result.confidence || 0) >= 80
-                                ? "bg-green-600"
+                                ? "bg-[#E48F00]"
                                 : (result.confidence || 0) >= 60
                                 ? "bg-bl2020-orange"
                                 : "bg-bl2020-orange"
@@ -204,17 +204,17 @@ export default function HunterReview() {
                     </td>
                     <td className="px-4 py-3">
                       {result.emailStatus === "valid" && (
-                        <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs">
+                        <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">
                           ✓ Verifiziert
                         </span>
                       )}
                       {result.emailStatus === "risky" && (
-                        <span className="px-2 py-1 bg-orange-100 text-orange-800 rounded text-xs">
+                        <span className="px-2 py-1 bg-gray-100 text-orange-800 rounded text-xs">
                           ⚠ Riskant
                         </span>
                       )}
                       {result.emailStatus === "invalid" && (
-                        <span className="px-2 py-1 bg-red-100 text-red-800 rounded text-xs">
+                        <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs">
                           ✗ Ungültig
                         </span>
                       )}
@@ -229,7 +229,7 @@ export default function HunterReview() {
                         <button
                           onClick={() => handleReview(result.id, "approve")}
                           disabled={reviewMutation.isPending}
-                          className="px-2 py-1 bg-green-600 text-white text-xs hover:bg-green-700 disabled:bg-gray-400"
+                          className="px-2 py-1 bg-[#E48F00] text-white text-xs hover:bg-[#c87e00] disabled:bg-gray-400"
                           title="Genehmigen"
                         >
                           ✓
@@ -237,7 +237,7 @@ export default function HunterReview() {
                         <button
                           onClick={() => handleReview(result.id, "reject")}
                           disabled={reviewMutation.isPending}
-                          className="px-2 py-1 bg-red-600 text-white text-xs hover:bg-red-700 disabled:bg-gray-400"
+                          className="px-2 py-1 bg-gray-600 text-white text-xs hover:bg-gray-800 disabled:bg-gray-400"
                           title="Ablehnen"
                         >
                           ✗

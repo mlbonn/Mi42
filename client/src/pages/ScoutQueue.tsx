@@ -186,40 +186,40 @@ export default function ScoutQueue() {
             <CardTitle className="text-2xl">{stats?.total || 0}</CardTitle>
           </CardHeader>
         </Card>
-        <Card className="border-yellow-500/50">
+        <Card className="border-gray-300/50">
           <CardHeader className="pb-2">
             <CardDescription className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-yellow-500" />
+              <Clock className="h-4 w-4 text-gray-500" />
               Wartend
             </CardDescription>
-            <CardTitle className="text-2xl text-yellow-600">{stats?.pending || 0}</CardTitle>
+            <CardTitle className="text-2xl text-gray-600">{stats?.pending || 0}</CardTitle>
           </CardHeader>
         </Card>
-        <Card className="border-orange-500/50">
+        <Card className="border-[#E48F00]/50">
           <CardHeader className="pb-2">
             <CardDescription className="flex items-center gap-2">
-              <Loader2 className="h-4 w-4 text-orange-500 animate-spin" />
+              <Loader2 className="h-4 w-4 text-[#E48F00] animate-spin" />
               In Bearbeitung
             </CardDescription>
-            <CardTitle className="text-2xl text-orange-600">{stats?.processing || 0}</CardTitle>
+            <CardTitle className="text-2xl text-[#E48F00]">{stats?.processing || 0}</CardTitle>
           </CardHeader>
         </Card>
-        <Card className="border-green-500/50">
+        <Card className="border-gray-300/50">
           <CardHeader className="pb-2">
             <CardDescription className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-green-500" />
+              <CheckCircle2 className="h-4 w-4 text-gray-600" />
               Abgeschlossen
             </CardDescription>
-            <CardTitle className="text-2xl text-green-600">{stats?.completed || 0}</CardTitle>
+            <CardTitle className="text-2xl text-gray-700">{stats?.completed || 0}</CardTitle>
           </CardHeader>
         </Card>
-        <Card className="border-red-500/50">
+        <Card className="border-gray-300/50">
           <CardHeader className="pb-2">
             <CardDescription className="flex items-center gap-2">
-              <XCircle className="h-4 w-4 text-red-500" />
+              <XCircle className="h-4 w-4 text-gray-500" />
               Fehlgeschlagen
             </CardDescription>
-            <CardTitle className="text-2xl text-red-600">{stats?.failed || 0}</CardTitle>
+            <CardTitle className="text-2xl text-gray-600">{stats?.failed || 0}</CardTitle>
           </CardHeader>
         </Card>
       </div>
@@ -320,7 +320,7 @@ export default function ScoutQueue() {
               </TableHeader>
               <TableBody>
                 {jobs.map((job) => (
-                  <TableRow key={job.id} className={job.status === "Failed" ? "bg-red-50/50" : ""}>
+                  <TableRow key={job.id} className={job.status === "Failed" ? "bg-gray-50/50" : ""}>
                     <TableCell>
                       <Checkbox
                         checked={selectedJobs.includes(job.id)}
@@ -422,9 +422,9 @@ export default function ScoutQueue() {
 
       {/* Error Details for Failed Jobs */}
       {jobs && jobs.some((job) => job.status === "Failed" && job.errorMessage) && (
-        <Card className="border-red-500/50">
+        <Card className="border-gray-300/50">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-red-600">
+            <CardTitle className="flex items-center gap-2 text-gray-600">
               <XCircle className="h-5 w-5" />
               Fehlermeldungen
             </CardTitle>
@@ -436,12 +436,12 @@ export default function ScoutQueue() {
             {jobs
               .filter((job) => job.status === "Failed" && job.errorMessage)
               .map((job) => (
-                <div key={job.id} className="p-4 bg-red-50 rounded-lg border border-red-200">
+                <div key={job.id} className="p-4 bg-gray-50 rounded-lg border border-gray-300">
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-medium text-sm">{job.seedType} (Gen {job.generation})</span>
                     <span className="text-xs text-muted-foreground">{formatDate(job.completedAt)}</span>
                   </div>
-                  <pre className="text-xs text-red-700 whitespace-pre-wrap font-mono bg-red-100 p-2 rounded">
+                  <pre className="text-xs text-gray-600 whitespace-pre-wrap font-mono bg-gray-100 p-2 rounded">
                     {job.errorMessage}
                   </pre>
                 </div>

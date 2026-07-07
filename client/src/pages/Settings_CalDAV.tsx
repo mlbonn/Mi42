@@ -86,8 +86,8 @@ export default function Settings() {
         <div
           className={`mb-4 p-4 rounded ${
             message.type === 'success'
-              ? 'bg-green-100 text-green-800'
-              : 'bg-red-100 text-red-800'
+              ? 'bg-gray-100 text-gray-700'
+              : 'bg-gray-100 text-gray-600'
           }`}
         >
           {message.text}
@@ -112,7 +112,7 @@ export default function Settings() {
               value={caldavEmail}
               onChange={(e) => setCaldavEmail(e.target.value)}
               placeholder="e.g., testFRIDAY1@bl2020.com"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
             />
             <p className="text-xs text-gray-500 mt-1">
               Your SmarterMail email address (e.g., testFRIDAY1@bl2020.com)
@@ -129,7 +129,7 @@ export default function Settings() {
               value={caldavPassword}
               onChange={(e) => setCaldavPassword(e.target.value)}
               placeholder="Enter your SmarterMail password"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
             />
             <p className="text-xs text-gray-500 mt-1">
               Your SmarterMail password (stored encrypted)
@@ -143,7 +143,7 @@ export default function Settings() {
               id="caldavEnabled"
               checked={caldavEnabled}
               onChange={(e) => setCaldavEnabled(e.target.checked)}
-              className="w-4 h-4 text-orange-600 rounded focus:ring-2 focus:ring-orange-500"
+              className="w-4 h-4 text-[#E48F00] rounded focus:ring-2 focus:ring-gray-400"
             />
             <label htmlFor="caldavEnabled" className="ml-2 text-sm font-medium text-gray-700">
               Enable Calendar & Email Sync
@@ -162,7 +162,7 @@ export default function Settings() {
             <button
               onClick={handleSave}
               disabled={loading}
-              className="px-6 py-2 bg-bl2020-orange text-white rounded-lg hover:bg-bl2020-orange-dark disabled:bg-blue-300 disabled:cursor-not-allowed transition"
+              className="px-6 py-2 bg-bl2020-orange text-white rounded-lg hover:bg-bl2020-orange-dark disabled:bg-gray-300 disabled:cursor-not-allowed transition"
             >
               {loading ? 'Saving...' : 'Save Credentials'}
             </button>
@@ -172,7 +172,7 @@ export default function Settings() {
 
       {/* Info Section */}
       <div className="bg-gray-50 rounded-lg p-6">
-        <h3 className="text-lg font-bold text-blue-900 mb-3">ℹ️ How it works</h3>
+        <h3 className="text-lg font-bold text-gray-900 mb-3">ℹ️ How it works</h3>
         <ul className="text-sm text-gray-800 space-y-2">
           <li>✓ Your credentials are encrypted and stored securely</li>
           <li>✓ Calendar events will sync automatically</li>

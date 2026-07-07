@@ -442,7 +442,7 @@ export default function Calendar() {
                   </div>
 
                   {sendAsMeeting && (
-                    <div className="space-y-4 pl-6 border-l-2 border-blue-200">
+                    <div className="space-y-4 pl-6 border-l-2 border-gray-200">
                       <div>
                         <Label htmlFor="meetingUrl">Meeting URL (optional)</Label>
                         <Input
@@ -487,7 +487,7 @@ export default function Calendar() {
                                 <button
                                   type="button"
                                   onClick={() => handleRemoveAttendee(email)}
-                                  className="hover:text-orange-600"
+                                  className="hover:text-[#E48F00]"
                                 >
                                   <X className="w-3 h-3" />
                                 </button>
@@ -570,8 +570,8 @@ export default function Calendar() {
         />
 
         {/* Setup Instructions - unter dem Kalender */}
-        <div className="bg-gray-50 border border-blue-200 rounded-lg p-4 mt-4">
-          <h3 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mt-4">
+          <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
             <CalendarIcon className="w-4 h-4" />
             📅 Kalender-Synchronisation einrichten
           </h3>
@@ -584,7 +584,7 @@ export default function Calendar() {
               <li>Klicken Sie auf <strong>"Einstellungen speichern"</strong></li>
               <li>Kehren Sie zum Kalender zurück und aktivieren Sie <strong>"Team (Alle)"</strong> im Filter</li>
             </ol>
-            <p className="mt-2 text-orange-700">💡 <em>Ihre Termine werden automatisch synchronisiert und sind für das gesamte Team sichtbar!</em></p>
+            <p className="mt-2 text-[#c87e00]">💡 <em>Ihre Termine werden automatisch synchronisiert und sind für das gesamte Team sichtbar!</em></p>
           </div>
         </div>
       </div>
