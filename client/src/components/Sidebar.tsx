@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter";
 import { trpc } from "../lib/trpc";
 
 import { Bot,
+import GlobalSearch from "./GlobalSearch";
   Home,
   Building2,
   Users,
@@ -204,6 +205,12 @@ export default function Sidebar({ onCollapseChange, isMobileOpen = false, onMobi
           </button>
         </div>
 
+        {/* Global Search */}
+        {!isCollapsed && (
+          <div className="px-3 py-2 border-b border-gray-100">
+            <GlobalSearch />
+          </div>
+        )}
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto p-3">
           <ul className="space-y-1">
