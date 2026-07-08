@@ -27,8 +27,10 @@ import { Bot,
 interface NavItem {
   name: string;
   path: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: React.ComponentType<{ className?: string }> | null;
   children?: NavItem[];
+  separator?: boolean;
+  label?: string;
 }
 
 const navItems: NavItem[] = [
@@ -41,13 +43,13 @@ const navItems: NavItem[] = [
   { name: "Emails", path: "/emails", icon: Mail, children: [] },
   { name: "AI Inbox", path: "/ai-inbox", icon: Bot },
   {
-  {
     name: "__separator_agents__",
     path: "",
     icon: null,
     separator: true,
     label: "Agenten",
   },
+  {
     name: "Scout Agent",
     path: "/scout",
     icon: Search,
