@@ -41,6 +41,13 @@ const navItems: NavItem[] = [
   { name: "Emails", path: "/emails", icon: Mail, children: [] },
   { name: "AI Inbox", path: "/ai-inbox", icon: Bot },
   {
+  {
+    name: "__separator_agents__",
+    path: "",
+    icon: null,
+    separator: true,
+    label: "Agenten",
+  },
     name: "Scout Agent",
     path: "/scout",
     icon: Search,
@@ -217,6 +224,27 @@ export default function Sidebar({ onCollapseChange, isMobileOpen = false, onMobi
               const active = isActive(item.path);
               const hasChildren = item.children && item.children.length > 0;
               const isExpanded = expandedSections.includes(item.name);
+
+              // Separator / section label
+              if (item.separator) {
+                return (
+                  <li key={item.name}>
+                    {!isCollapsed && (
+                      <div className="pt-4 pb-1 px-3">
+                        <div className="border-t border-gray-200 mb-2" />
+                        <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+                          {item.label}
+                        </span>
+                      </div>
+                    )}
+                    {isCollapsed && (
+                      <div className="pt-3 pb-1 px-3">
+                        <div className="border-t border-gray-200" />
+                      </div>
+                    )}
+                  </li>
+                );
+              }
 
               return (
                 <li key={item.name}>
