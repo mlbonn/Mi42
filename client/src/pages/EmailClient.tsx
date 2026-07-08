@@ -137,6 +137,8 @@ export default function Emails() {
   // tRPC Utils für imperative Aufrufe (z.B. Download)
   const trpcUtils = trpc.useUtils();
 
+
+
   // Flatten all emails from pages
   const allEmails = useMemo(() => {
     if (!data?.pages) return [];
@@ -391,6 +393,71 @@ export default function Emails() {
   // Only use fullEmailData (with HTML) when available, don't fall back to allEmails (without HTML)
   const selectedEmail = fullEmailData;
 
+  // Calendar invite state
+  const [calendarInviteStatus, setCalendarInviteStatus] = useState<Record<string, 'idle' | 'adding' | 'added' | 'exists'>>({});
+
+  // Detect ICS attachment in selected email
+  const icsAttachment = useMemo(() => {
+    if (!selectedEmail?.attachments) return null;
+    return (selectedEmail.attachments as any[]).find(
+      (att: any) => att.type === 'ics' || att.filename?.toLowerCase().endsWith('.ics')
+    ) || null;
+  }, [selectedEmail]);
+
+  // Fetch calendar invite data when ICS attachment is detected
+  const { data: calendarInviteData } = (trpc.emailClient.getCalendarInvite as any).useQuery(
+    { attachmentLink: icsAttachment?.link || '' },
+    { enabled: !!icsAttachment?.link }
+  );
+
+  // Add to calendar mutation
+  const addToCalendarMutation = (trpc.calendar.createEvent as any).useMutation({
+    onSuccess: (_data: any, variables: any) => {
+      setCalendarInviteStatus((prev: any) => ({ ...prev, [variables._emailId]: 'added' }));
+    },
+    onError: (error: any, variables: any) => {
+      console.error('[addToCalendar] Error:', error);
+      setCalendarInviteStatus((prev: any) => ({ ...prev, [variables._emailId]: 'idle' }));
+      alert('Failed to add to calendar: ' + error.message);
+    },
+  });
+
+  // Check for existing event by UID in CalDAV
+  const handleAddToCalendar = async (emailId: string) => {
+    if (!calendarInviteData) return;
+    setCalendarInviteStatus((prev: any) => ({ ...prev, [emailId]: 'adding' }));
+    try {
+      // Check for duplicate: fetch events and look for matching UID
+      const now = new Date();
+      const start = new Date(now.getFullYear() - 1, 0, 1).toISOString();
+      const end = new Date(now.getFullYear() + 2, 0, 1).toISOString();
+      const existingEvents = await trpcUtils.calendar.getEvents.fetch({ start, end });
+      const isDuplicate = (existingEvents as any[]).some(
+        (ev: any) => ev.id === (calendarInviteData as any).uid
+      );
+      if (isDuplicate) {
+        setCalendarInviteStatus((prev: any) => ({ ...prev, [emailId]: 'exists' }));
+        return;
+      }
+      // Add to calendar
+      addToCalendarMutation.mutate({
+        _emailId: emailId,
+        calendar: 'team',
+        title: (calendarInviteData as any).summary,
+        start: (calendarInviteData as any).start,
+        end: (calendarInviteData as any).end,
+        description: (calendarInviteData as any).description || '',
+        location: (calendarInviteData as any).location || '',
+        attendees: [],
+      });
+    } catch (err: any) {
+      console.error('[handleAddToCalendar] Error:', err);
+      setCalendarInviteStatus((prev: any) => ({ ...prev, [emailId]: 'idle' }));
+      alert('Failed to add to calendar: ' + err.message);
+    }
+  };
+
+
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
     const today = new Date();
@@ -604,6 +671,54 @@ export default function Emails() {
                       {new Date(selectedEmail.date).toLocaleString('de-DE')}
                     </p>
                   </div>
+                  {/* Calendar Invite Card */}
+                  {icsAttachment && calendarInviteData && (
+                    <div className="mt-3 border border-gray-200 rounded-lg p-3 bg-white">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Calendar Invitation</p>
+                          <p className="font-semibold text-gray-900 text-sm truncate">{calendarInviteData.summary}</p>
+                          <p className="text-xs text-gray-600 mt-1">
+                            {new Date(calendarInviteData.start).toLocaleString('de-DE', { dateStyle: 'medium', timeStyle: 'short' })}
+                            {' – '}
+                            {new Date(calendarInviteData.end).toLocaleTimeString('de-DE', { timeStyle: 'short' })}
+                          </p>
+                          {calendarInviteData.location && (
+                            <p className="text-xs text-gray-500 mt-0.5 truncate">{calendarInviteData.location}</p>
+                          )}
+                          {calendarInviteData.organizer && (
+                            <p className="text-xs text-gray-400 mt-0.5">From: {calendarInviteData.organizer}</p>
+                          )}
+                          {calendarInviteData.teamsLink && (
+                            <a
+                              href={calendarInviteData.teamsLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs text-[#E48F00] hover:underline mt-0.5 block"
+                            >
+                              Join Teams Meeting
+                            </a>
+                          )}
+                        </div>
+                        <div className="flex-shrink-0">
+                          {calendarInviteStatus[selectedEmail.id] === 'added' ? (
+                            <span className="text-xs text-gray-500 px-3 py-1.5 border border-gray-200 rounded">Added</span>
+                          ) : calendarInviteStatus[selectedEmail.id] === 'exists' ? (
+                            <span className="text-xs text-gray-500 px-3 py-1.5 border border-gray-200 rounded">Already in calendar</span>
+                          ) : (
+                            <button
+                              onClick={() => handleAddToCalendar(selectedEmail.id)}
+                              disabled={calendarInviteStatus[selectedEmail.id] === 'adding'}
+                              className="text-xs bg-[#E48F00] text-white px-3 py-1.5 rounded hover:bg-[#c87e00] disabled:opacity-50 transition-colors"
+                            >
+                              {calendarInviteStatus[selectedEmail.id] === 'adding' ? 'Adding...' : 'Add to Calendar'}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {selectedEmail.attachments && (selectedEmail as any).attachments.length > 0 && (
                     <div className="mt-2">
                       <p className="text-gray-600 text-xs font-semibold mb-1">ANHÄNGE ({selectedEmail.attachments.length})</p>

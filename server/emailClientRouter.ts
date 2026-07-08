@@ -1065,4 +1065,77 @@ ${cleanBody.slice(-1000)}`;
         };
       }
     }),
+
+  /**
+   * Parse a calendar invite (.ics) attachment from an email.
+   * Returns structured event data for the frontend invite card.
+   */
+  getCalendarInvite: protectedProcedure
+    .input(z.object({
+      attachmentLink: z.string(), // Full URL to the .ics file
+    }))
+    .query(async ({ input, ctx }) => {
+      try {
+        // Fetch the ICS content
+        const response = await axios.get(input.attachmentLink, {
+          httpsAgent,
+          responseType: 'text',
+          timeout: 10000,
+        });
+        const icsContent: string = response.data;
+
+        // Parse with ical.js
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const ICALModule = require('ical.js');
+        const ICAL = ICALModule.default || ICALModule;
+        const jcalData = ICAL.parse(icsContent);
+        const comp = new ICAL.Component(jcalData);
+        const vevent = comp.getFirstSubcomponent('vevent');
+
+        if (!vevent) {
+          throw new Error('No VEVENT found in ICS');
+        }
+
+        const event = new ICAL.Event(vevent);
+
+        // Extract organizer
+        const organizerProp = vevent.getFirstProperty('organizer');
+        let organizer = '';
+        if (organizerProp) {
+          const cn = organizerProp.getParameter('cn');
+          const value = organizerProp.getFirstValue();
+          organizer = (typeof cn === 'string' ? cn : '') ||
+            (typeof value === 'string' ? value.replace('mailto:', '') : '');
+        }
+
+        // Extract Teams link from LOCATION or DESCRIPTION
+        const location = event.location || '';
+        const description = event.description || '';
+        let teamsLink: string | null = null;
+        const teamsRegex = /https:\/\/teams\.microsoft\.com\/[^\s"<>]+/;
+        const teamsInLoc = location.match(teamsRegex);
+        const teamsInDesc = description.match(teamsRegex);
+        if (teamsInLoc) teamsLink = teamsInLoc[0];
+        else if (teamsInDesc) teamsLink = teamsInDesc[0];
+
+        // Extract UID
+        const uid = event.uid || '';
+
+        return {
+          uid,
+          summary: event.summary || 'Untitled Event',
+          start: event.startDate.toJSDate().toISOString(),
+          end: event.endDate.toJSDate().toISOString(),
+          location,
+          description,
+          organizer,
+          teamsLink,
+          icsContent,
+        };
+      } catch (error: any) {
+        console.error('[getCalendarInvite] Error:', error.message);
+        throw new Error('Failed to parse calendar invite: ' + error.message);
+      }
+    }),
+
 });
