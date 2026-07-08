@@ -207,7 +207,6 @@ export default function Sidebar({ onCollapseChange, isMobileOpen = false, onMobi
         {/* Global Search */}
         {!isCollapsed && (
           <div className="px-3 py-2 border-b border-gray-100">
-            <GlobalSearch />
           </div>
         )}
         {/* Navigation */}
