@@ -99,7 +99,7 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ onCollapseChange, isMobileOpen = false, onMobileClose }: SidebarProps) {
-  const [location, setLocation] = useLocation();
+  const [location] = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
 
@@ -253,17 +253,7 @@ export default function Sidebar({ onCollapseChange, isMobileOpen = false, onMobi
                   {hasChildren ? (
                     <>
                       <button
-                        onClick={() => {
-                          if (item.name === "Emails") {
-                            setLocation(item.path);
-                            handleLinkClick();
-                            if (!expandedSections.includes(item.name)) {
-                              toggleSection(item.name);
-                            }
-                          } else {
-                            toggleSection(item.name);
-                          }
-                        }}
+                        onClick={() => toggleSection(item.name)}
                         className={`
                           w-full flex items-center gap-3 px-3 py-2.5 rounded-lg
                           transition-all duration-200
@@ -282,19 +272,11 @@ export default function Sidebar({ onCollapseChange, isMobileOpen = false, onMobi
                             <span className="flex-1 text-left font-medium text-sm">
                               {item.name}
                             </span>
-                            <span
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toggleSection(item.name);
-                              }}
-                              className="p-1 rounded hover:bg-gray-200 transition-colors"
-                            >
-                              {isExpanded ? (
-                                <ChevronUp className="w-4 h-4" />
-                              ) : (
-                                <ChevronDown className="w-4 h-4" />
-                              )}
-                            </span>
+                            {isExpanded ? (
+                              <ChevronUp className="w-4 h-4" />
+                            ) : (
+                              <ChevronDown className="w-4 h-4" />
+                            )}
                           </>
                         )}
                       </button>
