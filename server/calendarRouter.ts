@@ -14,6 +14,7 @@ import { users } from '../drizzle/schema';
 import { eq } from 'drizzle-orm';
 import * as db from './db';
 import { sendEmailViaSmarterMail } from './smartermailApiService';
+import { sendCalendarInviteViaSmtp } from './caldav';
 // Single color for all users (monochrome Apollo/Notion style)
 const USER_COLOR = '#6b7280'; // gray-500
 /**
@@ -150,21 +151,16 @@ async function sendCalendarInvitations(
 
   for (const attendee of attendees) {
     try {
-      await sendEmailViaSmarterMail(organizerEmail, organizerPassword, {
+      await sendCalendarInviteViaSmtp({
+        organizerEmail,
+        organizerPassword,
         to: attendee,
         subject: `Einladung: ${title}`,
         htmlBody: `<p>Sie wurden zu folgendem Termin eingeladen: <strong>${title}</strong></p><p>Die Termindetails finden Sie im beigefügten Kalender-Anhang.</p>`,
-        messagePlainText: `Sie wurden zu folgendem Termin eingeladen: ${title}. Die Termindetails finden Sie im beigefügten Kalender-Anhang.`,
-        attachments: [
-          {
-            filename: 'invite.ics',
-            contentType: 'text/calendar; method=REQUEST',
-            content: icsBuffer,
-          },
-        ],
+        icalString,
       });
       sent.push(attendee);
-      console.log(`[CALENDAR] Invitation sent to ${attendee}`);
+      console.log(`[CALENDAR] Invitation sent via SMTP to ${attendee}`);
     } catch (err: any) {
       failed.push(attendee);
       console.error(`[CALENDAR] Failed to send invitation to ${attendee}:`, err.message);

@@ -263,3 +263,48 @@ export async function deleteCalendarEvent(
     calendarObject: existingObject,
   });
 }
+
+// ─── SMTP-Kalendereinladung ───────────────────────────────────────────────────
+// Sendet eine Kalendereinladung als multipart/alternative mit eingebettetem
+// text/calendar-Part, sodass Outlook native Annehmen/Ablehnen-Buttons zeigt.
+// Wird NUR für Kalendereinladungen genutzt; alle anderen E-Mails laufen
+// weiterhin über die SmarterMail REST-API.
+
+export interface CalendarInviteOptions {
+  organizerEmail: string;
+  organizerPassword: string;
+  to: string;
+  subject: string;
+  htmlBody: string;
+  icalString: string;
+}
+
+export async function sendCalendarInviteViaSmtp(opts: CalendarInviteOptions): Promise<void> {
+  const nodemailer = await import('nodemailer');
+
+  const transporter = nodemailer.default.createTransport({
+    host: 'mail.bl2020.com',
+    port: 465,
+    secure: true,
+    auth: {
+      user: opts.organizerEmail,
+      pass: opts.organizerPassword,
+    },
+    tls: {
+      rejectUnauthorized: false,
+    },
+  });
+
+  await transporter.sendMail({
+    from: opts.organizerEmail,
+    to: opts.to,
+    subject: opts.subject,
+    html: opts.htmlBody,
+    alternatives: [
+      {
+        contentType: 'text/calendar; method=REQUEST; charset=UTF-8',
+        content: opts.icalString,
+      },
+    ],
+  });
+}
