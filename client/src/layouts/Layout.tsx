@@ -1,5 +1,6 @@
 import { useState, ReactNode } from "react";
 import Sidebar from "../components/Sidebar";
+import GlobalSearch from "../components/GlobalSearch";
 import { Menu } from "lucide-react";
 
 interface LayoutProps {
@@ -35,13 +36,23 @@ export default function Layout({ children }: LayoutProps) {
       {/* Main Content Area - with dynamic left padding based on sidebar state */}
       <main 
         className={`
-          transition-all duration-300 p-8
-          pt-20 lg:pt-8
+          transition-all duration-300
+          pt-20 lg:pt-0
           ${isSidebarCollapsed ? "ml-0 lg:ml-28" : "ml-0 lg:ml-72"}
         `}
       >
-        <div className="max-w-7xl mx-auto">
-          {children}
+        {/* Sticky search header – always visible, independent of sidebar state */}
+        <div className="sticky top-0 z-20 bg-white border-b border-gray-200 px-8 py-3">
+          <div className="max-w-7xl mx-auto">
+            <GlobalSearch />
+          </div>
+        </div>
+
+        {/* Page content */}
+        <div className="p-8">
+          <div className="max-w-7xl mx-auto">
+            {children}
+          </div>
         </div>
       </main>
     </div>

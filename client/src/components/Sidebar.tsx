@@ -23,7 +23,6 @@ import { Bot,
   X,
   Folder,
 } from "lucide-react";
-import GlobalSearch from "./GlobalSearch";
 
 interface NavItem {
   name: string;
